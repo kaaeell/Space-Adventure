@@ -17,6 +17,7 @@ def get_coordinates(name):
             x = float(input("x: "))
             y = float(input("y: "))
             return (x, y)
+
         except ValueError:
             print("invalid input bro")
 
@@ -30,7 +31,8 @@ def choose_planets():
         4: ("Jupiter", (778, 0)),
         5: ("Saturn", (1427, 0)),
         6: ("Uranus", (2871, 0)),
-        7: ("Neptune", (4495, 0))
+        7: ("Neptune", (4495, 0)),
+        8: ("Mercury", (58, 0))
     }
 
     print("\nAvailable planets:")
@@ -38,9 +40,11 @@ def choose_planets():
     for num, (name, _) in planets.items():
         print(f"{num}. {name}")
 
-    # picking planets
+    # planet picking thing
     def pick(msg):
+
         while True:
+
             try:
                 choice = int(input(msg))
 
@@ -48,7 +52,7 @@ def choose_planets():
                     return planets[choice]
 
                 else:
-                    print("pick a real number")
+                    print("pick a valid number")
 
             except ValueError:
                 print("numbers only pls")
@@ -63,7 +67,7 @@ def show_fun_fact():
 
     facts = [
         "Jupiter is so big it could fit all planets inside it 😳",
-        "A day on Venus is longer than a year there",
+        "Venus spins backwards",
         "Saturn could float in water",
         "Mars sunsets are blue",
         "Space is completely silent"
@@ -76,15 +80,15 @@ def show_space_event():
 
     events = [
         "☄️ a comet just passed by",
-        "🛰️ weird satellite signal detected",
+        "🛰️ strange signal detected",
         "🌠 meteor shower nearby",
-        "👽 aliens definitely saw that calculation"
+        "👽 aliens definitely watching"
     ]
 
     print(random.choice(events))
 
 
-# new tiny feature for today
+# added today because it sounded cool
 def random_space_weather():
 
     weather = [
@@ -92,10 +96,39 @@ def random_space_weather():
         "🌌 cosmic radiation levels normal",
         "☄️ asteroid traffic kinda high rn",
         "🛰️ satellite network stable",
-        "🌠 small meteor activity detected"
+        "🌠 meteor activity detected"
     ]
 
     print(f"\nspace weather: {random.choice(weather)}")
+
+
+# NEW
+def gravity_level():
+
+    gravity = [
+        "🪐 gravity levels stable",
+        "⚠️ small gravity fluctuations detected",
+        "🌍 earth gravity feeling normal",
+        "🛰️ low gravity zone nearby"
+    ]
+
+    print(random.choice(gravity))
+
+
+# NEW
+def random_rank(distance):
+
+    if distance > 3000:
+        print("🏆 rank: galaxy traveler")
+
+    elif distance > 1000:
+        print("🏆 rank: space explorer")
+
+    elif distance > 300:
+        print("🏆 rank: orbit runner")
+
+    else:
+        print("🏆 rank: moon walker")
 
 
 def main():
@@ -104,7 +137,7 @@ def main():
         "welcome back space traveler",
         "doing space math again huh",
         "probably accurate enough",
-        "space calculator v6 ready"
+        "space calculator v7 ready"
     ]
 
     print("\n🌌 Space Distance Calculator")
@@ -114,7 +147,7 @@ def main():
 
         mode = input("\n1 planets | 2 custom | 3 history: ").strip()
 
-        # history mode
+        # history stuff
         if mode == "3":
 
             if not history:
@@ -128,7 +161,7 @@ def main():
 
             continue
 
-        # custom coordinates
+        # custom coords mode
         if mode == "2":
 
             p1 = get_coordinates("Point 1")
@@ -144,7 +177,7 @@ def main():
 
         distance = calculate_distance(p1, p2)
 
-        # converting million km into normal km
+        # million km -> km
         distance_km = distance * 1_000_000
 
         result = f"{p1_name} ↔ {p2_name}: {distance:.2f} million km ({distance_km:.0f} km)"
@@ -153,11 +186,11 @@ def main():
 
         history.append(result)
 
-        # saving history into txt file
+        # save history into txt file
         with open("history.txt", "a") as file:
             file.write(result + "\n")
 
-        # light speed because space
+        # light speed thing
         light_speed = 299_792
 
         time_seconds = distance_km / light_speed
@@ -165,14 +198,14 @@ def main():
 
         print(f"⚡ light travel time: {time_seconds:.2f} sec ({time_minutes:.2f} min)")
 
-        # random spaceship speed
-        ship_speed = 50000  # km per hour
+        # fake spaceship speed lol
+        ship_speed = 50000
 
         ship_hours = distance_km / ship_speed
 
         print(f"🚀 spaceship travel time: {ship_hours:.2f} hours")
 
-        # compare to earth trips
+        # compare with earth laps
         earth_trips = distance_km / 40075
 
         print(f"🌍 that's around Earth {earth_trips:.0f} times")
@@ -190,12 +223,21 @@ def main():
         show_fun_fact()
         show_space_event()
         random_space_weather()
+        gravity_level()
+        random_rank(distance)
 
-        # tiny easter egg
+        # NEW tiny random score thing
+        score = random.randint(1, 100)
+        print(f"⭐ exploration score: {score}/100")
+
+        # easter egg
         secret = input("\nsecret code? (press enter to skip): ")
 
         if secret.lower() == "apollo":
             print("🚀 moon mission unlocked")
+
+        elif secret.lower() == "mars":
+            print("🔴 welcome to mars commander")
 
         again = input("\nrun again? (y/n): ").lower()
 
