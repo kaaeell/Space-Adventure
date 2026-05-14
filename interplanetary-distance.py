@@ -8,12 +8,25 @@ history = []
 # total calculations counter
 total_calculations = 0
 
+# highest distance tracker
+highest_distance = 0
+
 # random galaxy names
 galaxy_names = [
     "Milky Way",
     "Andromeda",
     "Sombrero Galaxy",
     "Whirlpool Galaxy"
+]
+
+# astronaut names
+astronauts = [
+    "Neil",
+    "Buzz",
+    "Sally",
+    "Yuri",
+    "Mae",
+    "Chris"
 ]
 
 
@@ -57,7 +70,6 @@ def choose_planets():
     for num, (name, _) in planets.items():
         print(f"{num}. {name}")
 
-    # choosing planets here
     def pick(msg):
 
         while True:
@@ -165,7 +177,6 @@ def random_rank(distance):
         print("🏆 rank: moon walker")
 
 
-# new simple galaxy feature
 def random_galaxy():
 
     galaxy = random.choice(galaxy_names)
@@ -173,9 +184,85 @@ def random_galaxy():
     print(f"🌌 nearby galaxy detected: {galaxy}")
 
 
+def random_astronaut():
+
+    print(f"👨‍🚀 astronaut online: {random.choice(astronauts)}")
+
+
+def distance_category(distance):
+
+    if distance < 100:
+        print("📍 category: super short trip")
+
+    elif distance < 1000:
+        print("📍 category: medium trip")
+
+    elif distance < 3000:
+        print("📍 category: long trip")
+
+    else:
+        print("📍 category: extreme space travel")
+
+
+def random_signal():
+
+    signals = [
+        "📡 strange radio signal detected",
+        "📡 signal strength stable",
+        "📡 communication delay increased",
+        "📡 deep space signal lost briefly"
+    ]
+
+    print(random.choice(signals))
+
+
+def moon_phase():
+
+    phases = [
+        "🌕 full moon tonight",
+        "🌗 half moon detected",
+        "🌑 new moon phase active",
+        "🌙 crescent moon visible"
+    ]
+
+    print(random.choice(phases))
+
+
+def crew_mood():
+
+    moods = [
+        "😄 crew feeling great",
+        "😴 crew tired but working",
+        "🤖 robots handling repairs",
+        "🧑‍🚀 crew excited for mission"
+    ]
+
+    print(random.choice(moods))
+
+
+def temperature_check():
+
+    temp = random.randint(-150, 120)
+
+    print(f"🌡️ nearby temperature: {temp}°C")
+
+
+def danger_level():
+
+    levels = [
+        "🟢 danger level: low",
+        "🟡 danger level: medium",
+        "🟠 danger level: high",
+        "🔴 danger level: critical"
+    ]
+
+    print(random.choice(levels))
+
+
 def main():
 
     global total_calculations
+    global highest_distance
 
     startup_messages = [
         "space calculator v10 ready",
@@ -205,11 +292,12 @@ def main():
 
             continue
 
-        # stats mode
+        # stats
         if mode == "4":
 
             print(f"\n📊 total calculations: {total_calculations}")
             print(f"📜 saved history count: {len(history)}")
+            print(f"🏆 highest distance recorded: {highest_distance:.2f} million km")
 
             continue
 
@@ -235,6 +323,10 @@ def main():
 
         distance = calculate_distance(p1, p2)
 
+        if distance > highest_distance:
+            highest_distance = distance
+            print("🏅 new distance record reached")
+
         distance_km = distance * 1_000_000
 
         result = f"{p1_name} ↔ {p2_name}: {distance:.2f} million km ({distance_km:.0f} km)"
@@ -245,7 +337,7 @@ def main():
 
         total_calculations += 1
 
-        # saving history
+        # save history
         with open("history.txt", "a") as file:
             file.write(result + "\n")
 
@@ -269,7 +361,7 @@ def main():
 
         print(f"🌍 that's around Earth {earth_trips:.0f} times")
 
-        # fuel level
+        # fuel
         fuel = random.randint(20, 100)
 
         print(f"⛽ spaceship fuel: {fuel}%")
@@ -303,12 +395,21 @@ def main():
         random_rank(distance)
         random_galaxy()
 
-        # random exploration score
+        # new features
+        random_astronaut()
+        distance_category(distance)
+        random_signal()
+        moon_phase()
+        crew_mood()
+        temperature_check()
+        danger_level()
+
+        # exploration score
         score = random.randint(1, 100)
 
         print(f"⭐ exploration score: {score}/100")
 
-        # tiny easter eggs
+        # easter eggs
         secret = input("\nsecret code? (press enter to skip): ")
 
         if secret.lower() == "apollo":
