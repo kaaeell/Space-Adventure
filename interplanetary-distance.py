@@ -11,6 +11,9 @@ total_calculations = 0
 # highest distance tracker
 highest_distance = 0
 
+# missions completed
+missions_completed = 0
+
 # random galaxy names
 galaxy_names = [
     "Milky Way",
@@ -27,6 +30,14 @@ astronauts = [
     "Yuri",
     "Mae",
     "Chris"
+]
+
+# spaceship names
+spaceships = [
+    "StarRunner",
+    "NovaX",
+    "Galaxy Rider",
+    "Void Explorer"
 ]
 
 
@@ -189,6 +200,11 @@ def random_astronaut():
     print(f"👨‍🚀 astronaut online: {random.choice(astronauts)}")
 
 
+def random_spaceship():
+
+    print(f"🛸 active spaceship: {random.choice(spaceships)}")
+
+
 def distance_category(distance):
 
     if distance < 100:
@@ -263,6 +279,7 @@ def main():
 
     global total_calculations
     global highest_distance
+    global missions_completed
 
     startup_messages = [
         "space calculator v10 ready",
@@ -298,6 +315,7 @@ def main():
             print(f"\n📊 total calculations: {total_calculations}")
             print(f"📜 saved history count: {len(history)}")
             print(f"🏆 highest distance recorded: {highest_distance:.2f} million km")
+            print(f"🚀 missions completed: {missions_completed}")
 
             continue
 
@@ -311,6 +329,15 @@ def main():
 
         else:
             p1_name, p1, p2_name, p2 = choose_planets()
+
+        # launch sequence
+        print("\nlaunch sequence")
+
+        for i in range(3, 0, -1):
+            print(i)
+            time.sleep(0.5)
+
+        print("🚀 launch")
 
         # loading effect
         print("\ncalculating", end="")
@@ -336,6 +363,7 @@ def main():
         history.append(result)
 
         total_calculations += 1
+        missions_completed += 1
 
         # save history
         with open("history.txt", "a") as file:
@@ -395,8 +423,9 @@ def main():
         random_rank(distance)
         random_galaxy()
 
-        # new features
+        # extra features
         random_astronaut()
+        random_spaceship()
         distance_category(distance)
         random_signal()
         moon_phase()
@@ -427,7 +456,8 @@ def main():
         again = input("\nrun again? (y/n): ").lower()
 
         if again != "y":
-            print("ok bye")
+            print("\nthanks for using space calculator")
+            print("made by commander")
             break
 
 
