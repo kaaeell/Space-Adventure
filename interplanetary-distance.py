@@ -1,6 +1,7 @@
 import math
 import random
 import time
+from datetime import datetime
 
 # storing old calculations here
 history = []
@@ -19,7 +20,9 @@ galaxy_names = [
     "Milky Way",
     "Andromeda",
     "Sombrero Galaxy",
-    "Whirlpool Galaxy"
+    "Whirlpool Galaxy",
+    "Black Eye Galaxy",
+    "Cartwheel Galaxy"
 ]
 
 # astronaut names
@@ -29,7 +32,8 @@ astronauts = [
     "Sally",
     "Yuri",
     "Mae",
-    "Chris"
+    "Chris",
+    "Valentina"
 ]
 
 # spaceship names
@@ -37,7 +41,9 @@ spaceships = [
     "StarRunner",
     "NovaX",
     "Galaxy Rider",
-    "Void Explorer"
+    "Void Explorer",
+    "Cosmic Storm",
+    "Nebula One"
 ]
 
 
@@ -73,7 +79,8 @@ def choose_planets():
         6: ("Uranus", (2871, 0)),
         7: ("Neptune", (4495, 0)),
         8: ("Mercury", (58, 0)),
-        9: ("Pluto", (5906, 0))
+        9: ("Pluto", (5906, 0)),
+        10: ("Moon", (1, 0))
     }
 
     print("\nAvailable planets:")
@@ -110,7 +117,8 @@ def show_fun_fact():
         "Mars sunsets are blue",
         "Saturn could float in water",
         "Jupiter is insanely huge",
-        "Neptune has crazy strong winds"
+        "Neptune has crazy strong winds",
+        "A day on Venus is longer than a year there"
     ]
 
     print(f"\nfun fact: {random.choice(facts)}")
@@ -122,7 +130,8 @@ def show_space_event():
         "☄️ comet detected nearby",
         "🌠 meteor shower active",
         "🛰️ signal received from deep space",
-        "👽 aliens definitely watching"
+        "👽 aliens definitely watching",
+        "🪐 strange rings detected nearby"
     ]
 
     print(random.choice(events))
@@ -134,7 +143,8 @@ def random_space_weather():
         "☀️ solar activity calm today",
         "🌌 radiation levels normal",
         "☄️ asteroid traffic kinda high rn",
-        "🛰️ satellites working fine"
+        "🛰️ satellites working fine",
+        "⚡ solar storm warning active"
     ]
 
     print(f"\nspace weather: {random.choice(weather)}")
@@ -154,7 +164,7 @@ def mission_status():
 
 def detect_black_hole():
 
-    chance = random.randint(1, 10)
+    chance = random.randint(1, 12)
 
     if chance == 1:
         print("🕳️ black hole detected nearby RUN")
@@ -275,6 +285,18 @@ def danger_level():
     print(random.choice(levels))
 
 
+def daily_space_tip():
+
+    tips = [
+        "💡 tip: always double check coordinates",
+        "💡 tip: keep fuel above 30%",
+        "💡 tip: avoid black holes if possible",
+        "💡 tip: deep space signals can be delayed"
+    ]
+
+    print(random.choice(tips))
+
+
 def main():
 
     global total_calculations
@@ -282,7 +304,7 @@ def main():
     global missions_completed
 
     startup_messages = [
-        "space calculator v10 ready",
+        "space calculator v11 ready",
         "doing questionable space math",
         "probably accurate enough",
         "welcome back commander"
@@ -291,9 +313,14 @@ def main():
     print("\n🌌 Space Distance Calculator")
     print(random.choice(startup_messages))
 
+    today = datetime.now()
+
+    print(f"📅 date: {today.strftime('%Y-%m-%d')}")
+    print(f"🕒 time: {today.strftime('%H:%M:%S')}")
+
     while True:
 
-        mode = input("\n1 planets | 2 custom | 3 history | 4 stats: ").strip()
+        mode = input("\n1 planets | 2 custom | 3 history | 4 stats | 5 clear history: ").strip()
 
         # history
         if mode == "3":
@@ -316,6 +343,18 @@ def main():
             print(f"📜 saved history count: {len(history)}")
             print(f"🏆 highest distance recorded: {highest_distance:.2f} million km")
             print(f"🚀 missions completed: {missions_completed}")
+
+            continue
+
+        # clear history
+        if mode == "5":
+
+            history.clear()
+
+            with open("history.txt", "w") as file:
+                file.write("")
+
+            print("🗑️ history cleared")
 
             continue
 
@@ -394,26 +433,7 @@ def main():
 
         print(f"⛽ spaceship fuel: {fuel}%")
 
-        # planet moods
-        planet_moods = [
-            "🪐 Saturn looks chill today",
-            "🔴 Mars seems angry",
-            "🌍 Earth looking peaceful",
-            "🟣 Neptune vibes are weird rn"
-        ]
-
-        print(random.choice(planet_moods))
-
-        # reactions
-        if distance > 3000:
-            print("😱 that's insanely insanely far")
-
-        elif distance > 1000:
-            print("😳 pretty far ngl")
-
-        else:
-            print("🚀 kinda close actually")
-
+        # random outputs
         show_fun_fact()
         show_space_event()
         random_space_weather()
@@ -422,8 +442,6 @@ def main():
         oxygen_level()
         random_rank(distance)
         random_galaxy()
-
-        # extra features
         random_astronaut()
         random_spaceship()
         distance_category(distance)
@@ -432,6 +450,7 @@ def main():
         crew_mood()
         temperature_check()
         danger_level()
+        daily_space_tip()
 
         # exploration score
         score = random.randint(1, 100)
@@ -452,6 +471,9 @@ def main():
 
         elif secret.lower() == "pluto":
             print("❄️ tiny planet mode activated")
+
+        elif secret.lower() == "galaxy":
+            print("🌌 galaxy mode activated")
 
         again = input("\nrun again? (y/n): ").lower()
 
