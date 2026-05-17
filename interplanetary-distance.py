@@ -46,6 +46,20 @@ spaceships = [
     "Nebula One"
 ]
 
+space_pets = [
+    "space dog",
+    "robot cat",
+    "alien hamster",
+    "tiny moon dragon"
+]
+
+badges = [
+    "🌟 rookie pilot badge",
+    "🚀 master explorer badge",
+    "🪐 galaxy navigator badge",
+    "☄️ asteroid survivor badge"
+]
+
 
 def calculate_distance(p1, p2):
 
