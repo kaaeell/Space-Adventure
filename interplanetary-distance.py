@@ -497,5 +497,36 @@ def main():
             break
 
 
+def random_space_pet():
+
+    print(f"🐾 companion detected: {random.choice(space_pets)}")
+
+
+def random_badge():
+
+    print(f"🎖️ badge earned: {random.choice(badges)}")
+
+
+def signal_strength():
+
+    strength = random.randint(40, 100)
+
+    print(f"📶 signal strength: {strength}%")
+
+
+def credits():
+
+    credits_amount = random.randint(100, 5000)
+
+    print(f"💰 space credits earned: {credits_amount}")
+
+
+def asteroid_scan():
+
+    asteroids = random.randint(0, 12)
+
+    print(f"🪨 asteroids nearby: {asteroids}")
+
+
 if __name__ == "__main__":
     main()
