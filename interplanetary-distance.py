@@ -60,6 +60,21 @@ badges = [
     "☄️ asteroid survivor badge"
 ]
 
+alien_names = [
+    "Zorg",
+    "Xenon",
+    "Blip",
+    "Nova",
+    "Kratos"
+]
+
+space_foods = [
+    "freeze dried pizza",
+    "space tacos",
+    "galaxy noodles",
+    "moon burgers"
+]
+
 
 def calculate_distance(p1, p2):
 
@@ -311,192 +326,6 @@ def daily_space_tip():
     print(random.choice(tips))
 
 
-def main():
-
-    global total_calculations
-    global highest_distance
-    global missions_completed
-
-    startup_messages = [
-        "space calculator v11 ready",
-        "doing questionable space math",
-        "probably accurate enough",
-        "welcome back commander"
-    ]
-
-    print("\n🌌 Space Distance Calculator")
-    print(random.choice(startup_messages))
-
-    today = datetime.now()
-
-    print(f"📅 date: {today.strftime('%Y-%m-%d')}")
-    print(f"🕒 time: {today.strftime('%H:%M:%S')}")
-
-    while True:
-
-        mode = input("\n1 planets | 2 custom | 3 history | 4 stats | 5 clear history: ").strip()
-
-        # history
-        if mode == "3":
-
-            if not history:
-                print("no history yet")
-
-            else:
-                print("\nhistory:")
-
-                for item in history:
-                    print(item)
-
-            continue
-
-        # stats
-        if mode == "4":
-
-            print(f"\n📊 total calculations: {total_calculations}")
-            print(f"📜 saved history count: {len(history)}")
-            print(f"🏆 highest distance recorded: {highest_distance:.2f} million km")
-            print(f"🚀 missions completed: {missions_completed}")
-
-            continue
-
-        # clear history
-        if mode == "5":
-
-            history.clear()
-
-            with open("history.txt", "w") as file:
-                file.write("")
-
-            print("🗑️ history cleared")
-
-            continue
-
-        # custom mode
-        if mode == "2":
-
-            p1 = get_coordinates("Point 1")
-            p2 = get_coordinates("Point 2")
-
-            p1_name, p2_name = "Point 1", "Point 2"
-
-        else:
-            p1_name, p1, p2_name, p2 = choose_planets()
-
-        # launch sequence
-        print("\nlaunch sequence")
-
-        for i in range(3, 0, -1):
-            print(i)
-            time.sleep(0.5)
-
-        print("🚀 launch")
-
-        # loading effect
-        print("\ncalculating", end="")
-
-        for i in range(3):
-            time.sleep(0.5)
-            print(".", end="")
-
-        print()
-
-        distance = calculate_distance(p1, p2)
-
-        if distance > highest_distance:
-            highest_distance = distance
-            print("🏅 new distance record reached")
-
-        distance_km = distance * 1_000_000
-
-        result = f"{p1_name} ↔ {p2_name}: {distance:.2f} million km ({distance_km:.0f} km)"
-
-        print(f"\nDistance: {result}")
-
-        history.append(result)
-
-        total_calculations += 1
-        missions_completed += 1
-
-        # save history
-        with open("history.txt", "a") as file:
-            file.write(result + "\n")
-
-        # light speed
-        light_speed = 299_792
-
-        time_seconds = distance_km / light_speed
-        time_minutes = time_seconds / 60
-
-        print(f"⚡ light travel time: {time_seconds:.2f} sec ({time_minutes:.2f} min)")
-
-        # spaceship speed
-        ship_speed = 50000
-
-        ship_hours = distance_km / ship_speed
-
-        print(f"🚀 spaceship travel time: {ship_hours:.2f} hours")
-
-        # earth comparison
-        earth_trips = distance_km / 40075
-
-        print(f"🌍 that's around Earth {earth_trips:.0f} times")
-
-        # fuel
-        fuel = random.randint(20, 100)
-
-        print(f"⛽ spaceship fuel: {fuel}%")
-
-        # random outputs
-        show_fun_fact()
-        show_space_event()
-        random_space_weather()
-        mission_status()
-        detect_black_hole()
-        oxygen_level()
-        random_rank(distance)
-        random_galaxy()
-        random_astronaut()
-        random_spaceship()
-        distance_category(distance)
-        random_signal()
-        moon_phase()
-        crew_mood()
-        temperature_check()
-        danger_level()
-        daily_space_tip()
-
-        # exploration score
-        score = random.randint(1, 100)
-
-        print(f"⭐ exploration score: {score}/100")
-
-        # easter eggs
-        secret = input("\nsecret code? (press enter to skip): ")
-
-        if secret.lower() == "apollo":
-            print("🚀 moon mission unlocked")
-
-        elif secret.lower() == "mars":
-            print("🔴 welcome to mars commander")
-
-        elif secret.lower() == "saturn":
-            print("🪐 ring system access granted")
-
-        elif secret.lower() == "pluto":
-            print("❄️ tiny planet mode activated")
-
-        elif secret.lower() == "galaxy":
-            print("🌌 galaxy mode activated")
-
-        again = input("\nrun again? (y/n): ").lower()
-
-        if again != "y":
-            print("\nthanks for using space calculator")
-            print("made by commander")
-            break
-
-
 def random_space_pet():
 
     print(f"🐾 companion detected: {random.choice(space_pets)}")
@@ -526,6 +355,224 @@ def asteroid_scan():
     asteroids = random.randint(0, 12)
 
     print(f"🪨 asteroids nearby: {asteroids}")
+
+
+def alien_encounter():
+
+    chance = random.randint(1, 5)
+
+    if chance == 1:
+        print(f"👽 alien encounter with {random.choice(alien_names)}")
+
+    else:
+        print("👽 no aliens contacted today")
+
+
+def space_food():
+
+    print(f"🍔 crew meal today: {random.choice(space_foods)}")
+
+
+def engine_status():
+
+    engines = [
+        "🛠️ engines running perfectly",
+        "⚠️ engine heat slightly high",
+        "🚀 boosters ready",
+        "🔧 engine maintenance recommended"
+    ]
+
+    print(random.choice(engines))
+
+
+def warp_drive():
+
+    percent = random.randint(10, 100)
+
+    print(f"💫 warp drive power: {percent}%")
+
+
+def main():
+
+    global total_calculations
+    global highest_distance
+    global missions_completed
+
+    startup_messages = [
+        "space calculator v12 ready",
+        "doing questionable space math",
+        "probably accurate enough",
+        "welcome back commander"
+    ]
+
+    print("\n🌌 Space Distance Calculator")
+    print(random.choice(startup_messages))
+
+    today = datetime.now()
+
+    print(f"📅 date: {today.strftime('%Y-%m-%d')}")
+    print(f"🕒 time: {today.strftime('%H:%M:%S')}")
+
+    while True:
+
+        mode = input("\n1 planets | 2 custom | 3 history | 4 stats | 5 clear history: ").strip()
+
+        if mode == "3":
+
+            if not history:
+                print("no history yet")
+
+            else:
+                print("\nhistory:")
+
+                for item in history:
+                    print(item)
+
+            continue
+
+        if mode == "4":
+
+            print(f"\n📊 total calculations: {total_calculations}")
+            print(f"📜 saved history count: {len(history)}")
+            print(f"🏆 highest distance recorded: {highest_distance:.2f} million km")
+            print(f"🚀 missions completed: {missions_completed}")
+
+            continue
+
+        if mode == "5":
+
+            history.clear()
+
+            with open("history.txt", "w") as file:
+                file.write("")
+
+            print("🗑️ history cleared")
+
+            continue
+
+        if mode == "2":
+
+            p1 = get_coordinates("Point 1")
+            p2 = get_coordinates("Point 2")
+
+            p1_name, p2_name = "Point 1", "Point 2"
+
+        else:
+            p1_name, p1, p2_name, p2 = choose_planets()
+
+        print("\nlaunch sequence")
+
+        for i in range(3, 0, -1):
+            print(i)
+            time.sleep(0.5)
+
+        print("🚀 launch")
+
+        print("\ncalculating", end="")
+
+        for i in range(3):
+            time.sleep(0.5)
+            print(".", end="")
+
+        print()
+
+        distance = calculate_distance(p1, p2)
+
+        if distance > highest_distance:
+            highest_distance = distance
+            print("🏅 new distance record reached")
+
+        distance_km = distance * 1_000_000
+
+        result = f"{p1_name} ↔ {p2_name}: {distance:.2f} million km ({distance_km:.0f} km)"
+
+        print(f"\nDistance: {result}")
+
+        history.append(result)
+
+        total_calculations += 1
+        missions_completed += 1
+
+        with open("history.txt", "a") as file:
+            file.write(result + "\n")
+
+        light_speed = 299_792
+
+        time_seconds = distance_km / light_speed
+        time_minutes = time_seconds / 60
+
+        print(f"⚡ light travel time: {time_seconds:.2f} sec ({time_minutes:.2f} min)")
+
+        ship_speed = 50000
+
+        ship_hours = distance_km / ship_speed
+
+        print(f"🚀 spaceship travel time: {ship_hours:.2f} hours")
+
+        earth_trips = distance_km / 40075
+
+        print(f"🌍 that's around Earth {earth_trips:.0f} times")
+
+        fuel = random.randint(20, 100)
+
+        print(f"⛽ spaceship fuel: {fuel}%")
+
+        show_fun_fact()
+        show_space_event()
+        random_space_weather()
+        mission_status()
+        detect_black_hole()
+        oxygen_level()
+        random_rank(distance)
+        random_galaxy()
+        random_astronaut()
+        random_spaceship()
+        distance_category(distance)
+        random_signal()
+        moon_phase()
+        crew_mood()
+        temperature_check()
+        danger_level()
+        daily_space_tip()
+
+        random_space_pet()
+        random_badge()
+        signal_strength()
+        credits()
+        asteroid_scan()
+
+        alien_encounter()
+        space_food()
+        engine_status()
+        warp_drive()
+
+        score = random.randint(1, 100)
+
+        print(f"⭐ exploration score: {score}/100")
+
+        secret = input("\nsecret code? (press enter to skip): ")
+
+        if secret.lower() == "apollo":
+            print("🚀 moon mission unlocked")
+
+        elif secret.lower() == "mars":
+            print("🔴 welcome to mars commander")
+
+        elif secret.lower() == "saturn":
+            print("🪐 ring system access granted")
+
+        elif secret.lower() == "pluto":
+            print("❄️ tiny planet mode activated")
+
+        elif secret.lower() == "galaxy":
+            print("🌌 galaxy mode activated")
+
+        again = input("\nrun again? (y/n): ").lower()
+
+        if again != "y":
+            print("\nthanks for using space calculator")
+            print("made by commander")
+            break
 
 
 if __name__ == "__main__":
