@@ -75,6 +75,22 @@ space_foods = [
     "moon burgers"
 ]
 
+space_jobs = [
+    "pilot",
+    "engineer",
+    "galaxy scout",
+    "alien translator",
+    "space mechanic"
+]
+
+planet_conditions = [
+    "lava storms detected",
+    "ice surface detected",
+    "heavy gravity detected",
+    "safe landing conditions",
+    "radioactive atmosphere detected"
+]
+
 
 def calculate_distance(p1, p2):
 
@@ -392,6 +408,37 @@ def warp_drive():
     print(f"💫 warp drive power: {percent}%")
 
 
+def random_space_job():
+
+    print(f"🧑‍🚀 current crew role: {random.choice(space_jobs)}")
+
+
+def planet_condition():
+
+    print(f"🪐 planet scan: {random.choice(planet_conditions)}")
+
+
+def shield_status():
+
+    shield = random.randint(20, 100)
+
+    print(f"🛡️ shield power: {shield}%")
+
+
+def laser_power():
+
+    lasers = random.randint(10, 100)
+
+    print(f"🔫 laser system power: {lasers}%")
+
+
+def gravity_level():
+
+    gravity = round(random.uniform(0.2, 5.0), 2)
+
+    print(f"🌍 gravity level: {gravity}G")
+
+
 def main():
 
     global total_calculations
@@ -399,7 +446,7 @@ def main():
     global missions_completed
 
     startup_messages = [
-        "space calculator v12 ready",
+        "space calculator v13 ready",
         "doing questionable space math",
         "probably accurate enough",
         "welcome back commander"
@@ -545,6 +592,12 @@ def main():
         space_food()
         engine_status()
         warp_drive()
+
+        random_space_job()
+        planet_condition()
+        shield_status()
+        laser_power()
+        gravity_level()
 
         score = random.randint(1, 100)
 
