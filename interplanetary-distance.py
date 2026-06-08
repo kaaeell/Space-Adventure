@@ -6,6 +6,7 @@ import os
 
 # the code is getting EVEN BETTER today! ✨
 # added: wormholes, space pirates, crew morale, and more surprises!
+#this is really awesome
 
 history = []
 total_calculations = 0
