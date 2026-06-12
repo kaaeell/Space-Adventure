@@ -223,13 +223,16 @@ def update_stock_prices():
             print(f"\n📢 MARKET NEWS: {news}")
             
             if "discovered" in news or "breakthrough" in news:
-                stock["price"] = int(stock["price"] * 1.3)
-                print(f"   Prices surged!")
+                for s in stock_market.values():
+                    s["price"] = int(s["price"] * 1.3)
+                print(f"   All prices surged!")
             elif "pirates" in news or "shortage" in news:
-                stock["price"] = int(stock["price"] * 1.2)
+                for s in stock_market.values():
+                    s["price"] = int(s["price"] * 1.2)
                 print(f"   Prices increased due to scarcity!")
             elif "subsidies" in news or "overproduction" in news:
-                stock["price"] = int(stock["price"] * 0.85)
+                for s in stock_market.values():
+                    s["price"] = int(s["price"] * 0.85)
                 print(f"   Prices dropped due to oversupply!")
 
 def space_stock_market():
@@ -391,7 +394,7 @@ def train_crew():
     print("1. Basic Training (200 credits) - +30 XP to all crew")
     print("2. Advanced Training (500 credits) - +80 XP to all crew")
     print("3. Elite Training (1000 credits) - +200 XP to all crew")
-    print("4. Specialization Course (800 credits) - Double XP for one crew")
+    print("4. Specialization Course (800 credits) - +100 XP for one crew")
     
     choice = input("\nChoose training (1-4) or 'quit': ")
     
@@ -706,7 +709,7 @@ def load_game():
         print("❌ No save file found!")
         return False
 
-# ============= EXISTING FUNCTIONS (enhanced) =============
+# ============= FLUFF FUNCTIONS =============
 def trigger_random_event():
     global fuel, credits_total, consecutive_missions
     
@@ -738,4 +741,4 @@ def trigger_random_event():
     return 1.0
 
 def update_crew_morale(distance, success=True):
-    global crew_morale, consecutive_missions
+    global crew_morale, consecutive_m
