@@ -5,9 +5,9 @@ from datetime import datetime
 import json
 import os
 
-# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v2.2
+# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v3.0
 # New today: Space anomalies, research system, bounty hunting, CREW SKILL SYSTEM, 
-# SPACE STOCK MARKET, SPACE MINING, and DIPLOMATIC RELATIONS!
+# SPACE STOCK MARKET, SPACE MINING, DIPLOMATIC RELATIONS, PLANETARY COLONIZATION, and BLACK MARKET!
 
 
 history = []
@@ -25,7 +25,36 @@ bounty_hunting_level = 1
 discovered_anomalies = []
 last_pirate_defeated = None
 
-# ============= NEW: DIPLOMATIC RELATIONS =============
+# ============= NEW: PLANETARY COLONIZATION =============
+colonies = []
+available_planets = [
+    {"name": "Mars", "cost": 2000, "income": 100, "hazards": ["dust_storms"], "colonized": False},
+    {"name": "Europa", "cost": 3000, "income": 150, "hazards": ["ice_cracks"], "colonized": False},
+    {"name": "Titan", "cost": 2500, "income": 120, "hazards": ["methane_lakes"], "colonized": False},
+    {"name": "Kepler-22b", "cost": 5000, "income": 300, "hazards": ["alien_wildlife"], "colonized": False},
+    {"name": "Proxima Centauri b", "cost": 8000, "income": 500, "hazards": ["solar_flares"], "colonized": False}
+]
+
+colonization_upgrades = {
+    "Defense System": {"cost": 1000, "owned": False, "bonus": 50},
+    "Research Lab": {"cost": 800, "owned": False, "bonus": 30},
+    "Trade Hub": {"cost": 1500, "owned": False, "bonus": 100},
+    "Mining Facility": {"cost": 1200, "owned": False, "bonus": 75}
+}
+
+# ============= NEW: BLACK MARKET =============
+black_market_items = {
+    "Stolen Research Data": {"price": 300, "risk": 20, "reward": "research", "value": 80},
+    "Illegal Weapons": {"price": 500, "risk": 40, "reward": "combat", "value": 150},
+    "Alien Tech": {"price": 1000, "risk": 60, "reward": "tech", "value": 300},
+    "Black Hole Fragment": {"price": 2000, "risk": 80, "reward": "special", "value": 800},
+    "Forgotten Map": {"price": 400, "risk": 30, "reward": "treasure", "value": 200}
+}
+
+smuggling_heat = 0
+black_market_access = False
+
+# ============= DIPLOMATIC RELATIONS =============
 alien_factions = {
     "Crystal Collective": {"relation": 50, "benefits": [], "trade_discount": 0},
     "Nebula Nomads": {"relation": 50, "benefits": [], "trade_discount": 0},
@@ -36,23 +65,7 @@ alien_factions = {
 diplomacy_actions = {
     "gift": {"cost": 200, "relation_gain": 10, "message": "You sent a diplomatic gift!"},
     "trade_agreement": {"cost": 500, "relation_gain": 20, "message": "Trade routes established!"},
-    "alliance": {"cost": 1000, "relation_gain": 35, "message": "You formed an alliance!"},
-    "insult": {"cost": 0, "relation_change": -15, "message": "You insulted the faction!"}
-}
-
-# ============= NEW: SPACE MINING SYSTEM =============
-mining_resources = {
-    "Iron Ore": {"value": 50, "difficulty": 1, "yield": (10, 30)},
-    "Titanium": {"value": 120, "difficulty": 2, "yield": (5, 20)},
-    "Gold": {"value": 300, "difficulty": 3, "yield": (3, 12)},
-    "Platinum": {"value": 500, "difficulty": 4, "yield": (2, 8)},
-    "Dark Matter Crystal": {"value": 1000, "difficulty": 5, "yield": (1, 4)}
-}
-
-mining_upgrades = {
-    "Laser Drill": {"owned": False, "cost": 500, "bonus": 0.2},
-    "Shield Generator": {"owned": False, "cost": 800, "bonus": 0.3},
-    "Cargo Expander": {"owned": False, "cost": 400, "bonus": 0.5}
+    "alliance": {"cost": 1000, "relation_gain": 35, "message": "You formed an alliance!"}
 }
 
 # ============= CREW SKILL SYSTEM =============
@@ -79,9 +92,25 @@ market_news = [
     "📰 Space pirates attacking convoys!",
     "📰 Research breakthrough announced!",
     "📰 Government subsidies approved!",
-    "📰 Supply shortage reported!",
-    "📰 Overproduction causing price drop!"
+    "📰 Supply shortage reported!"
 ]
+
+# ============= SPACE MINING SYSTEM =============
+mining_resources = {
+    "Iron Ore": {"value": 50, "difficulty": 1, "yield": (10, 30)},
+    "Titanium": {"value": 120, "difficulty": 2, "yield": (5, 20)},
+    "Gold": {"value": 300, "difficulty": 3, "yield": (3, 12)},
+    "Platinum": {"value": 500, "difficulty": 4, "yield": (2, 8)},
+    "Dark Matter Crystal": {"value": 1000, "difficulty": 5, "yield": (1, 4)}
+}
+
+mining_upgrades = {
+    "Laser Drill": {"owned": False, "cost": 500, "bonus": 0.2},
+    "Shield Generator": {"owned": False, "cost": 800, "bonus": 0.3},
+    "Cargo Expander": {"owned": False, "cost": 400, "bonus": 0.5}
+}
+
+total_mined = 0
 
 # ============= DATA SETS =============
 galaxy_names = ["Milky Way","Andromeda","Sombrero Galaxy","Whirlpool Galaxy","Black Eye Galaxy","Cartwheel Galaxy","Triangulum Galaxy","Pinwheel Galaxy"]
@@ -180,7 +209,9 @@ achievement_list = {
     "crew_trainer": "🎓 Crew Trainer - Get a crew member to level 5",
     "stock_master": "📈 Stock Master - Make 5000 profit from stock market",
     "mining_baron": "⛏️ Mining Baron - Mine 50 total resources",
-    "diplomat": "🤝 Diplomat - Reach 90+ relation with any faction"
+    "diplomat": "🤝 Diplomat - Reach 90+ relation with any faction",
+    "colonizer": "🏠 Colonizer - Establish your first colony",
+    "smuggler": "🕶️ Smuggler - Successfully use the black market 5 times"
 }
 
 nebulae = {
@@ -213,16 +244,254 @@ random_events = [
     {"name": "☄️ COMET FLYBY", "effect": "comet", "message": "A comet is passing by!", "comet": True}
 ]
 
-# ============= NEW: SPACE MINING SYSTEM =============
-total_mined = 0
+# ============= NEW: PLANETARY COLONIZATION =============
+def colonization_system():
+    global credits_total, research_points
+    
+    print("\n🏠 PLANETARY COLONIZATION SYSTEM 🏠")
+    print("=" * 50)
+    
+    print("\nYour Colonies:")
+    if colonies:
+        for colony in colonies:
+            print(f"  🪐 {colony['name']} - Income: {colony['income']}/turn | Population: {colony['population']}")
+    else:
+        print("  No colonies yet!")
+    
+    print("\nAvailable Planets for Colonization:")
+    for i, planet in enumerate(available_planets, 1):
+        if not planet["colonized"]:
+            print(f"{i}. {planet['name']} - Cost: {planet['cost']} credits | Base Income: {planet['income']}/mission")
+            print(f"   Hazards: {', '.join(planet['hazards'])}")
+    
+    print("\n" + "-" * 50)
+    print("1. Establish New Colony")
+    print("2. Upgrade Colonies")
+    print("3. Collect Colony Income")
+    print("4. View Colony Details")
+    print("5. Back to Main Menu")
+    
+    choice = input("\nChoose option: ")
+    
+    if choice == "1":
+        establish_colony()
+    elif choice == "2":
+        upgrade_colonies()
+    elif choice == "3":
+        collect_colony_income()
+    elif choice == "4":
+        view_colony_details()
 
+def establish_colony():
+    global credits_total, research_points
+    
+    print("\n🌍 ESTABLISH NEW COLONY")
+    for i, planet in enumerate(available_planets, 1):
+        if not planet["colonized"]:
+            print(f"{i}. {planet['name']} - {planet['cost']} credits")
+    
+    choice = input("Select planet (number) or 'quit': ")
+    if choice.isdigit() and 1 <= int(choice) <= len(available_planets):
+        planet = available_planets[int(choice)-1]
+        if not planet["colonized"]:
+            if credits_total >= planet["cost"]:
+                credits_total -= planet["cost"]
+                planet["colonized"] = True
+                
+                # Apply diplomacy bonus for colonization cost
+                discount = 1.0
+                for faction in alien_factions.values():
+                    if "trade_discount" in faction["benefits"]:
+                        discount *= 0.95
+                
+                colony = {
+                    "name": planet["name"],
+                    "income": planet["income"],
+                    "population": 100,
+                    "hazards": planet["hazards"],
+                    "upgrades": []
+                }
+                colonies.append(colony)
+                print(f"✅ Colony established on {planet['name']}!")
+                print(f"🏠 Population: 100 | Income: {planet['income']} credits per collection")
+                check_achievement("colonizer")
+                gain_crew_xp(50)
+            else:
+                print(f"❌ Need {planet['cost']} credits!")
+
+def upgrade_colonies():
+    global credits_total
+    
+    if not colonies:
+        print("No colonies to upgrade!")
+        return
+    
+    print("\n🔧 COLONY UPGRADES")
+    print(f"💰 Credits: {credits_total}")
+    print("\nAvailable Upgrades:")
+    
+    upgrades_list = list(colonization_upgrades.items())
+    for i, (name, data) in enumerate(upgrades_list, 1):
+        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']} credits"
+        print(f"{i}. {name} - {status} (+{data['bonus']} income)")
+    
+    choice = input("\nSelect upgrade (number) or 'quit': ")
+    if choice.isdigit() and 1 <= int(choice) <= len(upgrades_list):
+        upgrade_name, upgrade_data = upgrades_list[int(choice)-1]
+        if not upgrade_data["owned"]:
+            if credits_total >= upgrade_data["cost"]:
+                credits_total -= upgrade_data["cost"]
+                upgrade_data["owned"] = True
+                
+                # Apply upgrade to all colonies
+                for colony in colonies:
+                    colony["income"] += upgrade_data["bonus"]
+                    if upgrade_name not in colony["upgrades"]:
+                        colony["upgrades"].append(upgrade_name)
+                
+                print(f"✅ Purchased {upgrade_name} for all colonies!")
+                print(f"📈 Colony income increased by {upgrade_data['bonus']}!")
+            else:
+                print(f"❌ Need {upgrade_data['cost']} credits!")
+
+def collect_colony_income():
+    global credits_total
+    
+    if not colonies:
+        print("No colonies to collect income from!")
+        return
+    
+    total_income = 0
+    for colony in colonies:
+        # Random events affect colony income
+        hazard_multiplier = 1.0
+        if random.random() < 0.3:
+            hazard = random.choice(colony["hazards"])
+            if hazard == "dust_storms":
+                hazard_multiplier = 0.7
+                print(f"⚠️ Dust storms on {colony['name']} reduced income!")
+            elif hazard == "ice_cracks":
+                hazard_multiplier = 0.8
+                print(f"⚠️ Ice cracks on {colony['name']} caused issues!")
+            elif hazard == "methane_lakes":
+                hazard_multiplier = 0.75
+                print(f"⚠️ Methane lakes on {colony['name']} caused problems!")
+            elif hazard == "alien_wildlife":
+                hazard_multiplier = 0.6
+                print(f"⚠️ Alien wildlife attacked {colony['name']}!")
+            elif hazard == "solar_flares":
+                hazard_multiplier = 0.65
+                print(f"⚠️ Solar flares disrupted {colony['name']}!")
+        
+        income = int(colony["income"] * hazard_multiplier)
+        total_income += income
+        print(f"🪐 {colony['name']}: +{income} credits")
+        
+        # Population growth
+        colony["population"] += random.randint(5, 20)
+    
+    credits_total += total_income
+    print(f"\n💰 Total Colony Income: {total_income} credits")
+    gain_crew_xp(20)
+
+def view_colony_details():
+    if not colonies:
+        print("No colonies yet!")
+        return
+    
+    print("\n📊 COLONY DETAILS")
+    print("=" * 40)
+    for colony in colonies:
+        print(f"\n🪐 {colony['name']}")
+        print(f"   Population: {colony['population']}")
+        print(f"   Income: {colony['income']} credits/turn")
+        print(f"   Upgrades: {', '.join(colony['upgrades']) if colony['upgrades'] else 'None'}")
+        print(f"   Hazards: {', '.join(colony['hazards'])}")
+
+# ============= NEW: BLACK MARKET =============
+def black_market():
+    global credits_total, smuggling_heat, black_market_access, research_points
+    
+    # Unlock black market after 10 missions
+    if missions_completed >= 10:
+        black_market_access = True
+    
+    if not black_market_access:
+        print("\n🔒 Black Market is locked! Complete 10 missions to unlock.")
+        return
+    
+    print("\n🕶️ BLACK MARKET 🕶️")
+    print(f"⚠️ Smuggling Heat: {smuggling_heat}/100")
+    print(f"💰 Your Credits: {credits_total}")
+    print("\nAvailable Items:")
+    
+    items_list = list(black_market_items.items())
+    for i, (item, data) in enumerate(items_list, 1):
+        print(f"{i}. {item} - {data['price']} credits")
+        print(f"   Risk: {data['risk']}% | Reward: {data['reward']}")
+    
+    print("\n5. Reduce Heat (500 credits)")
+    print("6. Back")
+    
+    choice = input("\nChoose option: ")
+    
+    if choice == "5":
+        if credits_total >= 500:
+            credits_total -= 500
+            smuggling_heat = max(0, smuggling_heat - 30)
+            print("✅ Heat reduced!")
+        else:
+            print("❌ Not enough credits!")
+    
+    elif choice.isdigit() and 1 <= int(choice) <= len(items_list):
+        item_name, item_data = items_list[int(choice)-1]
+        
+        if credits_total >= item_data["price"]:
+            # Risk check
+            if random.random() < (item_data["risk"] / 100) + (smuggling_heat / 200):
+                print("\n🚨 CAUGHT BY AUTHORITIES! 🚨")
+                penalty = item_data["price"] * 2
+                credits_total = max(0, credits_total - penalty)
+                smuggling_heat += 40
+                print(f"💸 Fined {penalty} credits!")
+                print(f"🔥 Smuggling heat increased to {smuggling_heat}")
+            else:
+                credits_total -= item_data["price"]
+                smuggling_heat += item_data["risk"] // 5
+                print(f"✅ Successfully acquired {item_name}!")
+                
+                if item_data["reward"] == "research":
+                    research_points += item_data["value"]
+                    print(f"🧠 +{item_data['value']} Research Points!")
+                elif item_data["reward"] == "combat":
+                    inventory.append("illegal_weapon_upgrade")
+                    print(f"⚔️ Combat upgrade added to inventory!")
+                elif item_data["reward"] == "tech":
+                    inventory.append("alien_technology")
+                    print(f"🔧 Alien Technology added to inventory!")
+                elif item_data["reward"] == "special":
+                    credits_total += item_data["value"] * 2
+                    print(f"💰 Sold fragment for {item_data['value'] * 2} credits!")
+                elif item_data["reward"] == "treasure":
+                    treasure = random.randint(300, 800)
+                    credits_total += treasure
+                    print(f"💰 Found treasure worth {treasure} credits!")
+                
+                gain_crew_xp(15)
+                
+                # Check for smuggler achievement
+                if len([i for i in inventory if "illegal" in i or "alien" in i]) >= 5:
+                    check_achievement("smuggler")
+        else:
+            print("❌ Not enough credits!")
+
+# ============= SPACE MINING =============
 def space_mining():
     global credits_total, fuel, total_mined
     
     print("\n⛏️ SPACE MINING OPERATION ⛏️")
     print("=" * 40)
     
-    # Check for mining upgrades
     mining_bonus = 1.0
     cargo_bonus = 1.0
     for upgrade, data in mining_upgrades.items():
@@ -248,7 +517,6 @@ def space_mining():
         print(f"\n⛏️ Mining {resource_name}...")
         time.sleep(1)
         
-        # Difficulty check with crew bonus
         engineer_bonus = 1
         for member in crew_members:
             if member['bonus'] == 'fuel_saving':
@@ -268,19 +536,15 @@ def space_mining():
             print(f"✅ Success! Mined {yield_amount} {resource_name}")
             print(f"💰 Sold for {value} credits!")
             
-            # Check for achievement
             if total_mined >= 50:
                 check_achievement("mining_baron")
             
-            # Crew gains XP from mining
             gain_crew_xp(10)
-            
-            # Fuel cost for mining
             fuel_cost = resource_data['difficulty'] * 20
             fuel = max(0, fuel - fuel_cost)
             print(f"⛽ Mining consumed {fuel_cost} fuel")
         else:
-            print(f"❌ Mining failed! The asteroid was too difficult!")
+            print(f"❌ Mining failed!")
             damage = random.randint(20, 80)
             fuel = max(0, fuel - damage)
             print(f"💥 Lost {damage} fuel escaping!")
@@ -310,9 +574,9 @@ def buy_mining_upgrade():
         else:
             print("❌ Already owned!")
 
-# ============= NEW: DIPLOMATIC RELATIONS =============
+# ============= DIPLOMATIC RELATIONS =============
 def diplomacy_system():
-    global credits_total
+    global credits_total, research_points
     
     print("\n🤝 DIPLOMATIC RELATIONS 🤝")
     print("=" * 50)
@@ -429,279 +693,4 @@ def request_aid(faction_name, faction_data):
     elif relation >= 50:
         amount = random.randint(100, 300)
         fuel += amount
-        print(f"🛢️ {faction_name} provided {amount} fuel!")
-    elif relation >= 30:
-        amount = random.randint(50, 150)
-        credits_total += amount
-        print(f"💰 {faction_name} gave {amount} credits!")
-    else:
-        print(f"😠 {faction_name} refuses to help! (Relation too low)")
-
-def check_relation_benefits(faction_name, faction_data):
-    global credits_total
-    
-    relation = faction_data["relation"]
-    
-    if relation >= 90 and "max_benefit" not in faction_data["benefits"]:
-        bonus = random.randint(500, 1500)
-        credits_total += bonus
-        faction_data["benefits"].append("max_benefit")
-        print(f"🎉 {faction_name} granted you {bonus} credits as a trusted ally!")
-    elif relation >= 70 and "mid_benefit" not in faction_data["benefits"]:
-        research_points += 50
-        faction_data["benefits"].append("mid_benefit")
-        print(f"📚 {faction_name} shared research data! +50 RP!")
-
-# ============= SPACE STOCK MARKET =============
-def update_stock_prices():
-    for stock in stock_market.values():
-        change = random.uniform(-stock["volatility"], stock["volatility"])
-        stock["price"] = max(10, int(stock["price"] * (1 + change)))
-        
-        if random.random() < 0.2:
-            news = random.choice(market_news)
-            print(f"\n📢 MARKET NEWS: {news}")
-            
-            if "discovered" in news or "breakthrough" in news:
-                for s in stock_market.values():
-                    s["price"] = int(s["price"] * 1.3)
-                print(f"   All prices surged!")
-            elif "pirates" in news or "shortage" in news:
-                for s in stock_market.values():
-                    s["price"] = int(s["price"] * 1.2)
-                print(f"   Prices increased due to scarcity!")
-            elif "subsidies" in news or "overproduction" in news:
-                for s in stock_market.values():
-                    s["price"] = int(s["price"] * 0.85)
-                print(f"   Prices dropped due to oversupply!")
-
-def space_stock_market():
-    global credits_total
-    
-    print("\n📈 SPACE STOCK MARKET 📈")
-    print(f"💰 Your Credits: {credits_total}")
-    print("\nCurrent Stock Prices:")
-    print("-" * 50)
-    
-    stocks_list = list(stock_market.items())
-    for i, (name, data) in enumerate(stocks_list, 1):
-        print(f"{i}. {name}: {data['price']} credits")
-        if data['owned'] > 0:
-            print(f"   Owned: {data['owned']} shares | Value: {data['owned'] * data['price']} credits")
-    
-    print("\n" + "-" * 50)
-    print("1. Buy shares")
-    print("2. Sell shares")
-    print("3. Update market prices")
-    print("4. View portfolio")
-    print("5. Back to main menu")
-    
-    choice = input("\nChoose option: ")
-    
-    if choice == "1":
-        buy_stocks()
-    elif choice == "2":
-        sell_stocks()
-    elif choice == "3":
-        update_stock_prices()
-        print("✅ Market prices updated!")
-    elif choice == "4":
-        show_portfolio()
-    elif choice == "5":
-        return
-
-def buy_stocks():
-    global credits_total
-    
-    print("\n💰 BUY SHARES")
-    stocks_list = list(stock_market.items())
-    for i, (name, data) in enumerate(stocks_list, 1):
-        print(f"{i}. {name} - {data['price']} credits/share")
-    
-    choice = input("Select stock (number): ")
-    if choice.isdigit() and 1 <= int(choice) <= len(stocks_list):
-        stock_name, stock_data = stocks_list[int(choice)-1]
-        shares = int(input(f"How many shares of {stock_name}? "))
-        cost = shares * stock_data["price"]
-        
-        if credits_total >= cost:
-            credits_total -= cost
-            stock_data["owned"] += shares
-            print(f"✅ Bought {shares} shares of {stock_name} for {cost} credits!")
-            
-            for member in crew_members:
-                if member['bonus'] == 'rp_bonus' and random.random() < 0.3:
-                    bonus = random.randint(10, 50)
-                    research_points += bonus
-                    print(f"🔬 Scientist found trading insights! +{bonus} RP")
-        else:
-            print(f"❌ Need {cost} credits, only have {credits_total}!")
-
-def sell_stocks():
-    global credits_total
-    
-    print("\n💰 SELL SHARES")
-    stocks_list = list(stock_market.items())
-    has_shares = False
-    
-    for i, (name, data) in enumerate(stocks_list, 1):
-        if data['owned'] > 0:
-            has_shares = True
-            print(f"{i}. {name} - Owned: {data['owned']} | Current price: {data['price']}")
-    
-    if not has_shares:
-        print("You don't own any shares!")
-        return
-    
-    choice = input("Select stock to sell (number): ")
-    if choice.isdigit() and 1 <= int(choice) <= len(stocks_list):
-        stock_name, stock_data = stocks_list[int(choice)-1]
-        if stock_data['owned'] > 0:
-            shares = int(input(f"How many shares to sell? (Max: {stock_data['owned']}) "))
-            if shares <= stock_data['owned']:
-                revenue = shares * stock_data['price']
-                credits_total += revenue
-                stock_data['owned'] -= shares
-                print(f"✅ Sold {shares} shares for {revenue} credits!")
-                
-                if revenue - (shares * 100) > 5000:
-                    check_achievement("stock_master")
-            else:
-                print("Not enough shares!")
-        else:
-            print("You don't own that stock!")
-
-def show_portfolio():
-    print("\n📊 YOUR PORTFOLIO")
-    total_value = 0
-    for name, data in stock_market.items():
-        if data['owned'] > 0:
-            value = data['owned'] * data['price']
-            total_value += value
-            print(f"{name}: {data['owned']} shares = {value} credits")
-    
-    print(f"\n💰 Total Portfolio Value: {total_value} credits")
-    print(f"💵 Cash: {credits_total} credits")
-    print(f"📈 Net Worth: {credits_total + total_value} credits")
-
-# ============= CREW SKILL SYSTEM =============
-def show_crew_skills():
-    print("\n👥 CREW SKILL SYSTEM 👥")
-    print("=" * 40)
-    for i, member in enumerate(crew_members, 1):
-        print(f"{i}. {member['name']} - {member['skill']}")
-        print(f"   Level: {member['level']} | XP: {member['xp']}/{(member['level'] * 100)}")
-        print(f"   Bonus: {member['bonus']}")
-        print()
-    
-    print("\n💡 Crew members gain XP from missions!")
-    print("   Higher levels = better bonuses!")
-
-def gain_crew_xp(xp_amount):
-    global credits_total, research_points
-    
-    for member in crew_members:
-        member['xp'] += xp_amount
-        if member['xp'] >= member['level'] * 100:
-            member['xp'] = 0
-            member['level'] += 1
-            print(f"\n🎉 {member['name']} leveled up to level {member['level']}! 🎉")
-            
-            bonus = random.randint(100, 300)
-            credits_total += bonus
-            print(f"💰 Crew celebration! +{bonus} credits!")
-            
-            if member['level'] >= 5:
-                check_achievement("crew_trainer")
-
-def train_crew():
-    global credits_total
-    
-    print("\n📚 CREW TRAINING ACADEMY 📚")
-    print(f"💰 Credits: {credits_total}")
-    print("\nTraining options:")
-    print("1. Basic Training (200 credits) - +30 XP to all crew")
-    print("2. Advanced Training (500 credits) - +80 XP to all crew")
-    print("3. Elite Training (1000 credits) - +200 XP to all crew")
-    print("4. Specialization Course (800 credits) - +100 XP for one crew")
-    
-    choice = input("\nChoose training (1-4) or 'quit': ")
-    
-    if choice == "1" and credits_total >= 200:
-        credits_total -= 200
-        gain_crew_xp(30)
-        print("✅ Basic training complete!")
-    elif choice == "2" and credits_total >= 500:
-        credits_total -= 500
-        gain_crew_xp(80)
-        print("✅ Advanced training complete!")
-    elif choice == "3" and credits_total >= 1000:
-        credits_total -= 1000
-        gain_crew_xp(200)
-        print("✅ Elite training complete!")
-    elif choice == "4" and credits_total >= 800:
-        credits_total -= 800
-        print("\nChoose crew member:")
-        for i, member in enumerate(crew_members, 1):
-            print(f"{i}. {member['name']}")
-        sub_choice = input("Select member: ")
-        if sub_choice.isdigit() and 1 <= int(sub_choice) <= len(crew_members):
-            member = crew_members[int(sub_choice)-1]
-            member['xp'] += 100
-            print(f"✅ {member['name']} gained 100 XP!")
-            if member['xp'] >= member['level'] * 100:
-                member['xp'] = 0
-                member['level'] += 1
-                print(f"🎉 {member['name']} leveled up!")
-    else:
-        print("❌ Not enough credits or invalid choice!")
-
-def calculate_distance(p1, p2):
-    return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
-
-def get_coordinates(name):
-    while True:
-        try:
-            print(f"\nEnter coordinates for {name} (in million km)")
-            x = float(input("x: "))
-            y = float(input("y: "))
-            return (x, y)
-        except ValueError:
-            print("invalid input")
-
-def choose_planets():
-    planets = {
-        1: ("Earth",(0,0)), 2: ("Mars",(225,0)), 3: ("Venus",(108,0)), 4: ("Jupiter",(778,0)),
-        5: ("Saturn",(1427,0)), 6: ("Uranus",(2871,0)), 7: ("Neptune",(4495,0)), 8: ("Mercury",(58,0)),
-        9: ("Pluto",(5906,0)), 10: ("Moon",(1,0))
-    }
-    print("\n📋 Available planets:")
-    for num, (name, _) in planets.items():
-        print(f"{num}. {name}")
-    def pick(msg):
-        while True:
-            try:
-                choice = int(input(msg))
-                if choice in planets:
-                    return planets[choice]
-                else:
-                    print("pick a valid number")
-            except ValueError:
-                print("numbers only")
-    p1_name, p1 = pick("Choose planet 1: ")
-    p2_name, p2 = pick("Choose planet 2: ")
-    return p1_name, p1, p2_name, p2
-
-def discover_anomaly():
-    global research_points, crew_morale, fuel, credits_total, inventory
-    
-    anomaly_name = random.choice(list(space_anomalies.keys()))
-    anomaly = space_anomalies[anomaly_name]
-    
-    print(f"\n🔭 ANOMALY DISCOVERED: {anomaly_name} 🔭")
-    print(f"📖 {anomaly['description']}")
-    
-    if anomaly_name not in discovered_anomalies:
-        discovered_anomalies.append(anomaly_name)
-        print(f"✨ New anomaly added to discovery log!")
-        if len(discovered_
+        print(f"
