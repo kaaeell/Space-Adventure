@@ -5,9 +5,10 @@ from datetime import datetime
 import json
 import os
 
-# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v3.0
+# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v3.1
 # New today: Space anomalies, research system, bounty hunting, CREW SKILL SYSTEM, 
-# SPACE STOCK MARKET, SPACE MINING, DIPLOMATIC RELATIONS, PLANETARY COLONIZATION, and BLACK MARKET!
+# SPACE STOCK MARKET, SPACE MINING, DIPLOMATIC RELATIONS, PLANETARY COLONIZATION, 
+# BLACK MARKET, and SPACE RACING LEAGUE!
 
 
 history = []
@@ -25,7 +26,30 @@ bounty_hunting_level = 1
 discovered_anomalies = []
 last_pirate_defeated = None
 
-# ============= NEW: PLANETARY COLONIZATION =============
+# ============= NEW: SPACE RACING LEAGUE =============
+race_tracks = [
+    {"name": "Asteroid Field Dash", "difficulty": 1, "prize": 300, "record": 60.0},
+    {"name": "Saturn's Ring Circuit", "difficulty": 2, "prize": 600, "record": 90.0},
+    {"name": "Nebula Run", "difficulty": 3, "prize": 1000, "record": 120.0},
+    {"name": "Black Hole Slingshot", "difficulty": 4, "prize": 2000, "record": 150.0},
+    {"name": "Galactic Grand Prix", "difficulty": 5, "prize": 5000, "record": 180.0}
+]
+
+racing_upgrades = {
+    "Nitro Boost": {"owned": False, "cost": 500, "bonus": 0.2},
+    "Aero Wings": {"owned": False, "cost": 300, "bonus": 0.1},
+    "Quantum Engine": {"owned": False, "cost": 1000, "bonus": 0.3},
+    "Shield Deflector": {"owned": False, "cost": 700, "bonus": 0.15}
+}
+
+racing_stats = {
+    "races_entered": 0,
+    "races_won": 0,
+    "best_time": 999.0,
+    "total_winnings": 0
+}
+
+# ============= PLANETARY COLONIZATION =============
 colonies = []
 available_planets = [
     {"name": "Mars", "cost": 2000, "income": 100, "hazards": ["dust_storms"], "colonized": False},
@@ -42,7 +66,7 @@ colonization_upgrades = {
     "Mining Facility": {"cost": 1200, "owned": False, "bonus": 75}
 }
 
-# ============= NEW: BLACK MARKET =============
+# ============= BLACK MARKET =============
 black_market_items = {
     "Stolen Research Data": {"price": 300, "risk": 20, "reward": "research", "value": 80},
     "Illegal Weapons": {"price": 500, "risk": 40, "reward": "combat", "value": 150},
@@ -60,12 +84,6 @@ alien_factions = {
     "Nebula Nomads": {"relation": 50, "benefits": [], "trade_discount": 0},
     "Star Empire": {"relation": 50, "benefits": [], "trade_discount": 0},
     "Void Syndicate": {"relation": 50, "benefits": [], "trade_discount": 0}
-}
-
-diplomacy_actions = {
-    "gift": {"cost": 200, "relation_gain": 10, "message": "You sent a diplomatic gift!"},
-    "trade_agreement": {"cost": 500, "relation_gain": 20, "message": "Trade routes established!"},
-    "alliance": {"cost": 1000, "relation_gain": 35, "message": "You formed an alliance!"}
 }
 
 # ============= CREW SKILL SYSTEM =============
@@ -211,7 +229,8 @@ achievement_list = {
     "mining_baron": "⛏️ Mining Baron - Mine 50 total resources",
     "diplomat": "🤝 Diplomat - Reach 90+ relation with any faction",
     "colonizer": "🏠 Colonizer - Establish your first colony",
-    "smuggler": "🕶️ Smuggler - Successfully use the black market 5 times"
+    "smuggler": "🕶️ Smuggler - Successfully use the black market 5 times",
+    "racing_champion": "🏆 Racing Champion - Win 10 space races"
 }
 
 nebulae = {
@@ -244,7 +263,178 @@ random_events = [
     {"name": "☄️ COMET FLYBY", "effect": "comet", "message": "A comet is passing by!", "comet": True}
 ]
 
-# ============= NEW: PLANETARY COLONIZATION =============
+# ============= NEW: SPACE RACING LEAGUE =============
+def space_racing():
+    global credits_total, fuel, crew_morale
+    
+    print("\n🏁 SPACE RACING LEAGUE 🏁")
+    print("=" * 50)
+    print(f"🏆 Races Entered: {racing_stats['races_entered']}")
+    print(f"🏆 Races Won: {racing_stats['races_won']}")
+    print(f"⭐ Best Time: {racing_stats['best_time']:.2f} seconds")
+    print(f"💰 Total Winnings: {racing_stats['total_winnings']} credits")
+    
+    print("\nAvailable Tracks:")
+    for i, track in enumerate(race_tracks, 1):
+        record_emoji = "🏆" if racing_stats['best_time'] < track['record'] else "📝"
+        print(f"{i}. {track['name']} - Difficulty: {'⭐'*track['difficulty']}")
+        print(f"   Prize: {track['prize']} credits | Record: {track['record']:.1f}s {record_emoji}")
+    
+    print("\n6. Buy Racing Upgrades")
+    print("7. View Racing Stats")
+    print("8. Back")
+    
+    choice = input("\nChoose option: ")
+    
+    if choice == "6":
+        buy_racing_upgrades()
+    elif choice == "7":
+        view_racing_stats()
+    elif choice.isdigit() and 1 <= int(choice) <= len(race_tracks):
+        race(int(choice)-1)
+
+def race(track_index):
+    global credits_total, fuel, crew_morale, racing_stats
+    
+    track = race_tracks[track_index]
+    
+    print(f"\n🏁 STARTING RACE: {track['name']} 🏁")
+    print("=" * 40)
+    
+    # Calculate ship performance
+    ship_bonus = 1.0
+    for member in crew_members:
+        if member['bonus'] == 'distance_bonus':
+            ship_bonus += member['level'] * 0.05
+    
+    # Apply racing upgrades
+    for upgrade, data in racing_upgrades.items():
+        if data["owned"]:
+            ship_bonus += data["bonus"]
+            print(f"✅ {upgrade} active! +{int(data['bonus']*100)}% speed")
+    
+    # Crew morale affects performance
+    morale_bonus = 1 + (crew_morale / 200)
+    
+    print("\nPress ENTER as fast as you can when you see 'GO!'")
+    input("Ready? Press ENTER...")
+    
+    # Random countdown
+    countdown = random.uniform(1, 4)
+    time.sleep(countdown)
+    print("🏁 GO! 🏁")
+    
+    start_time = time.time()
+    input()
+    reaction_time = time.time() - start_time
+    
+    # Calculate race time
+    base_time = track['record'] * (0.8 + random.random() * 0.4)
+    reaction_penalty = reaction_time * 5
+    difficulty_penalty = track['difficulty'] * 3
+    
+    race_time = base_time + reaction_penalty + difficulty_penalty
+    race_time = race_time / (ship_bonus * morale_bonus)
+    
+    print(f"\n⏱️ Your reaction time: {reaction_time:.3f}s")
+    print(f"⏱️ Total race time: {race_time:.2f}s")
+    print(f"🏆 Track record: {track['record']:.2f}s")
+    
+    # Check if won
+    if race_time < track['record']:
+        print("\n🎉 NEW TRACK RECORD! 🎉")
+        track['record'] = race_time
+        if race_time < racing_stats['best_time']:
+            racing_stats['best_time'] = race_time
+        racing_stats['races_won'] += 1
+        
+        prize_multiplier = 2
+        print(f"🌟 Bonus for beating record! x{prize_multiplier}")
+    elif race_time < track['record'] * 1.2:
+        print("\n✅ You won the race!")
+        prize_multiplier = 1
+        racing_stats['races_won'] += 1
+    elif race_time < track['record'] * 1.5:
+        print("\n🥈 You placed 2nd!")
+        prize_multiplier = 0.5
+    else:
+        print("\n😔 You lost the race...")
+        prize_multiplier = 0
+    
+    if prize_multiplier > 0:
+        winnings = int(track['prize'] * prize_multiplier)
+        credits_total += winnings
+        racing_stats['total_winnings'] += winnings
+        print(f"💰 Won {winnings} credits!")
+        
+        # Fuel consumption
+        fuel_cost = track['difficulty'] * 30
+        fuel = max(0, fuel - fuel_cost)
+        print(f"⛽ Race consumed {fuel_cost} fuel")
+        
+        # Crew XP gain
+        gain_crew_xp(15 * track['difficulty'])
+        
+        # Check racing champion achievement
+        if racing_stats['races_won'] >= 10:
+            check_achievement("racing_champion")
+    else:
+        # Repair costs
+        repair_cost = track['difficulty'] * 50
+        credits_total = max(0, credits_total - repair_cost)
+        print(f"🔧 Repairs cost {repair_cost} credits")
+    
+    racing_stats['races_entered'] += 1
+    update_crew_morale(0, prize_multiplier > 0)
+
+def buy_racing_upgrades():
+    global credits_total
+    
+    print("\n🔧 RACING UPGRADE SHOP 🔧")
+    print(f"💰 Credits: {credits_total}")
+    print("\nAvailable upgrades:")
+    
+    upgrades_list = list(racing_upgrades.items())
+    for i, (name, data) in enumerate(upgrades_list, 1):
+        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']} credits"
+        print(f"{i}. {name} - {status} (+{int(data['bonus']*100)}% speed)")
+    
+    choice = input("\nSelect upgrade (number) or 'quit': ")
+    if choice.isdigit() and 1 <= int(choice) <= len(upgrades_list):
+        upgrade_name, upgrade_data = upgrades_list[int(choice)-1]
+        if not upgrade_data["owned"]:
+            if credits_total >= upgrade_data["cost"]:
+                credits_total -= upgrade_data["cost"]
+                upgrade_data["owned"] = True
+                print(f"✨ Purchased {upgrade_name}! ✨")
+                print(f"⚡ Speed increased by {int(upgrade_data['bonus']*100)}%")
+            else:
+                print(f"❌ Need {upgrade_data['cost']} credits!")
+        else:
+            print("❌ Already owned!")
+
+def view_racing_stats():
+    print("\n🏆 RACING STATISTICS 🏆")
+    print("=" * 40)
+    print(f"Races Entered: {racing_stats['races_entered']}")
+    print(f"Races Won: {racing_stats['races_won']}")
+    print(f"Win Rate: {(racing_stats['races_won']/racing_stats['races_entered']*100) if racing_stats['races_entered'] > 0 else 0:.1f}%")
+    print(f"Best Time: {racing_stats['best_time']:.2f}s")
+    print(f"Total Winnings: {racing_stats['total_winnings']} credits")
+    
+    print("\n🔧 Owned Upgrades:")
+    upgrades_owned = [name for name, data in racing_upgrades.items() if data["owned"]]
+    if upgrades_owned:
+        for upgrade in upgrades_owned:
+            print(f"  ✅ {upgrade}")
+    else:
+        print("  None")
+    
+    print("\n📝 Track Records:")
+    for track in race_tracks:
+        print(f"  {track['name']}: {track['record']:.2f}s")
+
+# ============= PLANETARY COLONIZATION =============
 def colonization_system():
     global credits_total, research_points
     
@@ -298,12 +488,6 @@ def establish_colony():
                 credits_total -= planet["cost"]
                 planet["colonized"] = True
                 
-                # Apply diplomacy bonus for colonization cost
-                discount = 1.0
-                for faction in alien_factions.values():
-                    if "trade_discount" in faction["benefits"]:
-                        discount *= 0.95
-                
                 colony = {
                     "name": planet["name"],
                     "income": planet["income"],
@@ -343,7 +527,6 @@ def upgrade_colonies():
                 credits_total -= upgrade_data["cost"]
                 upgrade_data["owned"] = True
                 
-                # Apply upgrade to all colonies
                 for colony in colonies:
                     colony["income"] += upgrade_data["bonus"]
                     if upgrade_name not in colony["upgrades"]:
@@ -363,7 +546,6 @@ def collect_colony_income():
     
     total_income = 0
     for colony in colonies:
-        # Random events affect colony income
         hazard_multiplier = 1.0
         if random.random() < 0.3:
             hazard = random.choice(colony["hazards"])
@@ -386,8 +568,6 @@ def collect_colony_income():
         income = int(colony["income"] * hazard_multiplier)
         total_income += income
         print(f"🪐 {colony['name']}: +{income} credits")
-        
-        # Population growth
         colony["population"] += random.randint(5, 20)
     
     credits_total += total_income
@@ -408,11 +588,10 @@ def view_colony_details():
         print(f"   Upgrades: {', '.join(colony['upgrades']) if colony['upgrades'] else 'None'}")
         print(f"   Hazards: {', '.join(colony['hazards'])}")
 
-# ============= NEW: BLACK MARKET =============
+# ============= BLACK MARKET =============
 def black_market():
     global credits_total, smuggling_heat, black_market_access, research_points
     
-    # Unlock black market after 10 missions
     if missions_completed >= 10:
         black_market_access = True
     
@@ -447,7 +626,6 @@ def black_market():
         item_name, item_data = items_list[int(choice)-1]
         
         if credits_total >= item_data["price"]:
-            # Risk check
             if random.random() < (item_data["risk"] / 100) + (smuggling_heat / 200):
                 print("\n🚨 CAUGHT BY AUTHORITIES! 🚨")
                 penalty = item_data["price"] * 2
@@ -479,7 +657,6 @@ def black_market():
                 
                 gain_crew_xp(15)
                 
-                # Check for smuggler achievement
                 if len([i for i in inventory if "illegal" in i or "alien" in i]) >= 5:
                     check_achievement("smuggler")
         else:
@@ -507,190 +684,4 @@ def space_mining():
     
     print("\nAvailable mining locations:")
     resources_list = list(mining_resources.items())
-    for i, (resource, data) in enumerate(resources_list, 1):
-        print(f"{i}. {resource} - Value: {data['value']} credits | Difficulty: {data['difficulty']}")
-    
-    choice = input("\nSelect location to mine (number) or 'quit': ")
-    if choice.isdigit() and 1 <= int(choice) <= len(resources_list):
-        resource_name, resource_data = resources_list[int(choice)-1]
-        
-        print(f"\n⛏️ Mining {resource_name}...")
-        time.sleep(1)
-        
-        engineer_bonus = 1
-        for member in crew_members:
-            if member['bonus'] == 'fuel_saving':
-                engineer_bonus = 1 + (member['level'] * 0.1)
-        
-        success_chance = 0.8 - (resource_data['difficulty'] * 0.1)
-        success_chance = min(0.95, success_chance * engineer_bonus)
-        
-        if random.random() < success_chance:
-            yield_amount = random.randint(resource_data['yield'][0], resource_data['yield'][1])
-            yield_amount = int(yield_amount * mining_bonus * cargo_bonus)
-            value = yield_amount * resource_data['value']
-            
-            credits_total += value
-            total_mined += yield_amount
-            
-            print(f"✅ Success! Mined {yield_amount} {resource_name}")
-            print(f"💰 Sold for {value} credits!")
-            
-            if total_mined >= 50:
-                check_achievement("mining_baron")
-            
-            gain_crew_xp(10)
-            fuel_cost = resource_data['difficulty'] * 20
-            fuel = max(0, fuel - fuel_cost)
-            print(f"⛽ Mining consumed {fuel_cost} fuel")
-        else:
-            print(f"❌ Mining failed!")
-            damage = random.randint(20, 80)
-            fuel = max(0, fuel - damage)
-            print(f"💥 Lost {damage} fuel escaping!")
-
-def buy_mining_upgrade():
-    global credits_total
-    
-    print("\n🔧 MINING UPGRADE SHOP 🔧")
-    print(f"💰 Credits: {credits_total}")
-    print("\nAvailable upgrades:")
-    
-    upgrades_list = list(mining_upgrades.items())
-    for i, (name, data) in enumerate(upgrades_list, 1):
-        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']} credits"
-        print(f"{i}. {name} - {status}")
-    
-    choice = input("\nSelect upgrade (number) or 'quit': ")
-    if choice.isdigit() and 1 <= int(choice) <= len(upgrades_list):
-        upgrade_name, upgrade_data = upgrades_list[int(choice)-1]
-        if not upgrade_data["owned"]:
-            if credits_total >= upgrade_data["cost"]:
-                credits_total -= upgrade_data["cost"]
-                upgrade_data["owned"] = True
-                print(f"✨ Purchased {upgrade_name}! ✨")
-            else:
-                print(f"❌ Need {upgrade_data['cost']} credits!")
-        else:
-            print("❌ Already owned!")
-
-# ============= DIPLOMATIC RELATIONS =============
-def diplomacy_system():
-    global credits_total, research_points
-    
-    print("\n🤝 DIPLOMATIC RELATIONS 🤝")
-    print("=" * 50)
-    
-    factions_list = list(alien_factions.items())
-    for i, (faction, data) in enumerate(factions_list, 1):
-        relation = data["relation"]
-        if relation >= 80:
-            emoji = "😊"
-        elif relation >= 50:
-            emoji = "😐"
-        elif relation >= 30:
-            emoji = "😠"
-        else:
-            emoji = "💀"
-        
-        print(f"{i}. {faction} {emoji}")
-        print(f"   Relation: {relation}/100")
-        if data["benefits"]:
-            print(f"   Benefits: {', '.join(data['benefits'])}")
-        print()
-    
-    print("\nDiplomatic Actions:")
-    print("1. Send Gift (200 credits) - +10 relation")
-    print("2. Trade Agreement (500 credits) - +20 relation, trade discount")
-    print("3. Form Alliance (1000 credits) - +35 relation, special benefits")
-    print("4. Request Aid - Get help based on relation")
-    print("5. Back")
-    
-    choice = input("\nChoose action: ")
-    
-    if choice == "1":
-        print("\nChoose faction:")
-        for i, (faction, data) in enumerate(factions_list, 1):
-            print(f"{i}. {faction}")
-        sub_choice = input("Select faction: ")
-        if sub_choice.isdigit() and 1 <= int(sub_choice) <= len(factions_list):
-            faction_name, faction_data = factions_list[int(sub_choice)-1]
-            if credits_total >= 200:
-                credits_total -= 200
-                faction_data["relation"] = min(100, faction_data["relation"] + 10)
-                print(f"✅ Sent gift to {faction_name}!")
-                print(f"📈 Relation now: {faction_data['relation']}")
-                check_relation_benefits(faction_name, faction_data)
-            else:
-                print("❌ Not enough credits!")
-    
-    elif choice == "2":
-        print("\nChoose faction:")
-        for i, (faction, data) in enumerate(factions_list, 1):
-            print(f"{i}. {faction}")
-        sub_choice = input("Select faction: ")
-        if sub_choice.isdigit() and 1 <= int(sub_choice) <= len(factions_list):
-            faction_name, faction_data = factions_list[int(sub_choice)-1]
-            if credits_total >= 500:
-                credits_total -= 500
-                faction_data["relation"] = min(100, faction_data["relation"] + 20)
-                if "trade_discount" not in faction_data["benefits"]:
-                    faction_data["benefits"].append("trade_discount")
-                    faction_data["trade_discount"] = 0.9
-                print(f"✅ Trade agreement signed with {faction_name}!")
-                print(f"📈 Relation now: {faction_data['relation']}")
-                print(f"💰 Permanent 10% discount on all trades!")
-                check_relation_benefits(faction_name, faction_data)
-            else:
-                print("❌ Not enough credits!")
-    
-    elif choice == "3":
-        print("\nChoose faction:")
-        for i, (faction, data) in enumerate(factions_list, 1):
-            print(f"{i}. {faction}")
-        sub_choice = input("Select faction: ")
-        if sub_choice.isdigit() and 1 <= int(sub_choice) <= len(factions_list):
-            faction_name, faction_data = factions_list[int(sub_choice)-1]
-            if credits_total >= 1000:
-                credits_total -= 1000
-                faction_data["relation"] = min(100, faction_data["relation"] + 35)
-                if "alliance_bonus" not in faction_data["benefits"]:
-                    faction_data["benefits"].append("alliance_bonus")
-                print(f"✅ Alliance formed with {faction_name}!")
-                print(f"📈 Relation now: {faction_data['relation']}")
-                print(f"🌟 +5% bonus to all mission rewards!")
-                check_relation_benefits(faction_name, faction_data)
-                check_achievement("diplomat")
-            else:
-                print("❌ Not enough credits!")
-    
-    elif choice == "4":
-        print("\nChoose faction to request aid from:")
-        for i, (faction, data) in enumerate(factions_list, 1):
-            print(f"{i}. {faction} (Relation: {data['relation']})")
-        sub_choice = input("Select faction: ")
-        if sub_choice.isdigit() and 1 <= int(sub_choice) <= len(factions_list):
-            faction_name, faction_data = factions_list[int(sub_choice)-1]
-            request_aid(faction_name, faction_data)
-
-def request_aid(faction_name, faction_data):
-    global fuel, credits_total
-    
-    relation = faction_data["relation"]
-    
-    if relation >= 80:
-        aid_type = random.choice(["fuel", "credits", "repair"])
-        if aid_type == "fuel":
-            amount = random.randint(300, 800)
-            fuel += amount
-            print(f"🛢️ {faction_name} gave you {amount} fuel!")
-        elif aid_type == "credits":
-            amount = random.randint(400, 1200)
-            credits_total += amount
-            print(f"💰 {faction_name} gifted you {amount} credits!")
-        else:
-            print(f"🔧 {faction_name} repaired your ship!")
-    elif relation >= 50:
-        amount = random.randint(100, 300)
-        fuel += amount
-        print(f"
+    for i, (resource
