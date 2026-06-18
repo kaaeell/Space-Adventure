@@ -5,10 +5,10 @@ from datetime import datetime
 import json
 import os
 
-# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v3.3
+# SPACE DISTANCE CALCULATOR - ULTIMATE EDITION v3.4
 # New today: Space anomalies, research system, bounty hunting, CREW SKILL SYSTEM, 
 # SPACE STOCK MARKET, SPACE MINING, DIPLOMATIC RELATIONS, PLANETARY COLONIZATION, 
-# BLACK MARKET, SPACE RACING LEAGUE, SPACE CASINO, and DAILY CHALLENGES!
+# BLACK MARKET, SPACE RACING LEAGUE, SPACE CASINO, DAILY CHALLENGES, and PIRATE RAID DEFENSE!
 
 
 history = []
@@ -26,7 +26,31 @@ bounty_hunting_level = 1
 discovered_anomalies = []
 last_pirate_defeated = None
 
-# ============= NEW: DAILY CHALLENGES =============
+# ============= NEW: PIRATE RAID DEFENSE =============
+pirate_raids = []
+defense_turrets = {
+    "Laser Turret": {"owned": False, "cost": 500, "damage": 20},
+    "Missile Battery": {"owned": False, "cost": 800, "damage": 35},
+    "Shield Generator": {"owned": False, "cost": 600, "defense": 20},
+    "Plasma Cannon": {"owned": False, "cost": 1200, "damage": 50}
+}
+
+pirate_raid_stats = {
+    "raids_survived": 0,
+    "raids_defeated": 0,
+    "total_damage_dealt": 0,
+    "total_loot": 0
+}
+
+raid_difficulties = [
+    {"name": "Small Scout", "health": 50, "damage": 10, "loot": 200},
+    {"name": "Marauder", "health": 100, "damage": 20, "loot": 500},
+    {"name": "Raider Fleet", "health": 200, "damage": 35, "loot": 1000},
+    {"name": "Pirate Lord", "health": 350, "damage": 50, "loot": 2000},
+    {"name": "Armada", "health": 500, "damage": 75, "loot": 5000}
+]
+
+# ============= DAILY CHALLENGES =============
 daily_challenges = []
 last_challenge_date = None
 
@@ -40,7 +64,8 @@ challenge_templates = [
     {"name": "Race Champion", "description": "Win 2 races", "goal": 2, "reward": 450, "type": "races"},
     {"name": "Mining Pro", "description": "Mine 30 resources", "goal": 30, "reward": 400, "type": "mining"},
     {"name": "Colony Builder", "description": "Collect colony income twice", "goal": 2, "reward": 500, "type": "colony"},
-    {"name": "Casino Winner", "description": "Win 1000 credits at casino", "goal": 1000, "reward": 300, "type": "casino"}
+    {"name": "Casino Winner", "description": "Win 1000 credits at casino", "goal": 1000, "reward": 300, "type": "casino"},
+    {"name": "Pirate Slayer", "description": "Defeat 3 pirate raids", "goal": 3, "reward": 600, "type": "pirate"}
 ]
 
 daily_progress = {
@@ -53,7 +78,8 @@ daily_progress = {
     "races": 0,
     "mining": 0,
     "colony": 0,
-    "casino": 0
+    "casino": 0,
+    "pirate": 0
 }
 
 # ============= SPACE CASINO =============
@@ -278,7 +304,9 @@ achievement_list = {
     "racing_champion": "🏆 Racing Champion - Win 10 space races",
     "casino_king": "👑 Casino King - Win 10000 credits at the casino",
     "lucky_streak": "🍀 Lucky Streak - Win 5 casino games in a row",
-    "challenge_master": "🎯 Challenge Master - Complete 10 daily challenges"
+    "challenge_master": "🎯 Challenge Master - Complete 10 daily challenges",
+    "pirate_hunter": "🏴‍☠️ Pirate Hunter - Defeat 50 pirate raids",
+    "defense_genius": "🛡️ Defense Genius - Own all defense turrets"
 }
 
 nebulae = {
@@ -311,6 +339,175 @@ random_events = [
     {"name": "☄️ COMET FLYBY", "effect": "comet", "message": "A comet is passing by!", "comet": True}
 ]
 
+# ============= PIRATE RAID DEFENSE =============
+def pirate_raid_defense():
+    global credits_total, fuel, crew_morale, pirate_raid_stats
+    
+    print("\n🏴‍☠️ PIRATE RAID DEFENSE SYSTEM 🏴‍☠️")
+    print("=" * 50)
+    print(f"⚔️ Raids Survived: {pirate_raid_stats['raids_survived']}")
+    print(f"⚔️ Raids Defeated: {pirate_raid_stats['raids_defeated']}")
+    print(f"💰 Total Loot: {pirate_raid_stats['total_loot']} credits")
+    
+    print("\n1. Defend Against Raid")
+    print("2. Buy Defense Turrets")
+    print("3. View Defense Stats")
+    print("4. Back")
+    
+    choice = input("\nChoose option: ")
+    
+    if choice == "1":
+        defend_raid()
+    elif choice == "2":
+        buy_defense_turrets()
+    elif choice == "3":
+        view_defense_stats()
+
+def defend_raid():
+    global credits_total, fuel, crew_morale, pirate_raid_stats
+    
+    # Select raid difficulty based on missions completed
+    max_difficulty = min(missions_completed // 5 + 1, len(raid_difficulties))
+    difficulty_index = random.randint(0, max_difficulty - 1)
+    raid = raid_difficulties[difficulty_index]
+    
+    print(f"\n⚔️ RAID DETECTED: {raid['name']} ⚔️")
+    print(f"Enemy Health: {raid['health']}")
+    print(f"Enemy Damage: {raid['damage']}")
+    print(f"Potential Loot: {raid['loot']} credits")
+    
+    # Calculate defense strength
+    defense_strength = 0
+    defense_health = 100
+    
+    for turret_name, turret_data in defense_turrets.items():
+        if turret_data["owned"]:
+            if "damage" in turret_data:
+                defense_strength += turret_data["damage"]
+                print(f"✅ {turret_name} active! +{turret_data['damage']} damage")
+            elif "defense" in turret_data:
+                defense_health += turret_data["defense"]
+                print(f"✅ {turret_name} active! +{turret_data['defense']} health")
+    
+    # Apply gunner bonus
+    gunner_bonus = 1
+    for member in crew_members:
+        if member['bonus'] == 'combat_damage':
+            gunner_bonus = 1 + (member['level'] * 0.1)
+            print(f"🔫 Gunner bonus: +{int((gunner_bonus-1)*100)}% damage")
+    
+    print("\n⚔️ COMBAT STARTING ⚔️")
+    enemy_health = raid['health']
+    
+    while defense_health > 0 and enemy_health > 0:
+        # Player attacks
+        player_damage = random.randint(10, 30) + defense_strength
+        player_damage = int(player_damage * gunner_bonus)
+        enemy_health -= player_damage
+        print(f"⚡ You dealt {player_damage} damage to the raid!")
+        
+        if enemy_health <= 0:
+            break
+        
+        # Enemy attacks
+        enemy_damage = random.randint(5, raid['damage'])
+        # Apply shield research if owned
+        if research_upgrades["Shield Tech"]["owned"]:
+            enemy_damage = int(enemy_damage * research_upgrades["Shield Tech"]["value"])
+            print(f"🛡️ Shields reduced damage to {enemy_damage}!")
+        defense_health -= enemy_damage
+        print(f"💥 Raid dealt {enemy_damage} damage to your defenses!")
+        
+        time.sleep(0.5)
+    
+    if enemy_health <= 0:
+        print("\n🎉 RAID DEFEATED! 🎉")
+        loot = raid['loot'] * random.uniform(0.8, 1.2)
+        loot = int(loot)
+        credits_total += loot
+        pirate_raid_stats['raids_defeated'] += 1
+        pirate_raid_stats['total_loot'] += loot
+        print(f"💰 Loot collected: {loot} credits!")
+        
+        gain_crew_xp(30)
+        update_daily_progress("pirate", 1)
+        
+        if pirate_raid_stats['raids_defeated'] >= 50:
+            check_achievement("pirate_hunter")
+    else:
+        print("\n💀 Defenses breached! Raid escaped!")
+        repair_cost = random.randint(100, 400)
+        credits_total = max(0, credits_total - repair_cost)
+        print(f"🔧 Repairs cost {repair_cost} credits")
+    
+    pirate_raid_stats['raids_survived'] += 1
+    fuel -= random.randint(20, 60)
+    fuel = max(0, fuel)
+    print(f"⛽ Fuel remaining: {fuel}")
+    
+    # Crew morale effect
+    if enemy_health <= 0:
+        morale_change = random.randint(5, 15)
+        crew_morale = min(100, crew_morale + morale_change)
+        print(f"😊 Crew morale +{morale_change}! (Now: {crew_morale}%)")
+    else:
+        morale_change = random.randint(10, 20)
+        crew_morale = max(0, crew_morale - morale_change)
+        print(f"😞 Crew morale -{morale_change}! (Now: {crew_morale}%)")
+
+def buy_defense_turrets():
+    global credits_total
+    
+    print("\n🛡️ DEFENSE TURRET SHOP 🛡️")
+    print(f"💰 Credits: {credits_total}")
+    print("\nAvailable Turrets:")
+    
+    turrets_list = list(defense_turrets.items())
+    for i, (name, data) in enumerate(turrets_list, 1):
+        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']} credits"
+        stats = []
+        if "damage" in data:
+            stats.append(f"Damage: {data['damage']}")
+        if "defense" in data:
+            stats.append(f"Defense: +{data['defense']}")
+        print(f"{i}. {name} - {status} | {' | '.join(stats)}")
+    
+    choice = input("\nSelect turret (number) or 'quit': ")
+    if choice.isdigit() and 1 <= int(choice) <= len(turrets_list):
+        turret_name, turret_data = turrets_list[int(choice)-1]
+        if not turret_data["owned"]:
+            if credits_total >= turret_data["cost"]:
+                credits_total -= turret_data["cost"]
+                turret_data["owned"] = True
+                print(f"✨ Purchased {turret_name}! ✨")
+                
+                # Check if all turrets owned
+                if all(t["owned"] for t in defense_turrets.values()):
+                    check_achievement("defense_genius")
+            else:
+                print(f"❌ Need {turret_data['cost']} credits!")
+        else:
+            print("❌ Already owned!")
+
+def view_defense_stats():
+    print("\n📊 DEFENSE STATISTICS 📊")
+    print("=" * 40)
+    print(f"Raids Survived: {pirate_raid_stats['raids_survived']}")
+    print(f"Raids Defeated: {pirate_raid_stats['raids_defeated']}")
+    if pirate_raid_stats['raids_survived'] > 0:
+        win_rate = (pirate_raid_stats['raids_defeated'] / pirate_raid_stats['raids_survived']) * 100
+        print(f"Win Rate: {win_rate:.1f}%")
+    print(f"Total Loot Collected: {pirate_raid_stats['total_loot']} credits")
+    print(f"Total Damage Dealt: {pirate_raid_stats['total_damage_dealt']}")
+    
+    print("\n🛡️ Owned Turrets:")
+    owned = [name for name, data in defense_turrets.items() if data["owned"]]
+    if owned:
+        for turret in owned:
+            print(f"  ✅ {turret}")
+    else:
+        print("  None")
+
 # ============= DAILY CHALLENGES =============
 def generate_daily_challenges():
     global daily_challenges, last_challenge_date
@@ -322,15 +519,13 @@ def generate_daily_challenges():
         available_templates = challenge_templates.copy()
         random.shuffle(available_templates)
         
-        # Select 3 random challenges
-        for template in available_templates[:3]:
+        for template in available_templates[:4]:  # Increased to 4 challenges
             challenge = template.copy()
             challenge["progress"] = 0
             challenge["completed"] = False
             daily_challenges.append(challenge)
         
         last_challenge_date = today
-        # Reset daily progress
         for key in daily_progress:
             daily_progress[key] = 0
 
@@ -351,9 +546,13 @@ def show_daily_challenges():
         status = "✅" if challenge["completed"] else "⬜"
         progress = challenge["progress"]
         goal = challenge["goal"]
+        bar_length = 20
+        filled = int(bar_length * progress / goal)
+        bar = "█" * filled + "░" * (bar_length - filled)
         print(f"{i}. {status} {challenge['name']}")
         print(f"   {challenge['description']}")
-        print(f"   Progress: {progress}/{goal} | Reward: {challenge['reward']} credits")
+        print(f"   Progress: [{bar}] {progress}/{goal}")
+        print(f"   Reward: {challenge['reward']} credits")
         if challenge["completed"]:
             completed_count += 1
         print()
@@ -367,7 +566,6 @@ def show_daily_challenges():
 def update_daily_progress(challenge_type, amount):
     generate_daily_challenges()
     
-    # Update progress for matching challenges
     for challenge in daily_challenges:
         if challenge["type"] == challenge_type and not challenge["completed"]:
             challenge["progress"] = min(challenge["goal"], challenge["progress"] + amount)
@@ -386,7 +584,6 @@ def complete_challenge(challenge):
     research_points += challenge['reward'] // 10
     gain_crew_xp(20)
     
-    # Bonus for completing all challenges
     if all(c["completed"] for c in daily_challenges):
         bonus = 500
         credits_total += bonus
@@ -441,248 +638,4 @@ def play_casino_game(game_name, game_data):
     time.sleep(1.5)
     
     if game_name == "Cosmic Slots":
-        result = play_slots(bet, game_data)
-    elif game_name == "Alien Poker":
-        result = play_poker(bet, game_data)
-    elif game_name == "Roulette":
-        result = play_roulette(bet, game_data)
-    elif game_name == "Black Hole Blackjack":
-        result = play_blackjack(bet, game_data)
-    
-    if result > 0:
-        credits_total += result
-        casino_stats['total_won'] += result
-        if result > casino_stats['biggest_win']:
-            casino_stats['biggest_win'] = result
-            print(f"🏆 NEW BIGGEST WIN! 🏆")
-        
-        # Update daily challenge
-        update_daily_progress("casino", result)
-        
-        if casino_stats['total_won'] >= 10000:
-            check_achievement("casino_king")
-        
-        morale_gain = random.randint(5, 15)
-        crew_morale = min(100, crew_morale + morale_gain)
-        print(f"😊 Crew morale +{morale_gain}! (Now: {crew_morale}%)")
-    else:
-        morale_loss = random.randint(5, 10)
-        crew_morale = max(0, crew_morale - morale_loss)
-        print(f"😞 Crew morale -{morale_loss}! (Now: {crew_morale}%)")
-    
-    casino_stats['games_played'] += 1
-    gain_crew_xp(5)
-
-def play_slots(bet, game_data):
-    print("🎰 SPINNING SLOTS...")
-    
-    symbols = ["🍒", "⭐", "🔔", "💎", "7️⃣", "🎰"]
-    results = [random.choice(symbols) for _ in range(3)]
-    
-    print(f"Results: {' '.join(results)}")
-    
-    if results[0] == results[1] == results[2]:
-        if results[0] == "7️⃣":
-            winnings = bet * 50
-            print(f"🎉 JACKPOT! Won {winnings} credits!")
-            return winnings
-        elif results[0] == "💎":
-            winnings = bet * 20
-            print(f"💰 Diamond triple! Won {winnings} credits!")
-            return winnings
-        else:
-            winnings = bet * 5
-            print(f"💰 Triple match! Won {winnings} credits!")
-            return winnings
-    elif results[0] == results[1] or results[1] == results[2] or results[0] == results[2]:
-        winnings = bet * 2
-        print(f"💰 Pair! Won {winnings} credits!")
-        return winnings
-    else:
-        print("❌ No match! You lose!")
-        return 0
-
-def play_poker(bet, game_data):
-    print("♠️ ALIEN POKER ♠️")
-    
-    player_hand = random.randint(1, 13) + random.randint(1, 13) / 100
-    dealer_hand = random.randint(1, 13) + random.randint(1, 13) / 100
-    
-    print(f"Your hand: {int(player_hand)}")
-    print(f"Dealer hand: {int(dealer_hand)}")
-    
-    if player_hand > dealer_hand:
-        winnings = bet * 2
-        print(f"🎉 You win! Won {winnings} credits!")
-        return winnings
-    elif player_hand == dealer_hand:
-        winnings = bet
-        print(f"🤝 Push! Bet returned!")
-        return winnings
-    else:
-        print("❌ You lose!")
-        return 0
-
-def play_roulette(bet, game_data):
-    print("🎡 ROULETTE 🎡")
-    
-    print("\nBet on:")
-    print("1. Red")
-    print("2. Black")
-    print("3. Green (0)")
-    print("4. Even")
-    print("5. Odd")
-    
-    choice = input("Choose your bet type: ")
-    number = random.randint(0, 36)
-    
-    print(f"🎯 Ball landed on: {number}")
-    
-    if choice == "1":
-        red_numbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]
-        if number in red_numbers:
-            winnings = bet * 2
-            print(f"🎉 Red wins! Won {winnings} credits!")
-            return winnings
-        else:
-            print("❌ Not red! You lose!")
-            return 0
-    elif choice == "2":
-        black_numbers = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35]
-        if number in black_numbers:
-            winnings = bet * 2
-            print(f"🎉 Black wins! Won {winnings} credits!")
-            return winnings
-        else:
-            print("❌ Not black! You lose!")
-            return 0
-    elif choice == "3":
-        if number == 0:
-            winnings = bet * 35
-            print(f"🎉 GREEN! Won {winnings} credits!")
-            return winnings
-        else:
-            print("❌ Not green! You lose!")
-            return 0
-    elif choice == "4":
-        if number % 2 == 0 and number != 0:
-            winnings = bet * 2
-            print(f"🎉 Even wins! Won {winnings} credits!")
-            return winnings
-        else:
-            print("❌ Not even! You lose!")
-            return 0
-    elif choice == "5":
-        if number % 2 != 0:
-            winnings = bet * 2
-            print(f"🎉 Odd wins! Won {winnings} credits!")
-            return winnings
-        else:
-            print("❌ Not odd! You lose!")
-            return 0
-    else:
-        print("Invalid choice!")
-        return 0
-
-def play_blackjack(bet, game_data):
-    print("🃏 BLACK HOLE BLACKJACK 🃏")
-    
-    player_total = random.randint(15, 21)
-    dealer_total = random.randint(14, 20)
-    
-    print(f"Your total: {player_total}")
-    print(f"Dealer total: {dealer_total}")
-    
-    if player_total > 21:
-        print("💀 Bust! You lose!")
-        return 0
-    elif dealer_total > 21:
-        winnings = bet * 2
-        print(f"🎉 Dealer bust! Won {winnings} credits!")
-        return winnings
-    elif player_total > dealer_total:
-        winnings = bet * 2
-        print(f"🎉 You win! Won {winnings} credits!")
-        return winnings
-    elif player_total == dealer_total:
-        winnings = bet
-        print(f"🤝 Push! Bet returned!")
-        return winnings
-    else:
-        print("❌ You lose!")
-        return 0
-
-def view_casino_stats():
-    print("\n🎰 CASINO STATISTICS 🎰")
-    print("=" * 40)
-    print(f"Games Played: {casino_stats['games_played']}")
-    print(f"Total Bet: {casino_stats['total_bet']} credits")
-    print(f"Total Won: {casino_stats['total_won']} credits")
-    print(f"Net Profit: {casino_stats['total_won'] - casino_stats['total_bet']} credits")
-    print(f"Biggest Win: {casino_stats['biggest_win']} credits")
-    if casino_stats['games_played'] > 0:
-        win_rate = (casino_stats['total_won'] / casino_stats['total_bet']) * 100
-        print(f"Win Rate: {win_rate:.1f}%")
-
-# ============= SPACE RACING LEAGUE =============
-def space_racing():
-    global credits_total, fuel, crew_morale
-    
-    print("\n🏁 SPACE RACING LEAGUE 🏁")
-    print("=" * 50)
-    print(f"🏆 Races Entered: {racing_stats['races_entered']}")
-    print(f"🏆 Races Won: {racing_stats['races_won']}")
-    print(f"⭐ Best Time: {racing_stats['best_time']:.2f} seconds")
-    print(f"💰 Total Winnings: {racing_stats['total_winnings']} credits")
-    
-    print("\nAvailable Tracks:")
-    for i, track in enumerate(race_tracks, 1):
-        record_emoji = "🏆" if racing_stats['best_time'] < track['record'] else "📝"
-        print(f"{i}. {track['name']} - Difficulty: {'⭐'*track['difficulty']}")
-        print(f"   Prize: {track['prize']} credits | Record: {track['record']:.1f}s {record_emoji}")
-    
-    print("\n6. Buy Racing Upgrades")
-    print("7. View Racing Stats")
-    print("8. Back")
-    
-    choice = input("\nChoose option: ")
-    
-    if choice == "6":
-        buy_racing_upgrades()
-    elif choice == "7":
-        view_racing_stats()
-    elif choice.isdigit() and 1 <= int(choice) <= len(race_tracks):
-        race(int(choice)-1)
-
-def race(track_index):
-    global credits_total, fuel, crew_morale, racing_stats
-    
-    track = race_tracks[track_index]
-    
-    print(f"\n🏁 STARTING RACE: {track['name']} 🏁")
-    print("=" * 40)
-    
-    ship_bonus = 1.0
-    for member in crew_members:
-        if member['bonus'] == 'distance_bonus':
-            ship_bonus += member['level'] * 0.05
-    
-    for upgrade, data in racing_upgrades.items():
-        if data["owned"]:
-            ship_bonus += data["bonus"]
-            print(f"✅ {upgrade} active! +{int(data['bonus']*100)}% speed")
-    
-    morale_bonus = 1 + (crew_morale / 200)
-    
-    print("\nPress ENTER as fast as you can when you see 'GO!'")
-    input("Ready? Press ENTER...")
-    
-    countdown = random.uniform(1, 4)
-    time.sleep(countdown)
-    print("🏁 GO! 🏁")
-    
-    start_time = time.time()
-    input()
-    reaction_time = time.time() - start_time
-    
-    base_time =
+        result = play_slots(b
