@@ -1,6 +1,7 @@
 """
 🚀 SPACE DISTANCE CALCULATOR
-A space adventure game where you explore, trade, and hunt bounties!
+The Friendly Space Adventure Game
+Version 3.5 - Final Edition
 """
 
 import math
@@ -27,7 +28,8 @@ player = {
     "inventory": [],
     "pets": [],
     "luck": 0,
-    "last_play": None
+    "last_play": None,
+    "total_distance": 0  # NEW: Track total distance traveled
 }
 
 # ============================================
@@ -47,27 +49,27 @@ crew = [
 # ============================================
 
 PLANETS = {
-    1: ("Earth", (0, 0)),
-    2: ("Mars", (225, 0)),
-    3: ("Venus", (108, 0)),
-    4: ("Jupiter", (778, 0)),
-    5: ("Saturn", (1427, 0)),
-    6: ("Uranus", (2871, 0)),
-    7: ("Neptune", (4495, 0)),
-    8: ("Mercury", (58, 0)),
-    9: ("Pluto", (5906, 0))
+    1: ("🌍 Earth", (0, 0)),
+    2: ("🔴 Mars", (225, 0)),
+    3: ("🟡 Venus", (108, 0)),
+    4: ("🟠 Jupiter", (778, 0)),
+    5: ("🪐 Saturn", (1427, 0)),
+    6: ("🔵 Uranus", (2871, 0)),
+    7: ("🔷 Neptune", (4495, 0)),
+    8: ("⚪ Mercury", (58, 0)),
+    9: ("⚫ Pluto", (5906, 0))
 }
 
 BOUNTIES = [
-    {"name": "Red Pirate", "reward": 500, "level": 1, "hp": 3},
-    {"name": "Shadow Corsair", "reward": 1000, "level": 2, "hp": 5},
-    {"name": "Void Reaver", "reward": 2000, "level": 3, "hp": 7}
+    {"name": "🏴‍☠️ Red Pirate", "reward": 500, "level": 1, "hp": 3},
+    {"name": "🌑 Shadow Corsair", "reward": 1000, "level": 2, "hp": 5},
+    {"name": "💀 Void Reaver", "reward": 2000, "level": 3, "hp": 7}
 ]
 
 TECH = {
-    "Fuel Efficiency": {"cost": 100, "owned": False},
-    "Warp Drive": {"cost": 200, "owned": False},
-    "Shield Tech": {"cost": 150, "owned": False}
+    "⛽ Fuel Efficiency": {"cost": 100, "owned": False, "desc": "Use 10% less fuel"},
+    "⚡ Warp Drive": {"cost": 200, "owned": False, "desc": "20% faster travel"},
+    "🛡️ Shield Tech": {"cost": 150, "owned": False, "desc": "Take less damage"}
 }
 
 ACHIEVEMENTS = {
@@ -80,89 +82,117 @@ ACHIEVEMENTS = {
     "bounty": "💰 Defeated a bounty target!",
     "research": "🧠 Unlocked all research!",
     "pet": "🐾 Found a space pet!",
-    "lucky": "🍀 Had a lucky day!"
+    "lucky": "🍀 Had a lucky day!",
+    "traveler": "🌠 Traveled 10000 million km total!"  # NEW
 }
 
-PETS = ["🐶 Space Dog", "🐱 Robot Cat", "🐹 Alien Hamster", "🐉 Tiny Dragon", "🦊 Quantum Fox", "🐧 Space Penguin"]
+PETS = ["🐶 Space Dog", "🐱 Robot Cat", "🐹 Alien Hamster", "🐉 Tiny Dragon", "🦊 Quantum Fox", "🐧 Space Penguin", "🐙 Star Octopus"]
 
 JOKES = [
     "Why did the star go to school? To get brighter!",
     "What do astronauts use for pants? An asteroid belt!",
     "How do you organize a space party? You planet!",
     "What's an astronaut's favorite key? The space bar!",
-    "Why did the alien cross the galaxy? To get to the other side!"
+    "Why did the alien cross the galaxy? To get to the other side!",
+    "What do you call a lazy astronaut? A space cadet!"
 ]
 
-NEBULAE = {"Orion Nebula": (1340, -220), "Eagle Nebula": (7000, 0), "Helix Nebula": (695, 280)}
+NEBULAE = {
+    "🌌 Orion Nebula": (1340, -220),
+    "🦅 Eagle Nebula": (7000, 0),
+    "🌀 Helix Nebula": (695, 280),
+    "🦀 Crab Nebula": (6500, 190)  # NEW
+}
 
 # ============================================
 # HELPER FUNCTIONS
 # ============================================
+
+def clear_screen():
+    """Clear the screen for cleaner display"""
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def print_header(text):
+    """Print a styled header"""
+    print("\n" + "=" * 50)
+    print(f"  {text}")
+    print("=" * 50)
 
 def distance(p1, p2):
     """Calculate distance between two points"""
     return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
 def unlock_achievement(key):
-    """Unlock an achievement"""
+    """Unlock an achievement with celebration"""
     if key in ACHIEVEMENTS and key not in player["trophies"]:
         player["trophies"].append(key)
-        print(f"\n🎉 {ACHIEVEMENTS[key]} 🎉\n")
-        time.sleep(0.5)
+        print(f"\n🎉 {'='*40}")
+        print(f"🎉 {ACHIEVEMENTS[key]}")
+        print(f"🎉 {'='*40}\n")
+        time.sleep(0.8)
 
 def gain_crew_xp(amount):
-    """Give XP to crew members"""
+    """Give XP to crew members and check for level ups"""
     for member in crew:
         member["xp"] += amount
         if member["xp"] >= member["level"] * 100:
             member["xp"] = 0
             member["level"] += 1
-            print(f"\n🎉 {member['name']} reached level {member['level']}!")
-            player["credits"] += random.randint(100, 300)
+            print(f"\n🌟 {member['name']} reached level {member['level']}!")
+            bonus = random.randint(100, 300)
+            player["credits"] += bonus
+            print(f"💰 Crew celebration! +{bonus} credits!")
 
 def check_daily_luck():
-    """Check and update daily luck"""
+    """Check and update daily luck with a nice message"""
     today = datetime.now().date()
     if player["last_play"] != str(today):
         player["luck"] = random.randint(1, 10)
         player["last_play"] = str(today)
-        print(f"\n🍀 Today's luck: {'⭐' * player['luck']}")
+        
+        print("\n" + "─" * 40)
+        print(f"🍀 Today's Luck: {'⭐' * player['luck']}")
+        
         if player["luck"] >= 8:
-            print("🌟 You feel extra lucky today!")
+            print("🌟 The stars are aligned in your favor!")
             unlock_achievement("lucky")
         elif player["luck"] >= 5:
-            print("✨ It's a good day for adventures!")
+            print("✨ The cosmos smiles upon you today")
         else:
-            print("🌙 Maybe stay safe today...")
+            print("🌙 The universe feels... quiet today")
+        print("─" * 40 + "\n")
         time.sleep(0.5)
 
 def find_pet():
-    """Find a space pet"""
+    """Find a space pet with extra charm"""
     pet = random.choice(PETS)
     if pet not in player["pets"]:
         player["pets"].append(pet)
-        print(f"\n🐾 A {pet} joined your crew!")
+        print(f"\n🐾 A wild {pet} appeared and joined your crew!")
+        print("💕 It looks at you with adorable eyes...")
         unlock_achievement("pet")
         player["morale"] = min(100, player["morale"] + 10)
     else:
-        print(f"\n🐾 {pet} is already part of your crew!")
+        print(f"\n🐾 {pet} is already part of your space family!")
 
 def tell_joke():
-    """Tell a joke"""
+    """Tell a joke and boost morale"""
     joke = random.choice(JOKES)
     print(f"\n😂 {joke}")
     player["morale"] = min(100, player["morale"] + 5)
-    print(f"😊 Crew morale +5! (Now: {player['morale']}%)")
+    print(f"😊 The crew chuckles. Morale +5! (Now: {player['morale']}%)")
 
 # ============================================
 # MAIN GAME FUNCTIONS
 # ============================================
 
 def pick_planet():
-    """Choose two planets"""
+    """Choose two planets with better interface"""
     print("\n🪐 WHERE TO?")
+    print("─" * 30)
     for num, (name, _) in PLANETS.items():
         print(f"{num}. {name}")
+    print("─" * 30)
 
     def choose(question):
         while True:
@@ -170,12 +200,12 @@ def pick_planet():
                 choice = int(input(question))
                 if choice in PLANETS:
                     return PLANETS[choice]
-                print("Invalid choice! Try again.")
+                print("❌ Invalid choice! Try again.")
             except ValueError:
-                print("Please enter a number!")
+                print("❌ Please enter a number!")
 
-    start = choose("Starting planet: ")
-    end = choose("Destination planet: ")
+    start = choose("🌍 Starting planet: ")
+    end = choose("🎯 Destination planet: ")
     
     # Get planet names
     start_name = "Earth"
@@ -189,22 +219,26 @@ def pick_planet():
     return start_name, start, end_name, end
 
 def start_mission():
-    """Start a space mission"""
+    """Start a space mission with improvements"""
     check_daily_luck()
 
-    print("\n🚀 PREPARING FOR LAUNCH!")
-    print("1. Travel to known planets")
-    print("2. Explore unknown coordinates")
+    print_header("🚀 PREPARING FOR LAUNCH")
+    print("1. 📍 Travel to known planets")
+    print("2. 🗺️ Explore unknown coordinates")
+    print("3. ↩️ Return to menu")
 
-    choice = input("Choice: ")
+    choice = input("\nChoice: ")
 
-    if choice == "1":
+    if choice == "3":
+        return
+    elif choice == "1":
         start_name, start, end_name, end = pick_planet()
     elif choice == "2":
         try:
+            print("\n📡 Enter coordinates (in million km)")
             start = (float(input("Start x: ")), float(input("Start y: ")))
             end = (float(input("End x: ")), float(input("End y: ")))
-            start_name, end_name = "Unknown", "Unknown"
+            start_name, end_name = "🚀 Unknown", "📍 Unknown"
         except ValueError:
             print("❌ Invalid coordinates!")
             return
@@ -214,45 +248,54 @@ def start_mission():
 
     # Calculate distance
     dist = distance(start, end)
-    print(f"\n📏 {start_name} to {end_name}: {dist:.0f} million km")
+    player["total_distance"] += dist
+    print(f"\n📏 Distance: {dist:,.0f} million km")
+    print(f"📊 Total distance traveled: {player['total_distance']:,.0f} million km")
 
     # Check for new record
     if dist > player["record"]:
         player["record"] = dist
-        print("🏆 That's your longest trip yet!")
+        print("🏆 NEW RECORD DISTANCE!")
 
-    # Random events
+    # Random events with better messages
     if random.random() < 0.25 + (player["luck"] * 0.01):
         event = random.choice(["wormhole", "treasure", "pet", "joke"])
         if event == "wormhole":
             dist *= 0.6
             print("🌀 You found a wormhole shortcut!")
+            print(f"📏 New distance: {dist:,.0f} million km")
         elif event == "treasure":
             bonus = random.randint(100, 300) + (player["luck"] * 10)
             player["credits"] += bonus
-            print(f"💰 Found treasure! +{bonus} credits!")
+            print(f"💰 You found a floating treasure pod! +{bonus} credits!")
         elif event == "pet":
             find_pet()
         elif event == "joke":
             tell_joke()
 
-    # Fuel check
+    # Fuel check with better feedback
     fuel_needed = dist * 0.5
     if player["fuel"] < fuel_needed:
-        print(f"\n⛽ Need {fuel_needed:.0f} fuel, have {player['fuel']:.0f}")
-        print("1. Mine asteroid (risky)")
+        print(f"\n⛽ INSUFFICIENT FUEL!")
+        print(f"   Need: {fuel_needed:.0f} fuel")
+        print(f"   Have: {player['fuel']:.0f} fuel")
+        print("\n1. Mine asteroid (risky but free)")
         print("2. Buy fuel (2 credits/unit)")
+        print("3. Abort mission")
         choice = input("Choice: ")
 
-        if choice == "1":
+        if choice == "3":
+            print("🔄 Mission aborted. Returning to base.")
+            return
+        elif choice == "1":
             if random.random() < 0.6 + (player["luck"] * 0.02):
                 gained = random.randint(200, 800)
                 player["fuel"] += gained
-                print(f"✅ Mined {gained} fuel!")
+                print(f"✅ Successfully mined {gained} fuel!")
             else:
                 lost = random.randint(50, 200)
                 player["fuel"] = max(0, player["fuel"] - lost)
-                print(f"💥 Asteroid damaged ship! Lost {lost} fuel")
+                print(f"💥 Asteroid collision! Lost {lost} fuel!")
         elif choice == "2":
             try:
                 amount = int(input("How much fuel? "))
@@ -260,7 +303,7 @@ def start_mission():
                 if player["credits"] >= cost:
                     player["credits"] -= cost
                     player["fuel"] += amount
-                    print(f"✅ Bought {amount} fuel!")
+                    print(f"✅ Purchased {amount} fuel!")
                 else:
                     print("❌ Not enough credits!")
             except ValueError:
@@ -273,11 +316,15 @@ def start_mission():
     player["credits"] += earned
     player["missions"] += 1
     player["streak"] += 1
-    player["morale"] = min(100, player["morale"] + random.randint(5, 15))
+    morale_gain = random.randint(5, 15)
+    player["morale"] = min(100, player["morale"] + morale_gain)
 
-    print(f"\n✅ MISSION COMPLETE! +{earned} credits")
+    print_header("✅ MISSION COMPLETE")
+    print(f"💰 Credits earned: +{earned}")
     print(f"⛽ Fuel remaining: {player['fuel']:.0f}")
-    print(f"😊 Crew morale: {player['morale']}%")
+    print(f"😊 Crew morale: {player['morale']}% (+{morale_gain})")
+    print(f"📊 Total missions: {player['missions']}")
+    print(f"🔥 Current streak: {player['streak']}")
 
     # Check achievements
     if player["missions"] == 1:
@@ -290,98 +337,119 @@ def start_mission():
         unlock_achievement("streak")
     if player["record"] >= 2000:
         unlock_achievement("explorer")
+    if player["total_distance"] >= 10000:
+        unlock_achievement("traveler")
 
     gain_crew_xp(20)
 
 def hunt_bounty():
-    """Hunt a bounty target"""
+    """Hunt a bounty target with improved combat"""
     check_daily_luck()
 
-    print("\n💰 BOUNTY HUNTING")
+    print_header("💰 BOUNTY HUNTING")
     print(f"🏆 Your rank: {player['rank']}")
 
     available = [b for b in BOUNTIES if b["level"] <= player["rank"] + 1]
     if not available:
-        print("No bounties available. Complete more missions!")
+        print("❌ No bounties available at your rank.")
+        print("💡 Complete more missions to unlock harder targets!")
         return
 
-    print("\n🎯 WANTED:")
+    print("\n🎯 AVAILABLE TARGETS:")
     for i, target in enumerate(available[:3], 1):
-        print(f"{i}. {target['name']} - 💰 {target['reward']}")
+        print(f"{i}. {target['name']}")
+        print(f"   💰 Reward: {target['reward']} | Level: {target['level']}")
 
-    choice = input("Choose target (number): ")
+    choice = input("\nChoose target (number): ")
     if not choice.isdigit() or int(choice) > len(available[:3]):
         return
 
     target = available[int(choice) - 1]
-    print(f"\n⚔️ FIGHTING {target['name']}...")
+    print(f"\n⚔️ ENGAGING {target['name']}...")
     time.sleep(0.5)
 
     # Combat with luck bonus
     my_hp = target["hp"] + (player["luck"] // 3)
     enemy_hp = target["hp"]
-
-    print(f"💪 Luck bonus: +{player['luck']//3} extra health!")
+    
+    print(f"💪 Bonus health: +{player['luck']//3}")
+    print(f"❤️ Your health: {my_hp} | Enemy health: {enemy_hp}")
 
     while my_hp > 0 and enemy_hp > 0:
-        print(f"\n❤️ Your health: {my_hp} | {target['name']}: {enemy_hp}")
-        action = input("1. Attack  2. Dodge: ")
+        print(f"\n❤️ You: {my_hp} | {target['name']}: {enemy_hp}")
+        action = input("1. ⚔️ Attack  2. 🛡️ Dodge  3. 💊 Use item: ")
 
         if action == "1":
             damage = random.randint(2, 6) + (player["luck"] // 5)
             enemy_hp -= damage
-            print(f"⚡ You hit for {damage} damage!")
+            print(f"⚡ You strike for {damage} damage!")
             if enemy_hp > 0:
                 counter = random.randint(1, 4)
                 my_hp -= counter
-                print(f"💥 They hit back for {counter} damage!")
+                print(f"💥 They counter for {counter} damage!")
         elif action == "2":
             if random.random() < 0.5 + (player["luck"] * 0.02):
-                print("🛡️ You dodged the attack!")
+                print("🛡️ You gracefully dodge the attack!")
             else:
                 counter = random.randint(2, 5)
                 my_hp -= counter
                 print(f"💥 Too slow! You took {counter} damage!")
+        elif action == "3":
+            if "🍕 Space Pizza" in player["inventory"]:
+                player["inventory"].remove("🍕 Space Pizza")
+                heal = random.randint(3, 8)
+                my_hp = min(target["hp"] + (player["luck"] // 3), my_hp + heal)
+                print(f"💊 You eat Space Pizza! Healed {heal} health!")
+            else:
+                print("❌ No items available!")
         else:
             print("Invalid action!")
 
     if my_hp > 0:
         reward_bonus = int(target["reward"] * (1 + player["luck"] * 0.01))
         player["credits"] += reward_bonus
-        print(f"\n🎉 VICTORY! +{reward_bonus} credits!")
+        print(f"\n🎉 VICTORY!")
+        print(f"💰 Collected {reward_bonus} credits!")
         if target["level"] == player["rank"]:
             player["rank"] += 1
-            print(f"🏆 Rank up! Now {player['rank']}")
+            print(f"🏆 Rank up! You are now level {player['rank']}")
         unlock_achievement("bounty")
         gain_crew_xp(30)
     else:
-        print("\n💀 Defeated! Lost 100 credits")
+        print("\n💀 You were defeated!")
+        print("💸 Lost 100 credits")
         player["credits"] = max(0, player["credits"] - 100)
 
 def do_research():
     """Research new technology"""
-    print("\n🧪 RESEARCH LAB")
-    print(f"📚 Research points: {player['research']}")
+    print_header("🧪 RESEARCH LAB")
+    print(f"📚 Research points: {player['research']}\n")
 
     for i, (name, data) in enumerate(TECH.items(), 1):
-        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']}pts"
-        print(f"{i}. {name} - {status}")
-    print("4. Convert 100 credits → 20 research points")
+        status = "✅ OWNED" if data["owned"] else f"💰 {data['cost']} pts"
+        print(f"{i}. {name}")
+        print(f"   {data['desc']} - {status}")
 
-    choice = input("Choose: ")
-    if choice.isdigit() and 1 <= int(choice) <= 3:
+    print("\n4. 💰 Convert 100 credits → 20 research points")
+    print("5. ↩️ Back to menu")
+
+    choice = input("\nChoice: ")
+    if choice == "5":
+        return
+    elif choice.isdigit() and 1 <= int(choice) <= 3:
         name, data = list(TECH.items())[int(choice) - 1]
         if not data["owned"]:
             if player["research"] >= data["cost"]:
                 player["research"] -= data["cost"]
                 data["owned"] = True
-                print(f"✨ UNLOCKED {name}!")
+                print(f"\n✨ RESEARCH COMPLETE!")
+                print(f"🔬 {name} unlocked!")
                 if all(t["owned"] for t in TECH.values()):
                     unlock_achievement("research")
             else:
                 print("❌ Not enough research points!")
         else:
-            print("❌ Already owned!")
+            print("❌ Already researched!")
     elif choice == "4":
         if player["credits"] >= 100:
             player["credits"] -= 100
@@ -391,53 +459,62 @@ def do_research():
             print("❌ Not enough credits!")
 
 def trade_with_aliens():
-    """Trade with aliens"""
-    print("\n👽 ALIEN TRADE")
-    print(f"💰 Your credits: {player['credits']}")
+    """Trade with aliens with better interface"""
+    print_header("👽 ALIEN TRADE")
+    print(f"💰 Your credits: {player['credits']}\n")
 
     items = {
         "🌌 Dark Crystal": 500,
         "💫 Warp Core": 2000,
-        "🔮 Shield": 1500,
-        "🍕 Space Pizza": 50
+        "🔮 Quantum Shield": 1500,
+        "🍕 Space Pizza": 50,
+        "📡 Anomaly Scanner": 800  # NEW
     }
 
+    print("🛒 AVAILABLE ITEMS:")
     for i, (item, price) in enumerate(items.items(), 1):
         print(f"{i}. {item} - {price} credits")
 
-    choice = input("Buy (number) or 'q': ")
+    choice = input("\nBuy (number) or 'q' to quit: ")
     if choice.isdigit() and 1 <= int(choice) <= len(items):
         item, price = list(items.items())[int(choice) - 1]
         if player["credits"] >= price:
             player["credits"] -= price
             player["inventory"].append(item)
-            print(f"✨ Bought {item}!")
+            print(f"\n✨ Purchased {item}!")
+            print(f"💰 Remaining credits: {player['credits']}")
         else:
             print("❌ Not enough credits!")
 
 def explore_nebula():
-    """Explore a nebula"""
-    print("\n🌌 NEBULA EXPLORATION")
+    """Explore a nebula with more rewards"""
+    print_header("🌌 NEBULA EXPLORATION")
+    
     for i, name in enumerate(NEBULAE.keys(), 1):
         print(f"{i}. {name}")
 
-    choice = input("Choose: ")
+    choice = input("\nChoose: ")
     if choice.isdigit() and 1 <= int(choice) <= len(NEBULAE):
         name = list(NEBULAE.keys())[int(choice) - 1]
-        print(f"\n🚀 Flying into {name}...")
+        print(f"\n🚀 Entering {name}...")
         time.sleep(1)
 
-        if random.random() < 0.6 + (player["luck"] * 0.02):
+        # Multiple outcomes
+        roll = random.random()
+        if roll < 0.6 + (player["luck"] * 0.02):
             fuel_found = random.randint(300, 1500) + (player["luck"] * 10)
             player["fuel"] += fuel_found
-            print(f"⛽ Found {fuel_found} fuel!")
+            print(f"⛽ Discovered {fuel_found} fuel in the nebula!")
             unlock_achievement("fuel")
-        else:
-            treasure = random.choice(["Ancient Relic", "Crystal Shard", "Star Chart"])
+        elif roll < 0.8:
+            treasure = random.choice(["Ancient Relic", "Crystal Shard", "Star Chart", "Alien Artifact"])
             player["inventory"].append(treasure)
             print(f"🔮 Found {treasure}!")
             player["research"] += 20 + (player["luck"] * 2)
+        else:
+            print("💨 The nebula is empty... but you enjoy the view!")
 
+        # Chance to find pet
         if random.random() < 0.08:
             find_pet()
     else:
@@ -445,8 +522,9 @@ def explore_nebula():
 
 def random_activity():
     """Do something random for fun"""
-    print("\n🎲 RANDOM ACTIVITY!")
-    options = ["tell_joke", "find_pet", "check_luck", "find_treasure"]
+    print_header("🎲 RANDOM FUN")
+    
+    options = ["tell_joke", "find_pet", "check_luck", "find_treasure", "meditate"]
     action = random.choice(options)
 
     if action == "tell_joke":
@@ -458,57 +536,65 @@ def random_activity():
     elif action == "find_treasure":
         treasure = random.randint(50, 200) + (player["luck"] * 5)
         player["credits"] += treasure
-        print(f"\n💰 Found {treasure} credits floating in space!")
+        print(f"\n💰 You found {treasure} credits floating in space!")
+    elif action == "meditate":
+        gain = random.randint(5, 15)
+        player["morale"] = min(100, player["morale"] + gain)
+        print(f"\n🧘‍♂️ Your crew meditates in zero-gravity.")
+        print(f"😊 Morale +{gain}! (Now: {player['morale']}%)")
 
 # ============================================
 # DISPLAY FUNCTIONS
 # ============================================
 
 def show_stats():
-    """Display all player stats"""
-    print("\n" + "=" * 50)
-    print("📊 YOUR SPACE STATISTICS")
-    print("=" * 50)
-    print(f"🚀 Missions completed: {player['missions']}")
-    print(f"🔥 Current streak: {player['streak']}")
-    print(f"⛽ Fuel remaining: {player['fuel']:.0f}")
-    print(f"💰 Credits: {player['credits']}")
-    print(f"📚 Research points: {player['research']}")
-    print(f"😊 Crew morale: {player['morale']}%")
-    print(f"🏆 Bounty rank: {player['rank']}")
-    print(f"📏 Furthest distance: {player['record']:.0f} million km")
-    print(f"🍀 Today's luck: {'⭐' * player['luck']}")
+    """Display all player stats with better formatting"""
+    print_header("📊 YOUR SPACE STATISTICS")
+    
+    print(f"🚀 Missions:     {player['missions']}")
+    print(f"🔥 Streak:       {player['streak']}")
+    print(f"⛽ Fuel:         {player['fuel']:.0f}")
+    print(f"💰 Credits:      {player['credits']}")
+    print(f"📚 Research:     {player['research']}")
+    print(f"😊 Morale:       {player['morale']}%")
+    print(f"🏆 Bounty Rank:  {player['rank']}")
+    print(f"📏 Furthest:     {player['record']:,.0f} million km")
+    print(f"🌠 Total Dist.:  {player['total_distance']:,.0f} million km")
+    print(f"🍀 Luck:         {'⭐' * player['luck']} ({player['luck']}/10)")
     print(f"🏅 Achievements: {len(player['trophies'])}")
 
     if player["trophies"]:
-        print("\n🏅 Your achievements:")
+        print("\n🏅 ACHIEVEMENTS:")
         for t in player["trophies"]:
             print(f"  • {ACHIEVEMENTS[t]}")
 
     if player["pets"]:
-        print("\n🐾 Your space pets:")
+        print("\n🐾 SPACE PETS:")
         for pet in player["pets"]:
             print(f"  • {pet}")
 
     if player["inventory"]:
-        print("\n📦 Your inventory:")
+        print("\n📦 INVENTORY:")
         for item in player["inventory"]:
             print(f"  • {item}")
 
 def show_crew():
     """Display crew information"""
-    print("\n👥 YOUR CREW")
-    print("=" * 40)
+    print_header("👥 YOUR CREW")
+    
     for member in crew:
-        print(f"• {member['name']} - Level {member['level']} ({member['skill']})")
-        print(f"  XP: {member['xp']}/{member['level'] * 100}")
+        print(f"\n🌟 {member['name']}")
+        print(f"   Skill: {member['skill']}")
+        print(f"   Level: {member['level']}")
+        print(f"   XP: {member['xp']}/{member['level'] * 100}")
+        print(f"   Progress: {'█' * (member['xp'] // 10)}{'░' * (10 - member['xp'] // 10)}")
 
 # ============================================
 # SAVE/LOAD FUNCTIONS
 # ============================================
 
 def save_game():
-    """Save game progress"""
+    """Save game progress with confirmation"""
     data = {
         "fuel": player["fuel"],
         "credits": player["credits"],
@@ -518,6 +604,7 @@ def save_game():
         "research": player["research"],
         "rank": player["rank"],
         "record": player["record"],
+        "total_distance": player["total_distance"],
         "trophies": player["trophies"],
         "inventory": player["inventory"],
         "pets": player["pets"],
@@ -529,12 +616,13 @@ def save_game():
     try:
         with open("space_save.json", "w") as f:
             json.dump(data, f)
-        print("💾 Game saved successfully!")
-    except:
-        print("❌ Save failed!")
+        print("\n💾 Game saved successfully!")
+        print(f"📅 Saved at: {datetime.now().strftime('%H:%M:%S')}")
+    except Exception as e:
+        print(f"❌ Save failed: {e}")
 
 def load_game():
-    """Load game progress"""
+    """Load game progress with confirmation"""
     global player, crew, TECH
     try:
         with open("space_save.json", "r") as f:
@@ -553,10 +641,12 @@ def load_game():
                 if name in TECH:
                     TECH[name]["owned"] = values.get("owned", False)
 
-        print("📀 Game loaded successfully!")
+        print("\n📀 Game loaded successfully!")
+        print(f"👋 Welcome back, Captain!")
         return True
     except FileNotFoundError:
         print("❌ No save file found!")
+        print("💡 Start a new adventure!")
         return False
     except Exception as e:
         print(f"❌ Load failed: {e}")
@@ -567,17 +657,27 @@ def load_game():
 # ============================================
 
 def main():
+    """Main game entry point with a beautiful welcome"""
+    clear_screen()
+    
     print("""
     ╔════════════════════════════════════════════╗
-    ║   🚀 SPACE DISTANCE CALCULATOR 🚀         ║
-    ║           The Space Adventure             ║
-    ║               Version 3.5                 ║
     ║                                          ║
-    ║     "Explore the cosmos!"                ║
+    ║   🚀 SPACE DISTANCE CALCULATOR 🚀        ║
+    ║                                          ║
+    ║        The Friendly Space Adventure      ║
+    ║                                          ║
+    ║           Version 3.5 - Final            ║
+    ║                                          ║
+    ║     "The cosmos is yours to explore!"    ║
+    ║                                          ║
     ╚════════════════════════════════════════════╝
     """)
-
-    print("🌟 Welcome, Captain! The galaxy awaits you!\n")
+    
+    print("🌟 Welcome, Captain!")
+    print("💫 The galaxy awaits your command...\n")
+    time.sleep(1)
+    
     check_daily_luck()
 
     while True:
@@ -595,6 +695,7 @@ def main():
         print("9. 📀 Load Game")
         print("10. 🎲 Random Fun")
         print("11. ❌ Quit")
+        print("=" * 40)
 
         choice = input("\nYour choice: ")
 
@@ -619,8 +720,10 @@ def main():
         elif choice == "10":
             random_activity()
         elif choice == "11":
-            print("\n👋 Farewell, Captain!")
+            print("\n" + "=" * 40)
+            print("👋 Farewell, Captain!")
             print("⭐ Live long and prosper! 🖖")
+            print("=" * 40 + "\n")
             break
         else:
             print("❌ Invalid choice, Captain!")
