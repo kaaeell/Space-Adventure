@@ -69,10 +69,6 @@ Contributions welcome! Feel free to:
 - Improve documentation
 - Suggest ideas
 
-## 📝 License
-
-MIT License - Free to use, modify, and share!
-
 ---
 
 **Made with ❤️ and ☕ coffee**
