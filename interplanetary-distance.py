@@ -11,9 +11,7 @@ import json
 import os
 from datetime import datetime
 
-# ============================================
 # PLAYER DATA
-# ============================================
 
 player = {
     "fuel": 5000,
@@ -35,9 +33,7 @@ player = {
     "jokes_told": 0
 }
 
-# ============================================
 # CREW
-# ============================================
 
 crew = [
     {"name": "Captain Rex", "skill": "Leadership", "level": 1, "xp": 0},
@@ -47,9 +43,7 @@ crew = [
     {"name": "Gunner Mack", "skill": "Combat", "level": 1, "xp": 0}
 ]
 
-# ============================================
 # GAME DATA
-# ============================================
 
 PLANETS = {
     1: ("🌍 Earth", (0, 0)),
@@ -136,9 +130,7 @@ WELCOME_MESSAGES = [
     "The universe is your playground!"
 ]
 
-# ============================================
 # HELPER FUNCTIONS
-# ============================================
 
 def clear_screen():
     """Clear the screen for cleaner display"""
@@ -218,9 +210,7 @@ def tell_joke():
     if player["jokes_told"] >= 10:
         unlock_achievement("jokester")
 
-# ============================================
 # MAIN GAME FUNCTIONS
-# ============================================
 
 def pick_planet():
     """Choose two planets"""
