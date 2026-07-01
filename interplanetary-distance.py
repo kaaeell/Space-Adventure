@@ -1,7 +1,7 @@
 """
 🚀 SPACE DISTANCE CALCULATOR
 The Friendly Space Adventure Game
-Version 3.6 - Ultimate Edition
+Version 3.6 - FINAL
 """
 
 import math
@@ -288,7 +288,6 @@ def start_mission():
     print(f"\n📏 Distance: {dist:,.0f} million km")
     print(f"📊 Total distance traveled: {player['total_distance']:,.0f} million km")
 
-    # Check for new record
     if dist > player["record"]:
         player["record"] = dist
         print("🏆 NEW RECORD DISTANCE!")
@@ -452,13 +451,22 @@ def hunt_bounty():
                 my_hp -= counter
                 print(f"💥 Too slow! You took {counter} damage!")
         elif action == "3":
-            if "🍕 Space Pizza" in player["inventory"]:
-                player["inventory"].remove("🍕 Space Pizza")
+            # Check if player has any consumable items
+            consumable_items = ["🍕 Space Pizza"]
+            found_item = None
+            for item in consumable_items:
+                if item in player["inventory"]:
+                    found_item = item
+                    break
+            
+            if found_item:
+                player["inventory"].remove(found_item)
                 heal = random.randint(3, 8)
-                my_hp = min(target["hp"] + (player["luck"] // 3), my_hp + heal)
-                print(f"💊 You eat Space Pizza! Healed {heal} health!")
+                max_hp = target["hp"] + (player["luck"] // 3)
+                my_hp = min(max_hp, my_hp + heal)
+                print(f"💊 You used {found_item}! Healed {heal} health!")
             else:
-                print("❌ No items available!")
+                print("❌ No items available! You have: " + ", ".join(player["inventory"]) if player["inventory"] else "Nothing")
         else:
             print("Invalid action!")
 
@@ -530,7 +538,9 @@ def trade_with_aliens():
         print(f"{i}. {item} - {price} credits")
 
     choice = input("\nBuy (number) or 'q' to quit: ")
-    if choice.isdigit() and 1 <= int(choice) <= len(ALIEN_ITEMS):
+    if choice == 'q' or choice == 'Q':
+        return
+    elif choice.isdigit() and 1 <= int(choice) <= len(ALIEN_ITEMS):
         item, price = list(ALIEN_ITEMS.items())[int(choice) - 1]
         if player["credits"] >= price:
             player["credits"] -= price
@@ -673,6 +683,8 @@ def show_crew():
             progress = int((member['xp'] / (member['level'] * 100)) * 10)
             bar = "█" * progress + "░" * (10 - progress)
             print(f"   Progress: [{bar}]")
+        else:
+            print(f"   Progress: [░░░░░░░░░░]")
 
 # ============================================
 # SAVE/LOAD FUNCTIONS
@@ -764,7 +776,7 @@ def main():
     ║                                          ║
     ║        The Friendly Space Adventure      ║
     ║                                          ║
-    ║           Version 3.6 - Final            ║
+    ║           Version 3.6 - FINAL            ║
     ║                                          ║
     ║     "The cosmos is yours to explore!"    ║
     ║                                          ║
