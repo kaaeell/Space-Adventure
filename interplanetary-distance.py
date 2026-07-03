@@ -11,9 +11,6 @@ import json
 import os
 from datetime import datetime
 
-# ============================================
-# PLAYER DATA
-# ============================================
 
 player = {
     "fuel": 5000,
