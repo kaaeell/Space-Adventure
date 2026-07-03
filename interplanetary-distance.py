@@ -227,6 +227,16 @@ def get_planet_name(coords):
             return name
     return "📍 Unknown"
 
+def safe_input(prompt, default=None):
+    """Safely get input from user"""
+    try:
+        return input(prompt)
+    except KeyboardInterrupt:
+        print("\n\n👋 Interrupted! See you later, Captain!")
+        exit()
+    except EOFError:
+        return default if default is not None else ""
+
 # ============================================
 # MAIN GAME FUNCTIONS
 # ============================================
@@ -242,7 +252,7 @@ def pick_planet():
     def choose(question):
         while True:
             try:
-                choice = int(input(question))
+                choice = int(safe_input(question, "1"))
                 if choice in PLANETS:
                     return PLANETS[choice]
                 print("❌ Invalid choice! Try again.")
@@ -266,7 +276,7 @@ def start_mission():
     print("2. 🗺️ Explore unknown coordinates")
     print("3. ↩️ Return to menu")
 
-    choice = input("\nChoice: ")
+    choice = safe_input("\nChoice: ", "3")
 
     if choice == "3":
         return
@@ -275,8 +285,8 @@ def start_mission():
     elif choice == "2":
         try:
             print("\n📡 Enter coordinates (in million km)")
-            start = (float(input("Start x: ")), float(input("Start y: ")))
-            end = (float(input("End x: ")), float(input("End y: ")))
+            start = (float(safe_input("Start x: ", "0")), float(safe_input("Start y: ", "0")))
+            end = (float(safe_input("End x: ", "100")), float(safe_input("End y: ", "100")))
             start_name, end_name = "🚀 Unknown", "📍 Unknown"
         except ValueError:
             print("❌ Invalid coordinates!")
@@ -332,7 +342,7 @@ def start_mission():
         print("\n1. Mine asteroid (risky but free)")
         print("2. Buy fuel (2 credits/unit)")
         print("3. Abort mission")
-        choice = input("Choice: ")
+        choice = safe_input("Choice: ", "3")
 
         if choice == "3":
             print("🔄 Mission aborted. Returning to base.")
@@ -348,7 +358,7 @@ def start_mission():
                 print(f"💥 Asteroid collision! Lost {lost} fuel!")
         elif choice == "2":
             try:
-                amount = int(input("How much fuel? "))
+                amount = int(safe_input("How much fuel? ", "100"))
                 cost = amount * 2
                 if player["credits"] >= cost:
                     player["credits"] -= cost
@@ -410,7 +420,7 @@ def hunt_bounty():
         print(f"{i}. {target['name']}")
         print(f"   💰 Reward: {target['reward']} | Level: {target['level']}")
 
-    choice = input("\nChoose target (number): ")
+    choice = safe_input("\nChoose target (number): ", "1")
     if not choice.isdigit() or int(choice) < 1 or int(choice) > len(available[:4]):
         return
 
@@ -431,7 +441,7 @@ def hunt_bounty():
 
     while my_hp > 0 and enemy_hp > 0:
         print(f"\n❤️ You: {my_hp} | {target['name']}: {enemy_hp}")
-        action = input("1. ⚔️ Attack  2. 🛡️ Dodge  3. 💊 Use item: ")
+        action = safe_input("1. ⚔️ Attack  2. 🛡️ Dodge  3. 💊 Use item: ", "1")
 
         if action == "1":
             damage = random.randint(2, 6) + (player["luck"] // 5)
@@ -505,7 +515,7 @@ def do_research():
     print("\n5. 💰 Convert 100 credits → 20 research points")
     print("6. ↩️ Back to menu")
 
-    choice = input("\nChoice: ")
+    choice = safe_input("\nChoice: ", "6")
     if choice == "6":
         return
     elif choice.isdigit() and 1 <= int(choice) <= 4:
@@ -539,7 +549,7 @@ def trade_with_aliens():
     for i, (item, price) in enumerate(ALIEN_ITEMS.items(), 1):
         print(f"{i}. {item} - {price} credits")
 
-    choice = input("\nBuy (number) or 'q' to quit: ")
+    choice = safe_input("\nBuy (number) or 'q' to quit: ", "q")
     if choice.lower() == 'q':
         return
     elif choice.isdigit() and 1 <= int(choice) <= len(ALIEN_ITEMS):
@@ -559,7 +569,7 @@ def explore_nebula():
     for i, name in enumerate(NEBULAE.keys(), 1):
         print(f"{i}. {name}")
 
-    choice = input("\nChoose: ")
+    choice = safe_input("\nChoose: ", "1")
     if choice.isdigit() and 1 <= int(choice) <= len(NEBULAE):
         name = list(NEBULAE.keys())[int(choice) - 1]
         print(f"\n🚀 Entering {name}...")
@@ -720,8 +730,10 @@ def save_game():
             json.dump(data, f)
         print("\n💾 Game saved successfully!")
         print(f"📅 Saved at: {datetime.now().strftime('%H:%M:%S')}")
+        return True
     except Exception as e:
         print(f"❌ Save failed: {e}")
+        return False
 
 def load_game():
     """Load game progress"""
@@ -809,7 +821,7 @@ def main():
         print("12. ❌ Quit")
         print("=" * 40)
 
-        choice = input("\nYour choice: ")
+        choice = safe_input("\nYour choice: ", "12")
 
         if choice == "1":
             start_mission()
