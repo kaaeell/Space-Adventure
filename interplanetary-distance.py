@@ -1,7 +1,7 @@
 """
 🚀 SPACE DISTANCE CALCULATOR
 The Friendly Space Adventure Game
-Version 3.7 - The Complete Edition
+Version 3.7 - FINAL
 
 A simple, fun space game made with love and Python.
 Fly missions, hunt bounties, collect pets, and explore the cosmos!
@@ -36,7 +36,7 @@ you = {
     "pirates_defeated": 0,
     "nebula_explored": 0,
     "jokes_told": 0,
-    "games_played": 0  # NEW: Track total games played
+    "games_played": 0
 }
 
 # ============================================
@@ -96,13 +96,13 @@ ACHIEVEMENTS = {
     "pirate_hunter": "⚔️ Defeated 10 pirates!",
     "nebula_expert": "🌌 Explored 5 nebulae!",
     "jokester": "😂 Told 10 jokes!",
-    "collector": "📦 Collected 10 items!"  # NEW
+    "collector": "📦 Collected 10 items!"
 }
 
 PETS = [
     "🐶 Space Dog", "🐱 Robot Cat", "🐹 Alien Hamster", 
     "🐉 Tiny Dragon", "🦊 Quantum Fox", "🐧 Space Penguin", 
-    "🐙 Star Octopus", "🦄 Nebula Unicorn", "🐼 Panda-stronaut"  # NEW
+    "🐙 Star Octopus", "🦄 Nebula Unicorn", "🐼 Panda-stronaut"
 ]
 
 JOKES = [
@@ -133,7 +133,7 @@ ALIEN_ITEMS = {
     "🍕 Space Pizza": 50,
     "📡 Anomaly Scanner": 800,
     "🧪 Research Data": 400,
-    "🎵 Space Radio": 150  # NEW
+    "🎵 Space Radio": 150
 }
 
 WELCOME_MESSAGES = [
@@ -146,7 +146,7 @@ WELCOME_MESSAGES = [
     "Space is big, but you're brave!"
 ]
 
-FAREWELL_MESSAGES = [  # NEW
+FAREWELL_MESSAGES = [
     "The stars will remember you!",
     "Come back soon, space cowboy!",
     "May the force be with you!",
@@ -246,8 +246,7 @@ def safe_input(prompt, default=None):
     except EOFError:
         return default if default is not None else ""
 
-def show_morale_bar():  # NEW
-    """Show a visual morale bar"""
+def show_morale_bar():
     bar_length = 20
     filled = int(bar_length * you["morale"] / 100)
     bar = "█" * filled + "░" * (bar_length - filled)
@@ -319,7 +318,6 @@ def start_mission():
         you["record"] = dist
         print("🏆 NEW RECORD DISTANCE!")
 
-    # Random events
     if random.random() < 0.25 + (you["luck"] * 0.01):
         event = random.choice(["wormhole", "treasure", "pet", "joke", "alien_signal", "shooting_star"])
         if event == "wormhole":
@@ -403,7 +401,6 @@ def start_mission():
     print(f"📊 Total missions: {you['missions']}")
     print(f"🔥 Current streak: {you['streak']}")
 
-    # Check achievements
     if you["missions"] == 1:
         unlock_achievement("first")
     if you["credits"] >= 10000:
@@ -481,23 +478,16 @@ def hunt_bounty():
                 my_hp -= counter
                 print(f"💥 Too slow! You took {counter} damage!")
         elif action == "3":
-            # Check for any consumable item
-            consumable = None
-            for item in you["inventory"]:
-                if "Pizza" in item or "Crystal" in item:
-                    consumable = item
-                    break
-            
-            if consumable:
-                you["inventory"].remove(consumable)
+            if "🍕 Space Pizza" in you["inventory"]:
+                you["inventory"].remove("🍕 Space Pizza")
                 heal = random.randint(3, 8)
                 max_hp = target["hp"] + (you["luck"] // 3)
                 if TECH["🛡️ Shield Tech"]["owned"]:
                     max_hp += 2
                 my_hp = min(max_hp, my_hp + heal)
-                print(f"💊 You used {consumable}! Healed {heal} health!")
+                print(f"💊 You ate Space Pizza! Healed {heal} health!")
             else:
-                print("❌ No consumable items available!")
+                print("❌ No Space Pizza available!")
                 if you["inventory"]:
                     print(f"📦 You have: {', '.join(you['inventory'])}")
                 else:
@@ -807,6 +797,7 @@ def load_game():
 # ============================================
 
 def main():
+    you["games_played"] = you.get("games_played", 0) + 1
     clear_screen()
     
     print("""
@@ -816,8 +807,13 @@ def main():
     ║                                          ║
     ║        The Friendly Space Adventure      ║
     ║                                          ║
-    ║           Version 3.7 - Final            ║
+    ║           Version 3.7 - FINAL            ║
     ║                                          ║
     ║     "The cosmos is yours to explore!"    ║
     ║                                          ║
-    ╚════════════
+    ╚════════════════════════════════════════════╝
+    """)
+    
+    print(f"🌟 Welcome, Captain!")
+    print(f"💫 {random.choice(WELCOME_MESSAGES)}\n")
+    print(f"🎮 Game session #{you['games_played']}")
