@@ -168,8 +168,7 @@ def print_header(text):
     print("=" * 50)
 
 def distance(p1, p2):
-    return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
-
+        return math.hypot(p2[0]-p1[0], p2[1]-p1[1])
 def unlock_achievement(key):
     if key in ACHIEVEMENTS and key not in you["trophies"]:
         you["trophies"].append(key)
