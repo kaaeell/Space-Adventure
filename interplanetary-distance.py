@@ -113,9 +113,7 @@ JOKES = [
     "Why did the alien cross the galaxy? To get to the other side!",
     "What do you call a lazy astronaut? A space cadet!",
     "Why is space so clean? Because nobody dusts!",
-    "What do you call a flying cow? A spaceship!",
-    "Why don't aliens eat clowns? They taste funny!",
-    "What do you call a space wizard? A star-tist!"
+    "What do you call a flying cow? A spaceship!"
 ]
 
 NEBULAE = {
@@ -141,9 +139,7 @@ WELCOME_MESSAGES = [
     "Adventure awaits!",
     "Time to explore the cosmos!",
     "Another day, another galaxy!",
-    "The universe is your playground!",
-    "Ready for takeoff?",
-    "Space is big, but you're brave!"
+    "The universe is your playground!"
 ]
 
 FAREWELL_MESSAGES = [
@@ -151,8 +147,7 @@ FAREWELL_MESSAGES = [
     "Come back soon, space cowboy!",
     "May the force be with you!",
     "To infinity and beyond!",
-    "Live long and prosper!",
-    "The galaxy misses you already!"
+    "Live long and prosper!"
 ]
 
 # ============================================
@@ -658,12 +653,6 @@ def view_help():
    • Level up crew for better bonuses
    • Complete achievements for bragging rights
 
-🎁 NEW FEATURES:
-   • Morale bar shows crew happiness
-   • Shooting stars grant wishes
-   • Dance party for morale boost
-   • New pets and items
-
 🚀 GOOD LUCK, CAPTAIN!
     """)
 
@@ -817,3 +806,17 @@ def main():
     print(f"🌟 Welcome, Captain!")
     print(f"💫 {random.choice(WELCOME_MESSAGES)}\n")
     print(f"🎮 Game session #{you['games_played']}")
+    time.sleep(1)
+    
+    check_daily_luck()
+
+    while True:
+        print("\n" + "=" * 40)
+        print("🌟 MAIN MENU")
+        print("=" * 40)
+        print("1. 🚀 Start Mission")
+        print("2. 📊 View Stats")
+        print("3. 👥 View Crew")
+        print("4. 🧪 Research Lab")
+        print("5. 💰 Hunt Bounty")
+       
