@@ -1,10 +1,10 @@
 """
 🚀 SPACE DISTANCE CALCULATOR
 The Friendly Space Adventure Game
-Version 3.7 - FINAL
+Version 3.7 - The Complete Edition
 
-A simple, fun space game made with love and Python.
-Fly missions, hunt bounties, collect pets, and explore the cosmos!
+A warm, welcoming space game where you explore, trade, and make friends across the galaxy!
+Made with ❤️ and lots of ☕ coffee
 """
 
 import math
@@ -15,32 +15,32 @@ import os
 from datetime import datetime
 
 # ============================================
-# YOUR SHIP'S DATA
+# YOUR SHIP - Your home in the stars
 # ============================================
 
 you = {
-    "fuel": 5000,
-    "credits": 1000,
-    "missions": 0,
-    "streak": 0,
-    "morale": 80,
-    "research": 0,
-    "rank": 1,
-    "record": 0,
-    "total_distance": 0,
-    "trophies": [],
-    "inventory": [],
-    "pets": [],
-    "luck": 0,
-    "last_play": None,
-    "pirates_defeated": 0,
-    "nebula_explored": 0,
-    "jokes_told": 0,
-    "games_played": 0
+    "fuel": 5000,          # Gas to fly!
+    "credits": 1000,       # Space money
+    "missions": 0,         # Trips completed
+    "streak": 0,           # Hot streak!
+    "morale": 80,          # Happy crew?
+    "research": 0,         # Science points
+    "rank": 1,             # Bounty hunter rank
+    "record": 0,           # Furthest trip
+    "total_distance": 0,   # Total km traveled
+    "trophies": [],        # Achievements earned
+    "inventory": [],       # Stuff you bought
+    "pets": [],            # Cute space friends
+    "luck": 0,             # Daily luck (1-10)
+    "last_play": None,     # When you last played
+    "pirates_defeated": 0, # Bad guys caught
+    "nebula_explored": 0,  # Clouds visited
+    "jokes_told": 0,       # Funny moments
+    "games_played": 0      # How many times you've played
 }
 
 # ============================================
-# YOUR CREW
+# YOUR CREW - Your space family
 # ============================================
 
 crew = [
@@ -52,7 +52,7 @@ crew = [
 ]
 
 # ============================================
-# THE UNIVERSE
+# THE UNIVERSE - All the cool stuff out there
 # ============================================
 
 PLANETS = {
@@ -67,6 +67,7 @@ PLANETS = {
     9: ("⚫ Pluto", (5906, 0))
 }
 
+# Space criminals to catch
 BOUNTIES = [
     {"name": "🏴‍☠️ Red Pirate", "reward": 500, "level": 1, "hp": 3},
     {"name": "🌑 Shadow Corsair", "reward": 1000, "level": 2, "hp": 5},
@@ -74,6 +75,7 @@ BOUNTIES = [
     {"name": "👾 Galactic Menace", "reward": 3500, "level": 4, "hp": 10}
 ]
 
+# Technology to research
 TECH = {
     "⛽ Fuel Efficiency": {"cost": 100, "owned": False, "desc": "Use 10% less fuel"},
     "⚡ Warp Drive": {"cost": 200, "owned": False, "desc": "20% faster travel"},
@@ -81,6 +83,7 @@ TECH = {
     "🔭 Scanner Range": {"cost": 120, "owned": False, "desc": "Find more treasures"}
 }
 
+# Achievements to earn - little rewards for your journey!
 ACHIEVEMENTS = {
     "first": "🌱 First space trip!",
     "explorer": "🌌 Traveled over 2000 million km!",
@@ -99,12 +102,14 @@ ACHIEVEMENTS = {
     "collector": "📦 Collected 10 items!"
 }
 
+# Cute space pets to find on your adventures
 PETS = [
     "🐶 Space Dog", "🐱 Robot Cat", "🐹 Alien Hamster", 
     "🐉 Tiny Dragon", "🦊 Quantum Fox", "🐧 Space Penguin", 
     "🐙 Star Octopus", "🦄 Nebula Unicorn", "🐼 Panda-stronaut"
 ]
 
+# Funny jokes to cheer up your crew
 JOKES = [
     "Why did the star go to school? To get brighter!",
     "What do astronauts use for pants? An asteroid belt!",
@@ -112,10 +117,10 @@ JOKES = [
     "What's an astronaut's favorite key? The space bar!",
     "Why did the alien cross the galaxy? To get to the other side!",
     "What do you call a lazy astronaut? A space cadet!",
-    "Why is space so clean? Because nobody dusts!",
-    "What do you call a flying cow? A spaceship!"
+    "Why is space so clean? Because nobody dusts!"
 ]
 
+# Beautiful nebulae to explore
 NEBULAE = {
     "🌌 Orion Nebula": (1340, -220),
     "🦅 Eagle Nebula": (7000, 0),
@@ -124,6 +129,7 @@ NEBULAE = {
     "💀 Skull Nebula": (4200, -500)
 }
 
+# Stuff you can buy from friendly aliens
 ALIEN_ITEMS = {
     "🌌 Dark Crystal": 500,
     "💫 Warp Core": 2000,
@@ -134,38 +140,47 @@ ALIEN_ITEMS = {
     "🎵 Space Radio": 150
 }
 
+# Warm welcome messages
 WELCOME_MESSAGES = [
     "The stars are calling!",
     "Adventure awaits!",
     "Time to explore the cosmos!",
     "Another day, another galaxy!",
-    "The universe is your playground!"
+    "The universe is your playground!",
+    "Ready for takeoff?",
+    "Space is big, but you're brave!"
 ]
 
+# Friendly farewell messages
 FAREWELL_MESSAGES = [
     "The stars will remember you!",
     "Come back soon, space cowboy!",
     "May the force be with you!",
     "To infinity and beyond!",
-    "Live long and prosper!"
+    "Live long and prosper!",
+    "The galaxy misses you already!"
 ]
 
 # ============================================
-# HELPER FUNCTIONS
+# HELPER FUNCTIONS - The magic behind the scenes
 # ============================================
 
 def clear_screen():
+    """Makes the screen clean and fresh"""
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def print_header(text):
+    """Makes a pretty header for sections"""
     print("\n" + "=" * 50)
     print(f"  {text}")
     print("=" * 50)
 
 def distance(p1, p2):
+    """How far apart are two points in space?"""
     return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
 def unlock_achievement(key):
+    """Celebrate when you earn something cool"""
     if key in ACHIEVEMENTS and key not in you["trophies"]:
         you["trophies"].append(key)
         print(f"\n🎉 {'='*40}")
@@ -176,6 +191,7 @@ def unlock_achievement(key):
     return False
 
 def gain_crew_xp(amount):
+    """Your crew learns and grows from every adventure"""
     for member in crew:
         member["xp"] += amount
         if member["xp"] >= member["level"] * 100:
@@ -187,6 +203,7 @@ def gain_crew_xp(amount):
             print(f"💰 Crew celebration! +{bonus} credits!")
 
 def check_daily_luck():
+    """See how lucky you are today - the stars know!"""
     today = datetime.now().date()
     if you["last_play"] != str(today):
         you["luck"] = random.randint(1, 10)
@@ -206,6 +223,7 @@ def check_daily_luck():
         time.sleep(0.5)
 
 def find_pet():
+    """Find a cute space friend on your journey"""
     pet = random.choice(PETS)
     if pet not in you["pets"]:
         you["pets"].append(pet)
@@ -217,6 +235,7 @@ def find_pet():
         print(f"\n🐾 {pet} is already part of your space family!")
 
 def tell_joke():
+    """Make your crew laugh with a silly joke"""
     joke = random.choice(JOKES)
     print(f"\n😂 {joke}")
     you["morale"] = min(100, you["morale"] + 5)
@@ -227,12 +246,14 @@ def tell_joke():
         unlock_achievement("jokester")
 
 def get_planet_name(coords):
+    """Find what planet these coordinates belong to"""
     for num, (name, c) in PLANETS.items():
         if c == coords:
             return name
     return "📍 Unknown"
 
 def safe_input(prompt, default=None):
+    """Get input without crashing - keeps the game running smoothly"""
     try:
         return input(prompt)
     except KeyboardInterrupt:
@@ -242,6 +263,7 @@ def safe_input(prompt, default=None):
         return default if default is not None else ""
 
 def show_morale_bar():
+    """Show a visual bar of how happy your crew is"""
     bar_length = 20
     filled = int(bar_length * you["morale"] / 100)
     bar = "█" * filled + "░" * (bar_length - filled)
@@ -249,10 +271,11 @@ def show_morale_bar():
     print(f"😊 Morale: [{bar}] {you['morale']}% {mood}")
 
 # ============================================
-# MAIN GAME FUNCTIONS
+# THE FUN STUFF - All the things you can do
 # ============================================
 
 def pick_planet():
+    """Choose where you want to go on your adventure"""
     print("\n🪐 WHERE TO?")
     print("─" * 30)
     for num, (name, _) in PLANETS.items():
@@ -278,6 +301,7 @@ def pick_planet():
     return start_name, start, end_name, end
 
 def start_mission():
+    """Your main adventure - fly through space!"""
     check_daily_luck()
 
     print_header("🚀 PREPARING FOR LAUNCH")
@@ -304,6 +328,7 @@ def start_mission():
         print("❌ Invalid choice!")
         return
 
+    # Calculate your journey
     dist = distance(start, end)
     you["total_distance"] += dist
     print(f"\n📏 Distance: {dist:,.0f} million km")
@@ -313,6 +338,7 @@ def start_mission():
         you["record"] = dist
         print("🏆 NEW RECORD DISTANCE!")
 
+    # Random space surprises!
     if random.random() < 0.25 + (you["luck"] * 0.01):
         event = random.choice(["wormhole", "treasure", "pet", "joke", "alien_signal", "shooting_star"])
         if event == "wormhole":
@@ -341,6 +367,7 @@ def start_mission():
             you["morale"] = min(100, you["morale"] + wish_bonus // 10)
             print(f"✨ Your wish gave you +{wish_bonus//10} morale!")
 
+    # Fuel check - do you have enough gas?
     fuel_needed = dist * 0.5
     if TECH["⛽ Fuel Efficiency"]["owned"]:
         fuel_needed *= 0.9
@@ -381,6 +408,7 @@ def start_mission():
                 print("❌ Invalid amount!")
         return
 
+    # Mission success! Time to celebrate!
     you["fuel"] -= fuel_needed
     earned = int(dist * 0.8 + 50 + (you["luck"] * 2))
     you["credits"] += earned
@@ -396,6 +424,7 @@ def start_mission():
     print(f"📊 Total missions: {you['missions']}")
     print(f"🔥 Current streak: {you['streak']}")
 
+    # Check for achievements
     if you["missions"] == 1:
         unlock_achievement("first")
     if you["credits"] >= 10000:
@@ -414,6 +443,7 @@ def start_mission():
     gain_crew_xp(20)
 
 def hunt_bounty():
+    """Catch space criminals for money - be a hero!"""
     check_daily_luck()
 
     print_header("💰 BOUNTY HUNTING")
@@ -438,6 +468,7 @@ def hunt_bounty():
     print(f"\n⚔️ ENGAGING {target['name']}...")
     time.sleep(0.5)
 
+    # Fight!
     my_hp = target["hp"] + (you["luck"] // 3)
     enemy_hp = target["hp"]
     
@@ -511,6 +542,7 @@ def hunt_bounty():
         you["credits"] = max(0, you["credits"] - 100)
 
 def do_research():
+    """Learn cool new technology for your ship"""
     print_header("🧪 RESEARCH LAB")
     print(f"📚 Research points: {you['research']}\n")
 
@@ -548,6 +580,7 @@ def do_research():
             print("❌ Not enough credits!")
 
 def trade_with_aliens():
+    """Shop with friendly aliens from across the galaxy"""
     print_header("👽 ALIEN TRADE")
     print(f"💰 Your credits: {you['credits']}\n")
 
@@ -571,6 +604,7 @@ def trade_with_aliens():
             print("❌ Not enough credits!")
 
 def explore_nebula():
+    """Fly into colorful space clouds and find treasures"""
     print_header("🌌 NEBULA EXPLORATION")
     
     for i, name in enumerate(NEBULAE.keys(), 1):
@@ -609,6 +643,7 @@ def explore_nebula():
         print("Invalid choice!")
 
 def random_activity():
+    """Surprise fun time with your crew!"""
     print_header("🎲 RANDOM FUN")
     
     options = ["tell_joke", "find_pet", "check_luck", "find_treasure", "meditate", "dance"]
@@ -636,6 +671,7 @@ def random_activity():
         print(f"😊 Morale +{gain}! (Now: {you['morale']}%)")
 
 def view_help():
+    """A friendly guide for new captains"""
     print_header("📖 CAPTAIN'S GUIDE")
     print("""
 🎮 HOW TO PLAY:
@@ -657,10 +693,11 @@ def view_help():
     """)
 
 # ============================================
-# DISPLAY FUNCTIONS
+# LOOK AT YOUR PROGRESS
 # ============================================
 
 def show_stats():
+    """See how your space adventure is going"""
     print_header("📊 YOUR SPACE STATISTICS")
     
     print(f"🚀 Missions:     {you['missions']}")
@@ -694,6 +731,7 @@ def show_stats():
             print(f"  • {item}")
 
 def show_crew():
+    """Meet your space family"""
     print_header("👥 YOUR CREW")
     
     for member in crew:
@@ -709,10 +747,11 @@ def show_crew():
             print(f"   Progress: [░░░░░░░░░░]")
 
 # ============================================
-# SAVE/LOAD FUNCTIONS
+# SAVE AND LOAD - Don't lose your adventure!
 # ============================================
 
 def save_game():
+    """Save your progress so you can continue later"""
     data = {
         "fuel": you["fuel"],
         "credits": you["credits"],
@@ -746,6 +785,7 @@ def save_game():
         return False
 
 def load_game():
+    """Continue your journey from where you left off"""
     global you, crew, TECH
     try:
         with open("space_save.json", "r") as f:
@@ -782,10 +822,11 @@ def load_game():
         return False
 
 # ============================================
-# MAIN GAME LOOP
+# LET'S GO! - The main game loop
 # ============================================
 
 def main():
+    """Start your space adventure"""
     you["games_played"] = you.get("games_played", 0) + 1
     clear_screen()
     
@@ -819,4 +860,47 @@ def main():
         print("3. 👥 View Crew")
         print("4. 🧪 Research Lab")
         print("5. 💰 Hunt Bounty")
-       
+        print("6. 👽 Trade with Aliens")
+        print("7. 🌌 Explore Nebula")
+        print("8. 💾 Save Game")
+        print("9. 📀 Load Game")
+        print("10. 🎲 Random Fun")
+        print("11. 📖 Help")
+        print("12. ❌ Quit")
+        print("=" * 40)
+
+        choice = safe_input("\nYour choice: ", "12")
+
+        if choice == "1":
+            start_mission()
+        elif choice == "2":
+            show_stats()
+        elif choice == "3":
+            show_crew()
+        elif choice == "4":
+            do_research()
+        elif choice == "5":
+            hunt_bounty()
+        elif choice == "6":
+            trade_with_aliens()
+        elif choice == "7":
+            explore_nebula()
+        elif choice == "8":
+            save_game()
+        elif choice == "9":
+            load_game()
+        elif choice == "10":
+            random_activity()
+        elif choice == "11":
+            view_help()
+        elif choice == "12":
+            print("\n" + "=" * 40)
+            print("👋 Farewell, Captain!")
+            print(f"💫 {random.choice(FAREWELL_MESSAGES)}")
+            print("=" * 40 + "\n")
+            break
+        else:
+            print("❌ Invalid choice, Captain!")
+
+if __name__ == "__main__":
+    main()
