@@ -96,6 +96,8 @@ def unlock(key):
         you["trophies"].append(key)
         print(f"\n🎉 {ACHIEVEMENTS[key]} 🎉\n")
         time.sleep(0.8)
+        return True
+    return False
 
 def crew_xp(amount):
     for m in crew:
@@ -132,7 +134,7 @@ def find_pet():
 def tell_joke():
     print(f"\n😂 {random.choice(JOKES)}")
     you["morale"] = min(100, you["morale"] + 5)
-    you["jokes_told"] += 1
+    you["jokes_told"] = you.get("jokes_told", 0) + 1
     if you["jokes_told"] >= 10:
         unlock("jokester")
 
@@ -148,6 +150,12 @@ def morale_bar():
     bar = "█" * filled + "░" * (20 - filled)
     mood = "😄" if you["morale"] > 70 else "😐" if you["morale"] > 40 else "😞"
     print(f"😊 Morale: [{bar}] {you['morale']}% {mood}")
+
+def get_planet_name(coords):
+    for name, c in PLANETS.values():
+        if c == coords:
+            return name
+    return "Unknown"
 
 # ========== GAME ACTIONS ==========
 def pick_planet():
@@ -167,14 +175,7 @@ def pick_planet():
     
     start = choose("🌍 Starting: ")
     end = choose("🎯 Destination: ")
-    
-    start_name = end_name = "Unknown"
-    for n, (name, coords) in PLANETS.items():
-        if coords == start:
-            start_name = name
-        if coords == end:
-            end_name = name
-    return start_name, start, end_name, end
+    return get_planet_name(start), start, get_planet_name(end), end
 
 def mission():
     daily_luck()
@@ -347,7 +348,7 @@ def bounty():
     if my_hp > 0:
         bonus = int(target["reward"] * (1 + you["luck"] * 0.01))
         you["credits"] += bonus
-        you["pirates_defeated"] += 1
+        you["pirates_defeated"] = you.get("pirates_defeated", 0) + 1
         print(f"\n🎉 VICTORY! +{bonus} credits!")
         if target["level"] == you["rank"]:
             you["rank"] += 1
@@ -385,10 +386,13 @@ def research():
                 unlock("research")
         else:
             print("❌ Not enough points or already owned!")
-    elif choice == "5" and you["credits"] >= 100:
-        you["credits"] -= 100
-        you["research"] += 20
-        print("✅ Converted!")
+    elif choice == "5":
+        if you["credits"] >= 100:
+            you["credits"] -= 100
+            you["research"] += 20
+            print("✅ Converted!")
+        else:
+            print("❌ Not enough credits!")
 
 def trade():
     header("👽 ALIEN TRADE")
@@ -422,7 +426,7 @@ def nebula():
         print(f"\n🚀 Entering {name}...")
         time.sleep(1)
         
-        you["nebula_explored"] += 1
+        you["nebula_explored"] = you.get("nebula_explored", 0) + 1
         if you["nebula_explored"] >= 5:
             unlock("nebula_expert")
         
@@ -521,10 +525,21 @@ def view_crew():
 
 # ========== SAVE/LOAD ==========
 def save():
-    data = {k: v for k, v in you.items() if k not in ["trophies", "inventory", "pets"]}
-    data.update({"trophies": you["trophies"], "inventory": you["inventory"], "pets": you["pets"]})
-    data["crew"] = crew
-    data["tech"] = TECH
+    data = {
+        "fuel": you["fuel"], "credits": you["credits"],
+        "missions": you["missions"], "streak": you["streak"],
+        "morale": you["morale"], "research": you["research"],
+        "rank": you["rank"], "record": you["record"],
+        "total_distance": you["total_distance"],
+        "trophies": you["trophies"], "inventory": you["inventory"],
+        "pets": you["pets"], "luck": you["luck"],
+        "last_play": you["last_play"],
+        "pirates_defeated": you.get("pirates_defeated", 0),
+        "nebula_explored": you.get("nebula_explored", 0),
+        "jokes_told": you.get("jokes_told", 0),
+        "games_played": you.get("games_played", 0),
+        "crew": crew, "tech": TECH
+    }
     try:
         with open("space_save.json", "w") as f:
             json.dump(data, f)
@@ -562,7 +577,7 @@ def load():
 
 # ========== MAIN ==========
 def main():
-    you["games_played"] += 1
+    you["games_played"] = you.get("games_played", 0) + 1
     clear()
     
     print("""
