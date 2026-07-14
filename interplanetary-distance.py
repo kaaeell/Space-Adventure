@@ -167,7 +167,7 @@ def find_pet():
 def tell_joke():
     print(f"\n😂 {random.choice(JOKES)}")
     player["morale"] = min(100, player["morale"] + 5)
-    player["jokes_told"] += 1
+    player["jokes_told"] = player.get("jokes_told", 0) + 1
     if player["jokes_told"] >= 10:
         unlock_achievement("comedian")
 
@@ -398,7 +398,7 @@ def hunt_bounty():
     if my_hp > 0:
         bonus = int(target["reward"] * (1 + player["luck"] * 0.01))
         player["credits"] += bonus
-        player["pirates_killed"] += 1
+        player["pirates_killed"] = player.get("pirates_killed", 0) + 1
         print(f"\n🎉 VICTORY! +{bonus} credits!")
         if target["level"] == player["rank"]:
             player["rank"] += 1
@@ -475,7 +475,7 @@ def explore_nebula():
         print(f"\n🚀 Entering {name}...")
         time.sleep(1)
 
-        player["nebulae_visited"] += 1
+        player["nebulae_visited"] = player.get("nebulae_visited", 0) + 1
         if player["nebulae_visited"] >= 5:
             unlock_achievement("nebula_expert")
 
@@ -575,6 +575,8 @@ def show_crew():
             prog = int((member['xp'] / (member['level'] * 100)) * 10)
             bar = "█" * prog + "░" * (10 - prog)
             print(f"   [{bar}]")
+        else:
+            print(f"   [░░░░░░░░░░]")
 
 # ============================================
 # Save/Load
@@ -596,10 +598,10 @@ def save_game():
         "pets": player["pets"],
         "luck": player["luck"],
         "last_played": player["last_played"],
-        "pirates_killed": player["pirates_killed"],
-        "nebulae_visited": player["nebulae_visited"],
-        "jokes_told": player["jokes_told"],
-        "sessions": player["sessions"],
+        "pirates_killed": player.get("pirates_killed", 0),
+        "nebulae_visited": player.get("nebulae_visited", 0),
+        "jokes_told": player.get("jokes_told", 0),
+        "sessions": player.get("sessions", 0),
         "crew": crew,
         "tech": TECH
     }
@@ -607,8 +609,8 @@ def save_game():
         with open("save.json", "w") as f:
             json.dump(data, f)
         print("\n💾 Saved!")
-    except:
-        print("❌ Save failed!")
+    except Exception as e:
+        print(f"❌ Save failed: {e}")
 
 def load_game():
     global player, crew, TECH
@@ -639,8 +641,8 @@ def load_game():
     except FileNotFoundError:
         print("❌ No save found!")
         return False
-    except:
-        print("❌ Load failed!")
+    except Exception as e:
+        print(f"❌ Load failed: {e}")
         return False
 
 # ============================================
@@ -648,7 +650,7 @@ def load_game():
 # ============================================
 
 def main():
-    player["sessions"] += 1
+    player["sessions"] = player.get("sessions", 0) + 1
     clear_screen()
 
     print("""
