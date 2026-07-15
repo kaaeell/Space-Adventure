@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 
 # ============================================
-# Player data - your ship and stuff
+# Player data
 # ============================================
 
 player = {
@@ -32,7 +32,8 @@ player = {
     "pirates_killed": 0,
     "nebulae_visited": 0,
     "jokes_told": 0,
-    "sessions": 0
+    "sessions": 0,
+    "ship_name": "Star Explorer"  # NEW
 }
 
 # ============================================
@@ -92,7 +93,8 @@ ACHIEVEMENTS = {
     "pirate_slayer": "Killed 10 pirates!",
     "nebula_expert": "Visited 5 nebulae!",
     "comedian": "Told 10 jokes!",
-    "collector": "Collected 10 items!"
+    "collector": "Collected 10 items!",
+    "ship_namer": "Named your ship!"  # NEW
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -102,7 +104,8 @@ JOKES = [
     "Why did the star go to school? To get brighter!",
     "What do astronauts use for pants? An asteroid belt!",
     "How do you organize a space party? You planet!",
-    "What's an astronaut's favorite key? The space bar!"
+    "What's an astronaut's favorite key? The space bar!",
+    "Why did the alien cross the galaxy? To get to the other side!"  # NEW
 ]
 
 NEBULAE = {"Orion": (1340,-220), "Eagle": (7000,0), "Helix": (695,280),
@@ -110,6 +113,11 @@ NEBULAE = {"Orion": (1340,-220), "Eagle": (7000,0), "Helix": (695,280),
 
 SHOP = {"Dark Crystal": 500, "Warp Core": 2000, "Quantum Shield": 1500,
         "Space Pizza": 50, "Anomaly Scanner": 800, "Research Data": 400}
+
+SHIP_NAMES = [  # NEW
+    "Star Explorer", "Cosmic Wanderer", "Nebula Rider", 
+    "Void Seeker", "Galaxy Hopper", "Starlight", "Dark Star"
+]
 
 # ============================================
 # Helper functions
@@ -191,6 +199,41 @@ def get_planet_name(coords):
     return "Unknown"
 
 # ============================================
+# NEW: Ship naming
+# ============================================
+
+def name_ship():
+    show_header("🚢 NAME YOUR SHIP")
+    print(f"Current name: {player['ship_name']}")
+    print("\nChoose a name:")
+    for i, name in enumerate(SHIP_NAMES, 1):
+        print(f"{i}. {name}")
+    print(f"{len(SHIP_NAMES)+1}. Custom name")
+    
+    choice = get_input("Choice: ", "1")
+    if choice.isdigit() and 1 <= int(choice) <= len(SHIP_NAMES):
+        player["ship_name"] = SHIP_NAMES[int(choice)-1]
+        print(f"\n✅ Ship renamed to {player['ship_name']}!")
+        unlock_achievement("ship_namer")
+    elif choice == str(len(SHIP_NAMES)+1):
+        new_name = get_input("Enter ship name: ")
+        if new_name.strip():
+            player["ship_name"] = new_name.strip()
+            print(f"\n✅ Ship renamed to {player['ship_name']}!")
+            unlock_achievement("ship_namer")
+        else:
+            print("❌ Invalid name!")
+
+# ============================================
+# NEW: Quick stats in menu
+# ============================================
+
+def show_quick_stats():
+    print(f"\n📊 Quick Stats:")
+    print(f"  Fuel: {player['fuel']:.0f} | Credits: {player['credits']}")
+    print(f"  Missions: {player['missions']} | Ship: {player['ship_name']}")
+
+# ============================================
 # Game functions
 # ============================================
 
@@ -215,7 +258,7 @@ def pick_planets():
 
 def do_mission():
     check_luck()
-    show_header("🚀 LAUNCH")
+    show_header(f"🚀 {player['ship_name']} - LAUNCH")
     print("1. Known planets")
     print("2. Unknown coordinates")
     print("3. Go back")
@@ -521,6 +564,7 @@ def random_activity():
 
 def show_help():
     show_header("📖 CAPTAIN'S GUIDE")
+    print(f"\n🚢 Your ship: {player['ship_name']}")
     print("""
 🎮 HOW TO PLAY:
    • Do missions for credits and fuel
@@ -546,6 +590,7 @@ def show_help():
 
 def show_stats():
     show_header("📊 YOUR STATS")
+    print(f"🚢 Ship: {player['ship_name']}")
     print(f"🚀 Missions: {player['missions']} | 🔥 Streak: {player['streak']}")
     print(f"⛽ Fuel: {player['fuel']:.0f} | 💰 Credits: {player['credits']}")
     print(f"📚 Research: {player['research']}")
@@ -602,6 +647,7 @@ def save_game():
         "nebulae_visited": player.get("nebulae_visited", 0),
         "jokes_told": player.get("jokes_told", 0),
         "sessions": player.get("sessions", 0),
+        "ship_name": player.get("ship_name", "Star Explorer"),
         "crew": crew,
         "tech": TECH
     }
@@ -665,6 +711,7 @@ def main():
     """)
 
     print("🌟 Hey there, Captain!")
+    print(f"🚢 Your ship: {player['ship_name']}")
     print("💫 Let's explore the stars.\n")
     time.sleep(0.5)
     check_luck()
@@ -684,10 +731,13 @@ def main():
         print("9. 📀 Load")
         print("10. 🎲 Random")
         print("11. 📖 Help")
-        print("12. ❌ Quit")
+        print("12. 🚢 Name Ship")  # NEW
+        print("13. ❌ Quit")
         print("=" * 40)
+        
+        show_quick_stats()  # NEW
 
-        choice = get_input("Choice: ", "12")
+        choice = get_input("\nChoice: ", "13")
 
         if choice == "1":
             do_mission()
@@ -712,6 +762,8 @@ def main():
         elif choice == "11":
             show_help()
         elif choice == "12":
+            name_ship()
+        elif choice == "13":
             print("\n👋 See you later, Captain!")
             print("⭐ The stars will be waiting.")
             break
