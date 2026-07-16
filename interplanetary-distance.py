@@ -33,7 +33,7 @@ player = {
     "nebulae_visited": 0,
     "jokes_told": 0,
     "sessions": 0,
-    "ship_name": "Star Explorer"  # NEW
+    "ship_name": "Star Explorer"
 }
 
 # ============================================
@@ -94,7 +94,7 @@ ACHIEVEMENTS = {
     "nebula_expert": "Visited 5 nebulae!",
     "comedian": "Told 10 jokes!",
     "collector": "Collected 10 items!",
-    "ship_namer": "Named your ship!"  # NEW
+    "ship_namer": "Named your ship!"
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -105,7 +105,7 @@ JOKES = [
     "What do astronauts use for pants? An asteroid belt!",
     "How do you organize a space party? You planet!",
     "What's an astronaut's favorite key? The space bar!",
-    "Why did the alien cross the galaxy? To get to the other side!"  # NEW
+    "Why did the alien cross the galaxy? To get to the other side!"
 ]
 
 NEBULAE = {"Orion": (1340,-220), "Eagle": (7000,0), "Helix": (695,280),
@@ -114,7 +114,7 @@ NEBULAE = {"Orion": (1340,-220), "Eagle": (7000,0), "Helix": (695,280),
 SHOP = {"Dark Crystal": 500, "Warp Core": 2000, "Quantum Shield": 1500,
         "Space Pizza": 50, "Anomaly Scanner": 800, "Research Data": 400}
 
-SHIP_NAMES = [  # NEW
+SHIP_NAMES = [
     "Star Explorer", "Cosmic Wanderer", "Nebula Rider", 
     "Void Seeker", "Galaxy Hopper", "Starlight", "Dark Star"
 ]
@@ -199,7 +199,7 @@ def get_planet_name(coords):
     return "Unknown"
 
 # ============================================
-# NEW: Ship naming
+# Ship naming
 # ============================================
 
 def name_ship():
@@ -225,7 +225,7 @@ def name_ship():
             print("❌ Invalid name!")
 
 # ============================================
-# NEW: Quick stats in menu
+# Quick stats
 # ============================================
 
 def show_quick_stats():
@@ -731,11 +731,11 @@ def main():
         print("9. 📀 Load")
         print("10. 🎲 Random")
         print("11. 📖 Help")
-        print("12. 🚢 Name Ship")  # NEW
+        print("12. 🚢 Name Ship")
         print("13. ❌ Quit")
         print("=" * 40)
         
-        show_quick_stats()  # NEW
+        show_quick_stats()
 
         choice = get_input("\nChoice: ", "13")
 
