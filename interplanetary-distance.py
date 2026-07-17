@@ -33,7 +33,8 @@ player = {
     "nebulae_visited": 0,
     "jokes_told": 0,
     "sessions": 0,
-    "ship_name": "Star Explorer"
+    "ship_name": "Star Explorer",
+    "favorite_planet": "Earth"  # NEW
 }
 
 # ============================================
@@ -94,7 +95,8 @@ ACHIEVEMENTS = {
     "nebula_expert": "Visited 5 nebulae!",
     "comedian": "Told 10 jokes!",
     "collector": "Collected 10 items!",
-    "ship_namer": "Named your ship!"
+    "ship_namer": "Named your ship!",
+    "planet_lover": "Visited all planets!"  # NEW
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -117,6 +119,25 @@ SHOP = {"Dark Crystal": 500, "Warp Core": 2000, "Quantum Shield": 1500,
 SHIP_NAMES = [
     "Star Explorer", "Cosmic Wanderer", "Nebula Rider", 
     "Void Seeker", "Galaxy Hopper", "Starlight", "Dark Star"
+]
+
+# NEW: Fun facts about space
+SPACE_FACTS = [
+    "A day on Venus is longer than a year on Venus.",
+    "Saturn's rings are made of ice and rock.",
+    "Jupiter is the largest planet in our solar system.",
+    "The sun is actually white, not yellow.",
+    "Space is completely silent - no air to carry sound!",
+    "One million Earths could fit inside the sun."
+]
+
+# NEW: Weather in space
+SPACE_WEATHER = [
+    "Solar winds are calm today ☀️",
+    "Cosmic radiation levels are normal",
+    "A solar flare just passed by!",
+    "The magnetic field is stable",
+    "Perfect conditions for space travel!"
 ]
 
 # ============================================
@@ -197,6 +218,16 @@ def get_planet_name(coords):
         if c == coords:
             return name
     return "Unknown"
+
+# ============================================
+# NEW: Space facts and weather
+# ============================================
+
+def show_space_fact():
+    print(f"\n📚 Did you know? {random.choice(SPACE_FACTS)}")
+
+def check_space_weather():
+    print(f"\n🌦️ Space Weather: {random.choice(SPACE_WEATHER)}")
 
 # ============================================
 # Ship naming
@@ -372,6 +403,22 @@ def do_mission():
     if len(player["inventory"]) >= 10:
         unlock_achievement("collector")
 
+    # NEW: Track visited planets
+    if start_name != "Unknown" and start_name not in player.get("visited_planets", []):
+        if "visited_planets" not in player:
+            player["visited_planets"] = []
+        player["visited_planets"].append(start_name)
+    if end_name != "Unknown" and end_name not in player.get("visited_planets", []):
+        if "visited_planets" not in player:
+            player["visited_planets"] = []
+        player["visited_planets"].append(end_name)
+    
+    # Check if all planets visited
+    all_planets = [name for name, _ in PLANETS.values()]
+    visited = player.get("visited_planets", [])
+    if len(set(visited) & set(all_planets)) >= len(all_planets):
+        unlock_achievement("planet_lover")
+
     give_crew_xp(20)
 
 def hunt_bounty():
@@ -545,8 +592,8 @@ def explore_nebula():
 
 def random_activity():
     show_header("🎲 RANDOM FUN")
-    action = random.choice(["joke", "pet", "luck", "treasure", "dance"])
-
+    action = random.choice(["joke", "pet", "luck", "treasure", "dance", "fact", "weather"])
+    
     if action == "joke":
         tell_joke()
     elif action == "pet":
@@ -561,6 +608,10 @@ def random_activity():
         gain = random.randint(3, 10)
         player["morale"] = min(100, player["morale"] + gain)
         print(f"\n💃 Dance party! Morale +{gain}!")
+    elif action == "fact":
+        show_space_fact()
+    elif action == "weather":
+        check_space_weather()
 
 def show_help():
     show_header("📖 CAPTAIN'S GUIDE")
@@ -581,6 +632,12 @@ def show_help():
    • Level up your crew
    • Get achievements!
 
+🌌 NEW FEATURES:
+   • Space facts to learn!
+   • Space weather updates!
+   • Visit all planets for an achievement!
+   • Random fun has more activities!
+
 🚀 HAVE FUN!
     """)
 
@@ -597,6 +654,7 @@ def show_stats():
     show_morale()
     print(f"🏆 Rank: {player['rank']} | 📏 Furthest: {player['record']:,.0f} km")
     print(f"🍀 Luck: {'⭐'*player['luck']} | 🏅 Achievements: {len(player['achievements'])}")
+    print(f"🪐 Planets Visited: {len(player.get('visited_planets', []))}")
 
     if player["achievements"]:
         print("\n🏅 Achievements:")
@@ -648,6 +706,7 @@ def save_game():
         "jokes_told": player.get("jokes_told", 0),
         "sessions": player.get("sessions", 0),
         "ship_name": player.get("ship_name", "Star Explorer"),
+        "visited_planets": player.get("visited_planets", []),
         "crew": crew,
         "tech": TECH
     }
@@ -671,6 +730,7 @@ def load_game():
         player["achievements"] = data.get("achievements", [])
         player["inventory"] = data.get("inventory", [])
         player["pets"] = data.get("pets", [])
+        player["visited_planets"] = data.get("visited_planets", [])
 
         if "crew" in data:
             for i, member in enumerate(data["crew"]):
