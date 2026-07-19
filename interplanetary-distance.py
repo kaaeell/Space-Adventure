@@ -34,7 +34,10 @@ player = {
     "jokes_told": 0,
     "sessions": 0,
     "ship_name": "Star Explorer",
-    "favorite_planet": "Earth"  # NEW
+    "visited_planets": [],
+    "total_fuel_collected": 0,  # NEW
+    "biggest_treasure": 0,      # NEW
+    "crew_happiness": 80        # NEW
 }
 
 # ============================================
@@ -96,7 +99,8 @@ ACHIEVEMENTS = {
     "comedian": "Told 10 jokes!",
     "collector": "Collected 10 items!",
     "ship_namer": "Named your ship!",
-    "planet_lover": "Visited all planets!"  # NEW
+    "planet_lover": "Visited all planets!",
+    "fuel_horder": "Collected 5000 fuel!"  # NEW
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -121,23 +125,24 @@ SHIP_NAMES = [
     "Void Seeker", "Galaxy Hopper", "Starlight", "Dark Star"
 ]
 
-# NEW: Fun facts about space
 SPACE_FACTS = [
     "A day on Venus is longer than a year on Venus.",
     "Saturn's rings are made of ice and rock.",
     "Jupiter is the largest planet in our solar system.",
     "The sun is actually white, not yellow.",
     "Space is completely silent - no air to carry sound!",
-    "One million Earths could fit inside the sun."
+    "One million Earths could fit inside the sun.",
+    "There are more stars than grains of sand on Earth."
 ]
 
-# NEW: Weather in space
 SPACE_WEATHER = [
     "Solar winds are calm today ☀️",
     "Cosmic radiation levels are normal",
     "A solar flare just passed by!",
     "The magnetic field is stable",
-    "Perfect conditions for space travel!"
+    "Perfect conditions for space travel!",
+    "Asteroid warning: Stay alert!",
+    "Beautiful auroras visible!"
 ]
 
 # ============================================
@@ -192,10 +197,12 @@ def find_pet():
         print(f"\n🐾 A {pet} joined your crew!")
         unlock_achievement("pet_finder")
         player["morale"] = min(100, player["morale"] + 10)
+        player["crew_happiness"] = min(100, player.get("crew_happiness", 80) + 5)
 
 def tell_joke():
     print(f"\n😂 {random.choice(JOKES)}")
     player["morale"] = min(100, player["morale"] + 5)
+    player["crew_happiness"] = min(100, player.get("crew_happiness", 80) + 3)
     player["jokes_told"] = player.get("jokes_told", 0) + 1
     if player["jokes_told"] >= 10:
         unlock_achievement("comedian")
@@ -220,7 +227,7 @@ def get_planet_name(coords):
     return "Unknown"
 
 # ============================================
-# NEW: Space facts and weather
+# Space facts and weather
 # ============================================
 
 def show_space_fact():
@@ -228,6 +235,25 @@ def show_space_fact():
 
 def check_space_weather():
     print(f"\n🌦️ Space Weather: {random.choice(SPACE_WEATHER)}")
+
+# ============================================
+# NEW: Crew happiness display
+# ============================================
+
+def show_crew_happiness():
+    filled = int(20 * player.get("crew_happiness", 80) / 100)
+    bar = "█" * filled + "░" * (20 - filled)
+    print(f"👥 Crew Happiness: [{bar}] {player.get('crew_happiness', 80)}%")
+
+# ============================================
+# NEW: Ship status
+# ============================================
+
+def show_ship_status():
+    print(f"\n🚢 Ship Status:")
+    print(f"  Name: {player['ship_name']}")
+    print(f"  Fuel: {player['fuel']:.0f}")
+    print(f"  Condition: {'Excellent' if player['fuel'] > 3000 else 'Good' if player['fuel'] > 1500 else 'Needs refuel'}")
 
 # ============================================
 # Ship naming
@@ -330,7 +356,11 @@ def do_mission():
         elif event == "treasure":
             bonus = random.randint(100, 300) + (player["luck"] * 10)
             player["credits"] += bonus
-            print(f"💰 Found treasure! +{bonus} credits!")
+            if bonus > player["biggest_treasure"]:
+                player["biggest_treasure"] = bonus
+                print(f"💰 BIGGEST TREASURE YET! +{bonus} credits!")
+            else:
+                print(f"💰 Found treasure! +{bonus} credits!")
         elif event == "pet":
             find_pet()
         elif event == "joke":
@@ -355,7 +385,10 @@ def do_mission():
             if random.random() < 0.6 + (player["luck"] * 0.02):
                 gained = random.randint(200, 800)
                 player["fuel"] += gained
+                player["total_fuel_collected"] = player.get("total_fuel_collected", 0) + gained
                 print(f"✅ Mined {gained} fuel!")
+                if player["total_fuel_collected"] >= 5000:
+                    unlock_achievement("fuel_horder")
             else:
                 lost = random.randint(50, 200)
                 player["fuel"] = max(0, player["fuel"] - lost)
@@ -379,12 +412,15 @@ def do_mission():
     player["credits"] += earned
     player["missions"] += 1
     player["streak"] += 1
-    player["morale"] = min(100, player["morale"] + random.randint(5, 15))
+    morale_gain = random.randint(5, 15)
+    player["morale"] = min(100, player["morale"] + morale_gain)
+    player["crew_happiness"] = min(100, player.get("crew_happiness", 80) + 3)
 
     show_header("✅ MISSION COMPLETE")
     print(f"💰 +{earned} credits")
     print(f"⛽ Fuel left: {player['fuel']:.0f}")
     show_morale()
+    show_crew_happiness()
     print(f"📊 Missions: {player['missions']} | Streak: {player['streak']}")
 
     # Check achievements
@@ -403,20 +439,15 @@ def do_mission():
     if len(player["inventory"]) >= 10:
         unlock_achievement("collector")
 
-    # NEW: Track visited planets
-    if start_name != "Unknown" and start_name not in player.get("visited_planets", []):
-        if "visited_planets" not in player:
-            player["visited_planets"] = []
+    # Track visited planets
+    if start_name != "Unknown" and start_name not in player["visited_planets"]:
         player["visited_planets"].append(start_name)
-    if end_name != "Unknown" and end_name not in player.get("visited_planets", []):
-        if "visited_planets" not in player:
-            player["visited_planets"] = []
+    if end_name != "Unknown" and end_name not in player["visited_planets"]:
         player["visited_planets"].append(end_name)
     
     # Check if all planets visited
     all_planets = [name for name, _ in PLANETS.values()]
-    visited = player.get("visited_planets", [])
-    if len(set(visited) & set(all_planets)) >= len(all_planets):
+    if len(set(player["visited_planets"]) & set(all_planets)) >= len(all_planets):
         unlock_achievement("planet_lover")
 
     give_crew_xp(20)
@@ -573,7 +604,10 @@ def explore_nebula():
         if roll < 0.6 + (player["luck"] * 0.02):
             fuel = random.randint(300, 1500) + (player["luck"] * 10)
             player["fuel"] += fuel
+            player["total_fuel_collected"] = player.get("total_fuel_collected", 0) + fuel
             print(f"⛽ Found {fuel} fuel!")
+            if player["total_fuel_collected"] >= 5000:
+                unlock_achievement("fuel_horder")
             unlock_achievement("fuel_finder")
         elif roll < 0.8:
             treasure = random.choice(["Ancient Relic", "Crystal Shard", "Star Chart"])
@@ -607,6 +641,7 @@ def random_activity():
     elif action == "dance":
         gain = random.randint(3, 10)
         player["morale"] = min(100, player["morale"] + gain)
+        player["crew_happiness"] = min(100, player.get("crew_happiness", 80) + 2)
         print(f"\n💃 Dance party! Morale +{gain}!")
     elif action == "fact":
         show_space_fact()
@@ -652,9 +687,12 @@ def show_stats():
     print(f"⛽ Fuel: {player['fuel']:.0f} | 💰 Credits: {player['credits']}")
     print(f"📚 Research: {player['research']}")
     show_morale()
+    show_crew_happiness()
     print(f"🏆 Rank: {player['rank']} | 📏 Furthest: {player['record']:,.0f} km")
     print(f"🍀 Luck: {'⭐'*player['luck']} | 🏅 Achievements: {len(player['achievements'])}")
     print(f"🪐 Planets Visited: {len(player.get('visited_planets', []))}")
+    print(f"⛽ Total Fuel Collected: {player.get('total_fuel_collected', 0)}")
+    print(f"💎 Biggest Treasure: {player.get('biggest_treasure', 0)} credits")
 
     if player["achievements"]:
         print("\n🏅 Achievements:")
@@ -707,6 +745,9 @@ def save_game():
         "sessions": player.get("sessions", 0),
         "ship_name": player.get("ship_name", "Star Explorer"),
         "visited_planets": player.get("visited_planets", []),
+        "total_fuel_collected": player.get("total_fuel_collected", 0),
+        "biggest_treasure": player.get("biggest_treasure", 0),
+        "crew_happiness": player.get("crew_happiness", 80),
         "crew": crew,
         "tech": TECH
     }
@@ -731,6 +772,9 @@ def load_game():
         player["inventory"] = data.get("inventory", [])
         player["pets"] = data.get("pets", [])
         player["visited_planets"] = data.get("visited_planets", [])
+        player["total_fuel_collected"] = data.get("total_fuel_collected", 0)
+        player["biggest_treasure"] = data.get("biggest_treasure", 0)
+        player["crew_happiness"] = data.get("crew_happiness", 80)
 
         if "crew" in data:
             for i, member in enumerate(data["crew"]):
@@ -794,41 +838,3 @@ def main():
         print("12. 🚢 Name Ship")
         print("13. ❌ Quit")
         print("=" * 40)
-        
-        show_quick_stats()
-
-        choice = get_input("\nChoice: ", "13")
-
-        if choice == "1":
-            do_mission()
-        elif choice == "2":
-            show_stats()
-        elif choice == "3":
-            show_crew()
-        elif choice == "4":
-            research_lab()
-        elif choice == "5":
-            hunt_bounty()
-        elif choice == "6":
-            trade()
-        elif choice == "7":
-            explore_nebula()
-        elif choice == "8":
-            save_game()
-        elif choice == "9":
-            load_game()
-        elif choice == "10":
-            random_activity()
-        elif choice == "11":
-            show_help()
-        elif choice == "12":
-            name_ship()
-        elif choice == "13":
-            print("\n👋 See you later, Captain!")
-            print("⭐ The stars will be waiting.")
-            break
-        else:
-            print("❌ Not a valid choice!")
-
-if __name__ == "__main__":
-    main()
