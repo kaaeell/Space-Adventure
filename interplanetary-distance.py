@@ -35,9 +35,9 @@ player = {
     "sessions": 0,
     "ship_name": "Star Explorer",
     "visited_planets": [],
-    "total_fuel_collected": 0,  # NEW
-    "biggest_treasure": 0,      # NEW
-    "crew_happiness": 80        # NEW
+    "total_fuel_collected": 0,
+    "biggest_treasure": 0,
+    "crew_happiness": 80
 }
 
 # ============================================
@@ -100,7 +100,7 @@ ACHIEVEMENTS = {
     "collector": "Collected 10 items!",
     "ship_namer": "Named your ship!",
     "planet_lover": "Visited all planets!",
-    "fuel_horder": "Collected 5000 fuel!"  # NEW
+    "fuel_horder": "Collected 5000 fuel!"
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -226,28 +226,16 @@ def get_planet_name(coords):
             return name
     return "Unknown"
 
-# ============================================
-# Space facts and weather
-# ============================================
+def show_crew_happiness():
+    filled = int(20 * player.get("crew_happiness", 80) / 100)
+    bar = "█" * filled + "░" * (20 - filled)
+    print(f"👥 Crew Happiness: [{bar}] {player.get('crew_happiness', 80)}%")
 
 def show_space_fact():
     print(f"\n📚 Did you know? {random.choice(SPACE_FACTS)}")
 
 def check_space_weather():
     print(f"\n🌦️ Space Weather: {random.choice(SPACE_WEATHER)}")
-
-# ============================================
-# NEW: Crew happiness display
-# ============================================
-
-def show_crew_happiness():
-    filled = int(20 * player.get("crew_happiness", 80) / 100)
-    bar = "█" * filled + "░" * (20 - filled)
-    print(f"👥 Crew Happiness: [{bar}] {player.get('crew_happiness', 80)}%")
-
-# ============================================
-# NEW: Ship status
-# ============================================
 
 def show_ship_status():
     print(f"\n🚢 Ship Status:")
@@ -838,3 +826,41 @@ def main():
         print("12. 🚢 Name Ship")
         print("13. ❌ Quit")
         print("=" * 40)
+        
+        show_quick_stats()
+
+        choice = get_input("\nChoice: ", "13")
+
+        if choice == "1":
+            do_mission()
+        elif choice == "2":
+            show_stats()
+        elif choice == "3":
+            show_crew()
+        elif choice == "4":
+            research_lab()
+        elif choice == "5":
+            hunt_bounty()
+        elif choice == "6":
+            trade()
+        elif choice == "7":
+            explore_nebula()
+        elif choice == "8":
+            save_game()
+        elif choice == "9":
+            load_game()
+        elif choice == "10":
+            random_activity()
+        elif choice == "11":
+            show_help()
+        elif choice == "12":
+            name_ship()
+        elif choice == "13":
+            print("\n👋 See you later, Captain!")
+            print("⭐ The stars will be waiting.")
+            break
+        else:
+            print("❌ Not a valid choice!")
+
+if __name__ == "__main__":
+    main()
