@@ -37,7 +37,9 @@ player = {
     "visited_planets": [],
     "total_fuel_collected": 0,
     "biggest_treasure": 0,
-    "crew_happiness": 80
+    "crew_happiness": 80,
+    "asteroids_mined": 0,  # NEW
+    "aliens_met": 0        # NEW
 }
 
 # ============================================
@@ -100,7 +102,9 @@ ACHIEVEMENTS = {
     "collector": "Collected 10 items!",
     "ship_namer": "Named your ship!",
     "planet_lover": "Visited all planets!",
-    "fuel_horder": "Collected 5000 fuel!"
+    "fuel_horder": "Collected 5000 fuel!",
+    "miner": "Mined 50 asteroids!",  # NEW
+    "alien_friend": "Met 10 aliens!"   # NEW
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -244,6 +248,32 @@ def show_ship_status():
     print(f"  Condition: {'Excellent' if player['fuel'] > 3000 else 'Good' if player['fuel'] > 1500 else 'Needs refuel'}")
 
 # ============================================
+# NEW: Alien encounter
+# ============================================
+
+def alien_encounter():
+    print("\n👽 A friendly alien ship appears!")
+    print("They greet you in their language...")
+    time.sleep(1)
+    
+    alien_names = ["Zorg", "Blip", "Nova", "Kratos", "Glimmer"]
+    alien = random.choice(alien_names)
+    print(f"The alien introduces themselves as {alien}.")
+    
+    player["aliens_met"] = player.get("aliens_met", 0) + 1
+    
+    if player["aliens_met"] >= 10:
+        unlock_achievement("alien_friend")
+    
+    # Random gift from alien
+    gift = random.choice(["A strange crystal", "A funny hat", "A space flower", "Some alien candy"])
+    print(f"\n🎁 {alien} gives you: {gift}!")
+    player["inventory"].append(gift)
+    player["credits"] += random.randint(20, 80)
+    print(f"💰 They also give you some credits!")
+    player["morale"] = min(100, player["morale"] + 5)
+
+# ============================================
 # Ship naming
 # ============================================
 
@@ -337,7 +367,7 @@ def do_mission():
 
     # Random events
     if random.random() < 0.25 + (player["luck"] * 0.01):
-        event = random.choice(["wormhole", "treasure", "pet", "joke"])
+        event = random.choice(["wormhole", "treasure", "pet", "joke", "alien"])
         if event == "wormhole":
             distance *= 0.6
             print("🌀 Wormhole shortcut!")
@@ -353,6 +383,8 @@ def do_mission():
             find_pet()
         elif event == "joke":
             tell_joke()
+        elif event == "alien":
+            alien_encounter()
 
     fuel_needed = distance * 0.5
     if TECH["Fuel Efficiency"]["owned"]:
@@ -374,9 +406,12 @@ def do_mission():
                 gained = random.randint(200, 800)
                 player["fuel"] += gained
                 player["total_fuel_collected"] = player.get("total_fuel_collected", 0) + gained
+                player["asteroids_mined"] = player.get("asteroids_mined", 0) + 1
                 print(f"✅ Mined {gained} fuel!")
                 if player["total_fuel_collected"] >= 5000:
                     unlock_achievement("fuel_horder")
+                if player["asteroids_mined"] >= 50:
+                    unlock_achievement("miner")
             else:
                 lost = random.randint(50, 200)
                 player["fuel"] = max(0, player["fuel"] - lost)
@@ -614,7 +649,7 @@ def explore_nebula():
 
 def random_activity():
     show_header("🎲 RANDOM FUN")
-    action = random.choice(["joke", "pet", "luck", "treasure", "dance", "fact", "weather"])
+    action = random.choice(["joke", "pet", "luck", "treasure", "dance", "fact", "weather", "alien"])
     
     if action == "joke":
         tell_joke()
@@ -635,6 +670,8 @@ def random_activity():
         show_space_fact()
     elif action == "weather":
         check_space_weather()
+    elif action == "alien":
+        alien_encounter()
 
 def show_help():
     show_header("📖 CAPTAIN'S GUIDE")
@@ -656,10 +693,10 @@ def show_help():
    • Get achievements!
 
 🌌 NEW FEATURES:
-   • Space facts to learn!
-   • Space weather updates!
-   • Visit all planets for an achievement!
-   • Random fun has more activities!
+   • Meet friendly aliens!
+   • Mine asteroids for fuel
+   • Track your mining and alien encounters
+   • New achievements!
 
 🚀 HAVE FUN!
     """)
@@ -679,8 +716,10 @@ def show_stats():
     print(f"🏆 Rank: {player['rank']} | 📏 Furthest: {player['record']:,.0f} km")
     print(f"🍀 Luck: {'⭐'*player['luck']} | 🏅 Achievements: {len(player['achievements'])}")
     print(f"🪐 Planets Visited: {len(player.get('visited_planets', []))}")
-    print(f"⛽ Total Fuel Collected: {player.get('total_fuel_collected', 0)}")
+    print(f"⛽ Fuel Collected: {player.get('total_fuel_collected', 0)}")
     print(f"💎 Biggest Treasure: {player.get('biggest_treasure', 0)} credits")
+    print(f"🪨 Asteroids Mined: {player.get('asteroids_mined', 0)}")
+    print(f"👽 Aliens Met: {player.get('aliens_met', 0)}")
 
     if player["achievements"]:
         print("\n🏅 Achievements:")
@@ -736,6 +775,8 @@ def save_game():
         "total_fuel_collected": player.get("total_fuel_collected", 0),
         "biggest_treasure": player.get("biggest_treasure", 0),
         "crew_happiness": player.get("crew_happiness", 80),
+        "asteroids_mined": player.get("asteroids_mined", 0),
+        "aliens_met": player.get("aliens_met", 0),
         "crew": crew,
         "tech": TECH
     }
@@ -763,6 +804,8 @@ def load_game():
         player["total_fuel_collected"] = data.get("total_fuel_collected", 0)
         player["biggest_treasure"] = data.get("biggest_treasure", 0)
         player["crew_happiness"] = data.get("crew_happiness", 80)
+        player["asteroids_mined"] = data.get("asteroids_mined", 0)
+        player["aliens_met"] = data.get("aliens_met", 0)
 
         if "crew" in data:
             for i, member in enumerate(data["crew"]):
