@@ -38,8 +38,9 @@ player = {
     "total_fuel_collected": 0,
     "biggest_treasure": 0,
     "crew_happiness": 80,
-    "asteroids_mined": 0,  # NEW
-    "aliens_met": 0        # NEW
+    "asteroids_mined": 0,
+    "aliens_met": 0,
+    "quests_completed": 0  # NEW
 }
 
 # ============================================
@@ -103,8 +104,9 @@ ACHIEVEMENTS = {
     "ship_namer": "Named your ship!",
     "planet_lover": "Visited all planets!",
     "fuel_horder": "Collected 5000 fuel!",
-    "miner": "Mined 50 asteroids!",  # NEW
-    "alien_friend": "Met 10 aliens!"   # NEW
+    "miner": "Mined 50 asteroids!",
+    "alien_friend": "Met 10 aliens!",
+    "quest_master": "Completed 10 quests!"  # NEW
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -148,6 +150,26 @@ SPACE_WEATHER = [
     "Asteroid warning: Stay alert!",
     "Beautiful auroras visible!"
 ]
+
+# ============================================
+# NEW: Daily Quest System
+# ============================================
+
+def generate_quest():
+    quests = [
+        {"name": "Fly 500 km", "type": "distance", "goal": 500, "reward": 200},
+        {"name": "Earn 1000 credits", "type": "credits", "goal": 1000, "reward": 300},
+        {"name": "Mine 100 fuel", "type": "mine", "goal": 100, "reward": 250},
+        {"name": "Visit 2 planets", "type": "planets", "goal": 2, "reward": 150},
+        {"name": "Tell 3 jokes", "type": "jokes", "goal": 3, "reward": 100}
+    ]
+    return random.choice(quests)
+
+def show_quest():
+    print("\n📋 DAILY QUEST:")
+    print(f"  {quest['name']}")
+    print(f"  Progress: {quest_progress}/{quest['goal']}")
+    print(f"  Reward: {quest['reward']} credits")
 
 # ============================================
 # Helper functions
@@ -247,10 +269,6 @@ def show_ship_status():
     print(f"  Fuel: {player['fuel']:.0f}")
     print(f"  Condition: {'Excellent' if player['fuel'] > 3000 else 'Good' if player['fuel'] > 1500 else 'Needs refuel'}")
 
-# ============================================
-# NEW: Alien encounter
-# ============================================
-
 def alien_encounter():
     print("\n👽 A friendly alien ship appears!")
     print("They greet you in their language...")
@@ -265,7 +283,6 @@ def alien_encounter():
     if player["aliens_met"] >= 10:
         unlock_achievement("alien_friend")
     
-    # Random gift from alien
     gift = random.choice(["A strange crystal", "A funny hat", "A space flower", "Some alien candy"])
     print(f"\n🎁 {alien} gives you: {gift}!")
     player["inventory"].append(gift)
@@ -332,6 +349,7 @@ def pick_planets():
     return get_planet_name(start), start, get_planet_name(end), end
 
 def do_mission():
+    global quest, quest_progress
     check_luck()
     show_header(f"🚀 {player['ship_name']} - LAUNCH")
     print("1. Known planets")
@@ -360,6 +378,9 @@ def do_mission():
     distance = calc_distance(start, end)
     player["total_distance"] += distance
     print(f"\n📏 Distance: {distance:,.0f} million km")
+
+    # Quest progress
+    quest_progress += distance
 
     if distance > player["record"]:
         player["record"] = distance
@@ -468,7 +489,6 @@ def do_mission():
     if end_name != "Unknown" and end_name not in player["visited_planets"]:
         player["visited_planets"].append(end_name)
     
-    # Check if all planets visited
     all_planets = [name for name, _ in PLANETS.values()]
     if len(set(player["visited_planets"]) & set(all_planets)) >= len(all_planets):
         unlock_achievement("planet_lover")
@@ -695,8 +715,8 @@ def show_help():
 🌌 NEW FEATURES:
    • Meet friendly aliens!
    • Mine asteroids for fuel
-   • Track your mining and alien encounters
-   • New achievements!
+   • Daily quests for extra rewards!
+   • Track your progress
 
 🚀 HAVE FUN!
     """)
@@ -720,6 +740,7 @@ def show_stats():
     print(f"💎 Biggest Treasure: {player.get('biggest_treasure', 0)} credits")
     print(f"🪨 Asteroids Mined: {player.get('asteroids_mined', 0)}")
     print(f"👽 Aliens Met: {player.get('aliens_met', 0)}")
+    print(f"📋 Quests Completed: {player.get('quests_completed', 0)}")
 
     if player["achievements"]:
         print("\n🏅 Achievements:")
@@ -777,6 +798,7 @@ def save_game():
         "crew_happiness": player.get("crew_happiness", 80),
         "asteroids_mined": player.get("asteroids_mined", 0),
         "aliens_met": player.get("aliens_met", 0),
+        "quests_completed": player.get("quests_completed", 0),
         "crew": crew,
         "tech": TECH
     }
@@ -790,120 +812,4 @@ def save_game():
 def load_game():
     global player, crew, TECH
     try:
-        with open("save.json", "r") as f:
-            data = json.load(f)
-
-        for key in data:
-            if key in player and key not in ["achievements", "inventory", "pets"]:
-                player[key] = data[key]
-
-        player["achievements"] = data.get("achievements", [])
-        player["inventory"] = data.get("inventory", [])
-        player["pets"] = data.get("pets", [])
-        player["visited_planets"] = data.get("visited_planets", [])
-        player["total_fuel_collected"] = data.get("total_fuel_collected", 0)
-        player["biggest_treasure"] = data.get("biggest_treasure", 0)
-        player["crew_happiness"] = data.get("crew_happiness", 80)
-        player["asteroids_mined"] = data.get("asteroids_mined", 0)
-        player["aliens_met"] = data.get("aliens_met", 0)
-
-        if "crew" in data:
-            for i, member in enumerate(data["crew"]):
-                if i < len(crew):
-                    crew[i] = member
-
-        if "tech" in data:
-            for name, values in data["tech"].items():
-                if name in TECH:
-                    TECH[name]["owned"] = values.get("owned", False)
-
-        print("\n📀 Loaded!")
-        return True
-    except FileNotFoundError:
-        print("❌ No save found!")
-        return False
-    except Exception as e:
-        print(f"❌ Load failed: {e}")
-        return False
-
-# ============================================
-# Main game loop
-# ============================================
-
-def main():
-    player["sessions"] = player.get("sessions", 0) + 1
-    clear_screen()
-
-    print("""
-    ╔════════════════════════════════════════════╗
-    ║                                          ║
-    ║   🚀 SPACE ADVENTURE                     ║
-    ║        A game I made for fun             ║
-    ║                                          ║
-    ║     "The cosmos is yours to explore!"    ║
-    ║                                          ║
-    ╚════════════════════════════════════════════╝
-    """)
-
-    print("🌟 Hey there, Captain!")
-    print(f"🚢 Your ship: {player['ship_name']}")
-    print("💫 Let's explore the stars.\n")
-    time.sleep(0.5)
-    check_luck()
-
-    while True:
-        print("\n" + "=" * 40)
-        print("🌟 MAIN MENU")
-        print("=" * 40)
-        print("1. 🚀 Mission")
-        print("2. 📊 Stats")
-        print("3. 👥 Crew")
-        print("4. 🧪 Research")
-        print("5. 💰 Bounty")
-        print("6. 👽 Trade")
-        print("7. 🌌 Nebula")
-        print("8. 💾 Save")
-        print("9. 📀 Load")
-        print("10. 🎲 Random")
-        print("11. 📖 Help")
-        print("12. 🚢 Name Ship")
-        print("13. ❌ Quit")
-        print("=" * 40)
-        
-        show_quick_stats()
-
-        choice = get_input("\nChoice: ", "13")
-
-        if choice == "1":
-            do_mission()
-        elif choice == "2":
-            show_stats()
-        elif choice == "3":
-            show_crew()
-        elif choice == "4":
-            research_lab()
-        elif choice == "5":
-            hunt_bounty()
-        elif choice == "6":
-            trade()
-        elif choice == "7":
-            explore_nebula()
-        elif choice == "8":
-            save_game()
-        elif choice == "9":
-            load_game()
-        elif choice == "10":
-            random_activity()
-        elif choice == "11":
-            show_help()
-        elif choice == "12":
-            name_ship()
-        elif choice == "13":
-            print("\n👋 See you later, Captain!")
-            print("⭐ The stars will be waiting.")
-            break
-        else:
-            print("❌ Not a valid choice!")
-
-if __name__ == "__main__":
-    main()
+       
