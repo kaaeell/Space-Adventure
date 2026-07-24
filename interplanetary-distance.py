@@ -40,7 +40,7 @@ player = {
     "crew_happiness": 80,
     "asteroids_mined": 0,
     "aliens_met": 0,
-    "quests_completed": 0  # NEW
+    "quests_completed": 0
 }
 
 # ============================================
@@ -106,7 +106,7 @@ ACHIEVEMENTS = {
     "fuel_horder": "Collected 5000 fuel!",
     "miner": "Mined 50 asteroids!",
     "alien_friend": "Met 10 aliens!",
-    "quest_master": "Completed 10 quests!"  # NEW
+    "quest_master": "Completed 10 quests!"
 }
 
 PETS = ["Space Dog", "Robot Cat", "Alien Hamster", "Tiny Dragon",
@@ -152,10 +152,14 @@ SPACE_WEATHER = [
 ]
 
 # ============================================
-# NEW: Daily Quest System
+# Daily Quest System
 # ============================================
 
+quest = {"name": "Fly 500 km", "type": "distance", "goal": 500, "reward": 200}
+quest_progress = 0
+
 def generate_quest():
+    global quest, quest_progress
     quests = [
         {"name": "Fly 500 km", "type": "distance", "goal": 500, "reward": 200},
         {"name": "Earn 1000 credits", "type": "credits", "goal": 1000, "reward": 300},
@@ -163,13 +167,24 @@ def generate_quest():
         {"name": "Visit 2 planets", "type": "planets", "goal": 2, "reward": 150},
         {"name": "Tell 3 jokes", "type": "jokes", "goal": 3, "reward": 100}
     ]
-    return random.choice(quests)
+    quest = random.choice(quests)
+    quest_progress = 0
 
 def show_quest():
     print("\n📋 DAILY QUEST:")
     print(f"  {quest['name']}")
     print(f"  Progress: {quest_progress}/{quest['goal']}")
     print(f"  Reward: {quest['reward']} credits")
+
+def check_quest():
+    global quest_progress, quest
+    if quest_progress >= quest["goal"]:
+        print(f"\n🎯 QUEST COMPLETE! +{quest['reward']} credits!")
+        player["credits"] += quest["reward"]
+        player["quests_completed"] = player.get("quests_completed", 0) + 1
+        if player["quests_completed"] >= 10:
+            unlock_achievement("quest_master")
+        generate_quest()
 
 # ============================================
 # Helper functions
@@ -349,7 +364,7 @@ def pick_planets():
     return get_planet_name(start), start, get_planet_name(end), end
 
 def do_mission():
-    global quest, quest_progress
+    global quest_progress
     check_luck()
     show_header(f"🚀 {player['ship_name']} - LAUNCH")
     print("1. Known planets")
@@ -492,6 +507,9 @@ def do_mission():
     all_planets = [name for name, _ in PLANETS.values()]
     if len(set(player["visited_planets"]) & set(all_planets)) >= len(all_planets):
         unlock_achievement("planet_lover")
+
+    # Check quest
+    check_quest()
 
     give_crew_xp(20)
 
@@ -712,11 +730,12 @@ def show_help():
    • Level up your crew
    • Get achievements!
 
-🌌 NEW FEATURES:
+🌌 FEATURES:
    • Meet friendly aliens!
    • Mine asteroids for fuel
    • Daily quests for extra rewards!
-   • Track your progress
+   • Track all your progress
+   • 21 achievements to unlock!
 
 🚀 HAVE FUN!
     """)
@@ -812,4 +831,126 @@ def save_game():
 def load_game():
     global player, crew, TECH
     try:
-       
+        with open("save.json", "r") as f:
+            data = json.load(f)
+
+        for key in data:
+            if key in player and key not in ["achievements", "inventory", "pets"]:
+                player[key] = data[key]
+
+        player["achievements"] = data.get("achievements", [])
+        player["inventory"] = data.get("inventory", [])
+        player["pets"] = data.get("pets", [])
+        player["visited_planets"] = data.get("visited_planets", [])
+        player["total_fuel_collected"] = data.get("total_fuel_collected", 0)
+        player["biggest_treasure"] = data.get("biggest_treasure", 0)
+        player["crew_happiness"] = data.get("crew_happiness", 80)
+        player["asteroids_mined"] = data.get("asteroids_mined", 0)
+        player["aliens_met"] = data.get("aliens_met", 0)
+        player["quests_completed"] = data.get("quests_completed", 0)
+
+        if "crew" in data:
+            for i, member in enumerate(data["crew"]):
+                if i < len(crew):
+                    crew[i] = member
+
+        if "tech" in data:
+            for name, values in data["tech"].items():
+                if name in TECH:
+                    TECH[name]["owned"] = values.get("owned", False)
+
+        print("\n📀 Loaded!")
+        return True
+    except FileNotFoundError:
+        print("❌ No save found!")
+        return False
+    except Exception as e:
+        print(f"❌ Load failed: {e}")
+        return False
+
+# ============================================
+# Main game loop
+# ============================================
+
+def main():
+    generate_quest()
+    player["sessions"] = player.get("sessions", 0) + 1
+    clear_screen()
+
+    print("""
+    ╔════════════════════════════════════════════╗
+    ║                                          ║
+    ║   🚀 SPACE ADVENTURE                     ║
+    ║        A game I made for fun             ║
+    ║                                          ║
+    ║     "The cosmos is yours to explore!"    ║
+    ║                                          ║
+    ╚════════════════════════════════════════════╝
+    """)
+
+    print("🌟 Hey there, Captain!")
+    print(f"🚢 Your ship: {player['ship_name']}")
+    print("💫 Let's explore the stars.\n")
+    time.sleep(0.5)
+    check_luck()
+    show_quest()
+
+    while True:
+        print("\n" + "=" * 40)
+        print("🌟 MAIN MENU")
+        print("=" * 40)
+        print("1. 🚀 Mission")
+        print("2. 📊 Stats")
+        print("3. 👥 Crew")
+        print("4. 🧪 Research")
+        print("5. 💰 Bounty")
+        print("6. 👽 Trade")
+        print("7. 🌌 Nebula")
+        print("8. 💾 Save")
+        print("9. 📀 Load")
+        print("10. 🎲 Random")
+        print("11. 📖 Help")
+        print("12. 🚢 Name Ship")
+        print("13. 📋 Quest")
+        print("14. ❌ Quit")
+        print("=" * 40)
+        
+        show_quick_stats()
+
+        choice = get_input("\nChoice: ", "14")
+
+        if choice == "1":
+            do_mission()
+        elif choice == "2":
+            show_stats()
+        elif choice == "3":
+            show_crew()
+        elif choice == "4":
+            research_lab()
+        elif choice == "5":
+            hunt_bounty()
+        elif choice == "6":
+            trade()
+        elif choice == "7":
+            explore_nebula()
+        elif choice == "8":
+            save_game()
+        elif choice == "9":
+            load_game()
+        elif choice == "10":
+            random_activity()
+        elif choice == "11":
+            show_help()
+        elif choice == "12":
+            name_ship()
+        elif choice == "13":
+            show_quest()
+        elif choice == "14":
+            print("\n👋 See you later, Captain!")
+            print("⭐ The stars will be waiting.")
+            break
+        else:
+            print("❌ Not a valid choice!")
+
+if __name__ == "__main__":
+    main()
