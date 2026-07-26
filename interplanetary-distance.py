@@ -278,12 +278,6 @@ def show_space_fact():
 def check_space_weather():
     print(f"\n🌦️ Space Weather: {random.choice(SPACE_WEATHER)}")
 
-def show_ship_status():
-    print(f"\n🚢 Ship Status:")
-    print(f"  Name: {player['ship_name']}")
-    print(f"  Fuel: {player['fuel']:.0f}")
-    print(f"  Condition: {'Excellent' if player['fuel'] > 3000 else 'Good' if player['fuel'] > 1500 else 'Needs refuel'}")
-
 def alien_encounter():
     print("\n👽 A friendly alien ship appears!")
     print("They greet you in their language...")
