@@ -19,7 +19,8 @@ p = {
     "ship_name": "Star Explorer", "visited_planets": [],
     "total_fuel_collected": 0, "biggest_treasure": 0,
     "crew_happiness": 80, "asteroids_mined": 0,
-    "aliens_met": 0, "quests_completed": 0
+    "aliens_met": 0, "quests_completed": 0,
+    "space_pizza_eaten": 0  # NEW
 }
 
 # ============================================
@@ -79,7 +80,8 @@ ACHIEVEMENTS = {
     "fuel_horder":"5000 fuel!",
     "miner":"50 asteroids!",
     "alien_friend":"10 aliens!",
-    "quest_master":"10 quests!"
+    "quest_master":"10 quests!",
+    "pizza_lover":"Ate 10 space pizzas!"  # NEW
 }
 
 PETS = ["Space Dog","Robot Cat","Alien Hamster","Tiny Dragon",
@@ -89,7 +91,8 @@ JOKES = [
     "Why did the star go to school? To get brighter!",
     "What do astronauts use for pants? An asteroid belt!",
     "How do you organize a space party? You planet!",
-    "What's an astronaut's favorite key? The space bar!"
+    "What's an astronaut's favorite key? The space bar!",
+    "Why did the alien cross the galaxy? To get to the other side!"  # NEW
 ]
 
 NEBULAE = {"Orion":(1340,-220),"Eagle":(7000,0),"Helix":(695,280),
@@ -106,7 +109,8 @@ SPACE_FACTS = [
     "Saturn's rings are made of ice and rock.",
     "Jupiter is the largest planet.",
     "Space is completely silent.",
-    "There are more stars than grains of sand."
+    "There are more stars than grains of sand.",
+    "The sun is actually white, not yellow."  # NEW
 ]
 
 SPACE_WEATHER = [
@@ -114,7 +118,20 @@ SPACE_WEATHER = [
     "Cosmic radiation is normal",
     "A solar flare just passed!",
     "Perfect conditions for travel!",
-    "Auroras visible today!"
+    "Auroras visible today!",
+    "Magnetic field is stable"  # NEW
+]
+
+# ============================================
+# NEW: Daily greeting messages
+# ============================================
+
+GREETINGS = [
+    "Good to see you, Captain!",
+    "Ready for another adventure?",
+    "The stars are calling!",
+    "Welcome back to space!",
+    "Another day, another galaxy!"
 ]
 
 # ============================================
@@ -131,7 +148,8 @@ def gen_quest():
         {"name":"Earn 1000 credits","type":"credits","goal":1000,"reward":300},
         {"name":"Mine 100 fuel","type":"mine","goal":100,"reward":250},
         {"name":"Visit 2 planets","type":"planets","goal":2,"reward":150},
-        {"name":"Tell 3 jokes","type":"jokes","goal":3,"reward":100}
+        {"name":"Tell 3 jokes","type":"jokes","goal":3,"reward":100},
+        {"name":"Eat 2 space pizzas","type":"pizza","goal":2,"reward":150}  # NEW
     ]
     quest = random.choice(qs)
     quest_progress = 0
@@ -148,6 +166,28 @@ def check_quest():
         if p["quests_completed"] >= 10:
             unlock_ach("quest_master")
         gen_quest()
+
+# ============================================
+# NEW: Eat space pizza
+# ============================================
+
+def eat_pizza():
+    if "Space Pizza" in p["inventory"]:
+        p["inventory"].remove("Space Pizza")
+        p["space_pizza_eaten"] += 1
+        p["morale"] = min(100, p["morale"] + 5)
+        p["crew_happiness"] = min(100, p.get("crew_happiness", 80) + 3)
+        print("\n🍕 You eat a delicious Space Pizza!")
+        print(f"😊 Morale +5! (Now: {p['morale']}%)")
+        if p["space_pizza_eaten"] >= 10:
+            unlock_ach("pizza_lover")
+        # Update quest if pizza quest
+        if quest["type"] == "pizza":
+            global quest_progress
+            quest_progress += 1
+            check_quest()
+    else:
+        print("\n❌ You don't have any Space Pizza! Buy some from aliens.")
 
 # ============================================
 # Helper functions
@@ -236,12 +276,12 @@ def show_happiness():
 def alien_encounter():
     print("\n👽 A friendly alien appears!")
     time.sleep(0.5)
-    alien = random.choice(["Zorg","Blip","Nova","Kratos"])
+    alien = random.choice(["Zorg","Blip","Nova","Kratos","Glimmer"])  # NEW
     print(f"The alien is {alien}.")
     p["aliens_met"] += 1
     if p["aliens_met"] >= 10:
         unlock_ach("alien_friend")
-    gift = random.choice(["Crystal","Hat","Flower","Candy"])
+    gift = random.choice(["Crystal","Hat","Flower","Candy","Space Gem"])  # NEW
     print(f"\n🎁 {alien} gives you: {gift}!")
     p["inventory"].append(gift)
     p["credits"] += random.randint(20, 80)
@@ -535,6 +575,7 @@ def trade():
             print(f"\n✨ Bought {item}!")
             if len(p["inventory"]) >= 10:
                 unlock_ach("collector")
+            # Auto-eat pizza if bought? No, let player choose
         else:
             print("❌ Not enough credits!")
 
@@ -575,7 +616,7 @@ def nebula():
 
 def random_fun():
     header("🎲 RANDOM FUN")
-    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien"])
+    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza"])  # NEW
     if action == "joke":
         tell_joke()
     elif action == "pet":
@@ -597,6 +638,8 @@ def random_fun():
         print(f"\n🌦️ {random.choice(SPACE_WEATHER)}")
     elif action == "alien":
         alien_encounter()
+    elif action == "pizza":
+        eat_pizza()
 
 def help():
     header("📖 CAPTAIN'S GUIDE")
@@ -615,6 +658,7 @@ def help():
    • Check daily luck
    • Keep fuel above 30%
    • Level up your crew
+   • Eat pizza for morale! 🍕
 
 🚀 HAVE FUN!
     """)
@@ -639,6 +683,7 @@ def stats():
     print(f"🪨 Asteroids: {p.get('asteroids_mined', 0)}")
     print(f"👽 Aliens: {p.get('aliens_met', 0)}")
     print(f"📋 Quests: {p.get('quests_completed', 0)}")
+    print(f"🍕 Pizzas Eaten: {p.get('space_pizza_eaten', 0)}")  # NEW
 
     if p["achievements"]:
         print("\n🏅 Achievements:")
@@ -663,6 +708,43 @@ def view_crew():
             print(f"   [{ '█'*prog }{ '░'*(10-prog) }]")
         else:
             print(f"   [░░░░░░░░░░]")
+
+# ============================================
+# NEW: Inventory management
+# ============================================
+
+def view_inventory():
+    header("📦 INVENTORY")
+    if p["inventory"]:
+        print("\nYour items:")
+        for i, item in enumerate(p["inventory"], 1):
+            print(f"{i}. {item}")
+        print(f"\nTotal: {len(p['inventory'])} items")
+    else:
+        print("\nYour inventory is empty!")
+
+def use_item():
+    header("🔧 USE ITEM")
+    if not p["inventory"]:
+        print("\nYou have nothing to use!")
+        return
+    print("\nYour items:")
+    for i, item in enumerate(p["inventory"], 1):
+        print(f"{i}. {item}")
+    choice = get_input("\nChoose item (number or q): ", "q")
+    if choice.lower() == 'q':
+        return
+    if choice.isdigit() and 1 <= int(choice) <= len(p["inventory"]):
+        item = p["inventory"][int(choice)-1]
+        if "Pizza" in item:
+            eat_pizza()
+        elif "Crystal" in item or "Gem" in item:
+            p["inventory"].remove(item)
+            value = random.randint(50, 150)
+            p["credits"] += value
+            print(f"\n💎 Sold {item} for {value} credits!")
+        else:
+            print(f"\n❌ Can't use {item} right now.")
 
 # ============================================
 # Save/Load
@@ -702,68 +784,4 @@ def load():
                     TECH[name]["owned"] = vals.get("owned", False)
         print("\n📀 Loaded!")
         return True
-    except:
-        print("❌ No save found!")
-        return False
-
-# ============================================
-# Main
-# ============================================
-
-def main():
-    gen_quest()
-    p["sessions"] = p.get("sessions", 0) + 1
-    clear()
-
-    print("""
-    ╔════════════════════════════════════════════╗
-    ║   🚀 SPACE ADVENTURE                     ║
-    ║        A game I made for fun             ║
-    ║     "The cosmos is yours to explore!"    ║
-    ╚════════════════════════════════════════════╝
-    """)
-
-    print(f"🌟 Hey, Captain!")
-    print(f"🚢 Ship: {p['ship_name']}")
-    print("💫 Let's explore!\n")
-    time.sleep(0.5)
-    check_luck()
-    show_quest()
-
-    while True:
-        print("\n" + "=" * 40)
-        print("🌟 MAIN MENU")
-        print("=" * 40)
-        print("1. 🚀 Mission    2. 📊 Stats    3. 👥 Crew")
-        print("4. 🧪 Research   5. 💰 Bounty   6. 👽 Trade")
-        print("7. 🌌 Nebula     8. 💾 Save     9. 📀 Load")
-        print("10. 🎲 Random    11. 📖 Help    12. 🚢 Name")
-        print("13. 📋 Quest     14. ❌ Quit")
-        print("=" * 40)
-        
-        print(f"\n📊 Quick: Fuel: {p['fuel']:.0f} | Credits: {p['credits']} | Missions: {p['missions']}")
-
-        choice = get_input("\nChoice: ", "14")
-
-        if choice == "1": mission()
-        elif choice == "2": stats()
-        elif choice == "3": view_crew()
-        elif choice == "4": research()
-        elif choice == "5": bounty()
-        elif choice == "6": trade()
-        elif choice == "7": nebula()
-        elif choice == "8": save()
-        elif choice == "9": load()
-        elif choice == "10": random_fun()
-        elif choice == "11": help()
-        elif choice == "12": name_ship()
-        elif choice == "13": show_quest()
-        elif choice == "14":
-            print("\n👋 See you later, Captain!")
-            print("⭐ The stars will be waiting.")
-            break
-        else:
-            print("❌ Invalid choice!")
-
-if __name__ == "__main__":
-    main()
+    except
