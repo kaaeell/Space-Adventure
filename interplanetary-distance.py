@@ -20,7 +20,7 @@ p = {
     "total_fuel_collected": 0, "biggest_treasure": 0,
     "crew_happiness": 80, "asteroids_mined": 0,
     "aliens_met": 0, "quests_completed": 0,
-    "space_pizza_eaten": 0, "stars_observed": 0  # NEW
+    "space_pizza_eaten": 0, "stars_observed": 0
 }
 
 # ============================================
@@ -82,7 +82,7 @@ ACHIEVEMENTS = {
     "alien_friend":"10 aliens!",
     "quest_master":"10 quests!",
     "pizza_lover":"Ate 10 pizzas!",
-    "star_gazer":"Observed 50 stars!"  # NEW
+    "star_gazer":"Observed 50 stars!"
 }
 
 PETS = ["Space Dog","Robot Cat","Alien Hamster","Tiny Dragon",
@@ -101,7 +101,7 @@ NEBULAE = {"Orion":(1340,-220),"Eagle":(7000,0),"Helix":(695,280),
 
 SHOP = {"Dark Crystal":500,"Warp Core":2000,"Quantum Shield":1500,
         "Space Pizza":50,"Anomaly Scanner":800,"Research Data":400,
-        "Telescope":300}  # NEW
+        "Telescope":300}
 
 SHIP_NAMES = ["Star Explorer","Cosmic Wanderer","Nebula Rider",
               "Void Seeker","Galaxy Hopper","Starlight","Dark Star"]
@@ -132,49 +132,10 @@ GREETINGS = [
     "Another day, another galaxy!"
 ]
 
-# ============================================
-# NEW: Star observation
-# ============================================
-
 STARS = [
     "Sirius", "Betelgeuse", "Rigel", "Vega", "Proxima Centauri",
     "Alpha Centauri", "Polaris", "Aldebaran", "Antares", "Capella"
 ]
-
-def observe_stars():
-    header("🔭 STAR GAZING")
-    if "Telescope" not in p["inventory"]:
-        print("\n❌ You need a Telescope to observe stars!")
-        print("💡 Buy one from the alien trader!")
-        return
-    
-    print("\n🔭 Pointing your telescope at the sky...")
-    time.sleep(1)
-    
-    stars_seen = random.randint(1, 5)
-    p["stars_observed"] += stars_seen
-    
-    star_names = random.sample(STARS, min(stars_seen, len(STARS)))
-    print(f"\n✨ You observed {stars_seen} stars:")
-    for star in star_names:
-        print(f"  • {star}")
-    
-    # Morale boost from stargazing
-    gain = random.randint(3, 8)
-    p["morale"] = min(100, p["morale"] + gain)
-    p["crew_happiness"] = min(100, p.get("crew_happiness", 80) + 2)
-    print(f"\n😊 Stargazing boosted morale +{gain}!")
-    
-    # Random discovery
-    if random.random() < 0.1:
-        print("\n🌟 You discovered a new star! You name it!")
-        new_star = random.choice(["Nova", "Solara", "Lumina", "Vela"])
-        print(f"📝 Welcome to the universe, {new_star}!")
-        p["credits"] += random.randint(50, 150)
-        print(f"💰 The astronomy society pays you {p['credits']} credits!")
-    
-    if p["stars_observed"] >= 50:
-        unlock_ach("star_gazer")
 
 # ============================================
 # Quest system
@@ -192,7 +153,7 @@ def gen_quest():
         {"name":"Visit 2 planets","type":"planets","goal":2,"reward":150},
         {"name":"Tell 3 jokes","type":"jokes","goal":3,"reward":100},
         {"name":"Eat 2 space pizzas","type":"pizza","goal":2,"reward":150},
-        {"name":"Observe 5 stars","type":"stars","goal":5,"reward":200}  # NEW
+        {"name":"Observe 5 stars","type":"stars","goal":5,"reward":200}
     ]
     quest = random.choice(qs)
     quest_progress = 0
@@ -324,6 +285,105 @@ def name_ship():
             p["ship_name"] = new_name.strip()
             print(f"\n✅ Ship renamed to {p['ship_name']}!")
             unlock_ach("ship_namer")
+
+# ============================================
+# Star observation
+# ============================================
+
+def observe_stars():
+    header("🔭 STAR GAZING")
+    if "Telescope" not in p["inventory"]:
+        print("\n❌ You need a Telescope to observe stars!")
+        print("💡 Buy one from the alien trader!")
+        return
+    
+    print("\n🔭 Pointing your telescope at the sky...")
+    time.sleep(1)
+    
+    stars_seen = random.randint(1, 5)
+    p["stars_observed"] += stars_seen
+    
+    star_names = random.sample(STARS, min(stars_seen, len(STARS)))
+    print(f"\n✨ You observed {stars_seen} stars:")
+    for star in star_names:
+        print(f"  • {star}")
+    
+    gain = random.randint(3, 8)
+    p["morale"] = min(100, p["morale"] + gain)
+    p["crew_happiness"] = min(100, p.get("crew_happiness", 80) + 2)
+    print(f"\n😊 Stargazing boosted morale +{gain}!")
+    
+    if random.random() < 0.1:
+        print("\n🌟 You discovered a new star! You name it!")
+        new_star = random.choice(["Nova", "Solara", "Lumina", "Vela"])
+        print(f"📝 Welcome to the universe, {new_star}!")
+        p["credits"] += random.randint(50, 150)
+        print(f"💰 The astronomy society pays you {p['credits']} credits!")
+    
+    if p["stars_observed"] >= 50:
+        unlock_ach("star_gazer")
+    
+    # Update quest if star quest
+    if quest["type"] == "stars":
+        global quest_progress
+        quest_progress += stars_seen
+        check_quest()
+
+# ============================================
+# Inventory functions
+# ============================================
+
+def view_inventory():
+    header("📦 INVENTORY")
+    if p["inventory"]:
+        print("\nYour items:")
+        for i, item in enumerate(p["inventory"], 1):
+            print(f"{i}. {item}")
+        print(f"\nTotal: {len(p['inventory'])} items")
+    else:
+        print("\nYour inventory is empty!")
+
+def eat_pizza():
+    if "Space Pizza" in p["inventory"]:
+        p["inventory"].remove("Space Pizza")
+        p["space_pizza_eaten"] += 1
+        p["morale"] = min(100, p["morale"] + 5)
+        p["crew_happiness"] = min(100, p.get("crew_happiness", 80) + 3)
+        print("\n🍕 You eat a delicious Space Pizza!")
+        print(f"😊 Morale +5! (Now: {p['morale']}%)")
+        if p["space_pizza_eaten"] >= 10:
+            unlock_ach("pizza_lover")
+        if quest["type"] == "pizza":
+            global quest_progress
+            quest_progress += 1
+            check_quest()
+    else:
+        print("\n❌ You don't have any Space Pizza! Buy some from aliens.")
+
+def use_item():
+    header("🔧 USE ITEM")
+    if not p["inventory"]:
+        print("\nYou have nothing to use!")
+        return
+    print("\nYour items:")
+    for i, item in enumerate(p["inventory"], 1):
+        print(f"{i}. {item}")
+    choice = get_input("\nChoose item (number or q): ", "q")
+    if choice.lower() == 'q':
+        return
+    if choice.isdigit() and 1 <= int(choice) <= len(p["inventory"]):
+        item = p["inventory"][int(choice)-1]
+        if "Pizza" in item:
+            eat_pizza()
+        elif "Crystal" in item or "Gem" in item:
+            p["inventory"].remove(item)
+            value = random.randint(50, 150)
+            p["credits"] += value
+            print(f"\n💎 Sold {item} for {value} credits!")
+        elif "Telescope" in item:
+            observe_stars()
+        else:
+            print(f"\n❌ Can't use {item} right now.")
 
 # ============================================
 # Game functions
@@ -636,7 +696,7 @@ def nebula():
 
 def random_fun():
     header("🎲 RANDOM FUN")
-    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza","stargaze"])  # NEW
+    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza","stargaze"])
     if action == "joke":
         tell_joke()
     elif action == "pet":
@@ -707,7 +767,7 @@ def stats():
     print(f"👽 Aliens: {p.get('aliens_met', 0)}")
     print(f"📋 Quests: {p.get('quests_completed', 0)}")
     print(f"🍕 Pizzas Eaten: {p.get('space_pizza_eaten', 0)}")
-    print(f"✨ Stars Observed: {p.get('stars_observed', 0)}")  # NEW
+    print(f"✨ Stars Observed: {p.get('stars_observed', 0)}")
 
     if p["achievements"]:
         print("\n🏅 Achievements:")
@@ -732,63 +792,6 @@ def view_crew():
             print(f"   [{ '█'*prog }{ '░'*(10-prog) }]")
         else:
             print(f"   [░░░░░░░░░░]")
-
-# ============================================
-# Inventory management
-# ============================================
-
-def view_inventory():
-    header("📦 INVENTORY")
-    if p["inventory"]:
-        print("\nYour items:")
-        for i, item in enumerate(p["inventory"], 1):
-            print(f"{i}. {item}")
-        print(f"\nTotal: {len(p['inventory'])} items")
-    else:
-        print("\nYour inventory is empty!")
-
-def eat_pizza():
-    if "Space Pizza" in p["inventory"]:
-        p["inventory"].remove("Space Pizza")
-        p["space_pizza_eaten"] += 1
-        p["morale"] = min(100, p["morale"] + 5)
-        p["crew_happiness"] = min(100, p.get("crew_happiness", 80) + 3)
-        print("\n🍕 You eat a delicious Space Pizza!")
-        print(f"😊 Morale +5! (Now: {p['morale']}%)")
-        if p["space_pizza_eaten"] >= 10:
-            unlock_ach("pizza_lover")
-        if quest["type"] == "pizza":
-            global quest_progress
-            quest_progress += 1
-            check_quest()
-    else:
-        print("\n❌ You don't have any Space Pizza!")
-
-def use_item():
-    header("🔧 USE ITEM")
-    if not p["inventory"]:
-        print("\nYou have nothing to use!")
-        return
-    print("\nYour items:")
-    for i, item in enumerate(p["inventory"], 1):
-        print(f"{i}. {item}")
-    choice = get_input("\nChoose item (number or q): ", "q")
-    if choice.lower() == 'q':
-        return
-    if choice.isdigit() and 1 <= int(choice) <= len(p["inventory"]):
-        item = p["inventory"][int(choice)-1]
-        if "Pizza" in item:
-            eat_pizza()
-        elif "Crystal" in item or "Gem" in item:
-            p["inventory"].remove(item)
-            value = random.randint(50, 150)
-            p["credits"] += value
-            print(f"\n💎 Sold {item} for {value} credits!")
-        elif "Telescope" in item:
-            print("\n🔭 You already have a telescope!")
-            observe_stars()
-        else:
-            print(f"\n❌ Can't use {item} right now.")
 
 # ============================================
 # Save/Load
