@@ -80,6 +80,7 @@ def check_quest():
 # ============================================
 
 def black_hole():
+    global quest_progress
     header("🌀 BLACK HOLE ENCOUNTER")
     print("🚨 WARNING: You've encountered a black hole!")
     print("Gravity is pulling your ship in...")
@@ -97,13 +98,13 @@ def black_hole():
     if random.random() < escape_chance:
         print("\n✅ You escaped the black hole!")
         you["black_holes_escaped"] += 1
-        you["credits"] += random.randint(100, 300)
-        print(f"💰 +{random.randint(100, 300)} credits for surviving!")
+        reward = random.randint(100, 300)
+        you["credits"] += reward
+        print(f"💰 +{reward} credits for surviving!")
         you["morale"] = min(100, you["morale"] + 10)
         print("😊 Morale +10!")
         if you["black_holes_escaped"] >= 5: unlock_ach("black_hole_survivor")
         if quest["type"] == "blackhole":
-            global quest_progress
             quest_progress += 1
             check_quest()
     else:
@@ -124,7 +125,7 @@ def clear():
 def header(text):
     print("\n" + "=" * 50 + f"\n  {text}\n" + "=" * 50)
 
-def distance(p1, p2):
+def dist(p1, p2):
     return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
 
 def unlock_ach(key):
@@ -251,8 +252,9 @@ def observe_stars():
         print("\n🌟 You discovered a new star!")
         new_star = random.choice(["Nova","Solara","Lumina","Vela"])
         print(f"📝 Welcome to the universe, {new_star}!")
-        you["credits"] += random.randint(50, 150)
-        print(f"💰 The astronomy society pays you {you['credits']} credits!")
+        reward = random.randint(50, 150)
+        you["credits"] += reward
+        print(f"💰 The astronomy society pays you {reward} credits!")
     if you["stars_observed"] >= 50: unlock_ach("star_gazer")
     if quest["type"] == "stars":
         quest_progress += stars_seen
@@ -633,136 +635,4 @@ def stats():
     show_happiness()
     print(f"🏆 Rank: {you['rank']} | 📏 Furthest: {you['record']:,.0f} km")
     print(f"🍀 Luck: {'⭐'*you['luck']} | 🏅 Achievements: {len(you['achievements'])}")
-    print(f"🪐 Planets: {len(you.get('visited_planets', []))}")
-    print(f"⛽ Fuel Collected: {you.get('total_fuel_collected', 0)}")
-    print(f"💎 Biggest Treasure: {you.get('biggest_treasure', 0)}")
-    print(f"🪨 Asteroids: {you.get('asteroids_mined', 0)}")
-    print(f"👽 Aliens: {you.get('aliens_met', 0)}")
-    print(f"📋 Quests: {you.get('quests_completed', 0)}")
-    print(f"🍕 Pizzas Eaten: {you.get('space_pizza_eaten', 0)}")
-    print(f"✨ Stars Observed: {you.get('stars_observed', 0)}")
-    print(f"🌀 Black Holes Escaped: {you.get('black_holes_escaped', 0)}")
-
-    if you["achievements"]:
-        print("\n🏅 Achievements:")
-        for a in you["achievements"]: print(f"  • {ACHIEVEMENTS[a]}")
-    if you["pets"]:
-        print("\n🐾 Pets:")
-        for pet in you["pets"]: print(f"  • {pet}")
-    if you["inventory"]:
-        print("\n📦 Inventory:")
-        for item in you["inventory"]: print(f"  • {item}")
-
-def view_crew():
-    header("👥 YOUR CREW")
-    for m in crew:
-        print(f"\n🌟 {m['name']} - Lv.{m['level']} ({m['role']})")
-        print(f"   XP: {m['xp']}/{m['level']*100}")
-        if m['level'] * 100 > 0:
-            prog = int((m['xp'] / (m['level'] * 100)) * 10)
-            print(f"   [{ '█'*prog }{ '░'*(10-prog) }]")
-        else: print(f"   [░░░░░░░░░░]")
-
-# ============================================
-# Save/Load
-# ============================================
-
-def save():
-    data = {k: v for k, v in you.items() if k not in ["achievements","inventory","pets","visited_planets"]}
-    data.update({"achievements":you["achievements"],"inventory":you["inventory"],"pets":you["pets"],"visited_planets":you.get("visited_planets",[])})
-    data["crew"] = crew
-    data["tech"] = TECH
-    try:
-        with open("save.json", "w") as f: json.dump(data, f)
-        print("\n💾 Saved!")
-    except: print("❌ Save failed!")
-
-def load():
-    global you, crew, TECH    try:
-        with open("save.json", "r") as f:
-            data = json.load(f)
-        for key in data:
-            if key in you and key not in ["achievements","inventory","pets","visited_planets"]:
-                you[key] = data[key]
-        you["achievements"] = data.get("achievements", [])
-        you["inventory"] = data.get("inventory", [])
-        you["pets"] = data.get("pets", [])
-        you["visited_planets"] = data.get("visited_planets", [])
-        if "crew" in data:
-            for i, m in enumerate(data["crew"]):
-                if i < len(crew): crew[i] = m
-        if "tech" in data:
-            for name, vals in data["tech"].items():
-                if name in TECH:
-                    TECH[name]["owned"] = vals.get("owned", False)
-        print("\n📀 Loaded!")
-        return True
-    except:
-        print("❌ No save found!")
-        return False
-
-# ============================================
-# Main
-# ============================================
-
-def main():
-    new_quest()
-    you["sessions"] = you.get("sessions", 0) + 1
-    clear()
-
-    print("""
-    ╔════════════════════════════════════════════╗
-    ║   🚀 SPACE ADVENTURE                     ║
-    ║        A game I made for fun             ║
-    ║     "The cosmos is yours to explore!"    ║
-    ╚════════════════════════════════════════════╝
-    """)
-
-    print(f"🌟 {random.choice(GREETINGS)}")
-    print(f"🚢 Ship: {you['ship_name']}")
-    print("💫 Let's explore!\n")
-    time.sleep(0.5)
-    check_luck()
-    show_quest()
-
-    while True:
-        print("\n" + "=" * 40)
-        print("🌟 MAIN MENU")
-        print("=" * 40)
-        print("1. 🚀 Mission    2. 📊 Stats    3. 👥 Crew")
-        print("4. 🧪 Research   5. 💰 Bounty   6. 👽 Trade")
-        print("7. 🌌 Nebula     8. 💾 Save     9. 📀 Load")
-        print("10. 🎲 Random    11. 📖 Help    12. 🚢 Name")
-        print("13. 📋 Quest     14. 📦 Inventory")
-        print("15. 🔭 Stargaze  16. 🌀 Black Hole")
-        print("17. ❌ Quit")
-        print("=" * 40)
-        
-        print(f"\n📊 Quick: Fuel: {you['fuel']:.0f} | Credits: {you['credits']} | Missions: {you['missions']}")
-
-        choice = get_input("\nChoice: ", "17")
-
-        if choice == "1": mission()
-        elif choice == "2": stats()
-        elif choice == "3": view_crew()
-        elif choice == "4": research()
-        elif choice == "5": bounty()
-        elif choice == "6": trade()
-        elif choice == "7": nebula()
-        elif choice == "8": save()
-        elif choice == "9": load()
-        elif choice == "10": random_fun()
-        elif choice == "11": help()
-        elif choice == "12": name_ship()
-        elif choice == "13": show_quest()
-        elif choice == "14": view_inventory()
-        elif choice == "15": observe_stars()
-        elif choice == "16": black_hole()
-        elif choice == "17":
-            print("\n👋 See you later, Captain!")
-            print("⭐ The stars will be waiting.")
-            break
-        else: print("❌ Invalid choice!")
-
-if __name__ == "__main__":
-    main()
+    print(f"🪐 Planets: {len(you.get
