@@ -72,7 +72,8 @@ def check_quest():
         print(f"\n🎯 QUEST COMPLETE! +{quest['reward']} credits!")
         you["credits"] += quest["reward"]
         you["quests_completed"] += 1
-        if you["quests_completed"] >= 10: unlock_ach("quest_master")
+        if you["quests_completed"] >= 10:
+            unlock_ach("quest_master")
         new_quest()
 
 # ============================================
@@ -103,7 +104,8 @@ def black_hole():
         print(f"💰 +{reward} credits for surviving!")
         you["morale"] = min(100, you["morale"] + 10)
         print("😊 Morale +10!")
-        if you["black_holes_escaped"] >= 5: unlock_ach("black_hole_survivor")
+        if you["black_holes_escaped"] >= 5:
+            unlock_ach("black_hole_survivor")
         if quest["type"] == "blackhole":
             quest_progress += 1
             check_quest()
@@ -172,7 +174,8 @@ def tell_joke():
     you["morale"] = min(100, you["morale"] + 5)
     you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 3)
     you["jokes_told"] += 1
-    if you["jokes_told"] >= 10: unlock_ach("comedian")
+    if you["jokes_told"] >= 10:
+        unlock_ach("comedian")
 
 def get_input(prompt, default=None):
     try:
@@ -189,7 +192,8 @@ def show_morale():
 
 def get_planet_name(coords):
     for name, c in PLANETS.values():
-        if c == coords: return name
+        if c == coords:
+            return name
     return "Unknown"
 
 def show_happiness():
@@ -203,7 +207,8 @@ def alien_encounter():
     alien = random.choice(["Zorg","Blip","Nova","Kratos","Glimmer"])
     print(f"The alien is {alien}.")
     you["aliens_met"] += 1
-    if you["aliens_met"] >= 10: unlock_ach("alien_friend")
+    if you["aliens_met"] >= 10:
+        unlock_ach("alien_friend")
     gift = random.choice(["Crystal","Hat","Flower","Candy","Space Gem"])
     print(f"\n🎁 {alien} gives you: {gift}!")
     you["inventory"].append(gift)
@@ -212,7 +217,8 @@ def alien_encounter():
 def name_ship():
     header("🚢 NAME YOUR SHIP")
     print(f"Current: {you['ship_name']}")
-    for i, name in enumerate(SHIP_NAMES, 1): print(f"{i}. {name}")
+    for i, name in enumerate(SHIP_NAMES, 1):
+        print(f"{i}. {name}")
     print(f"{len(SHIP_NAMES)+1}. Custom")
     choice = get_input("Choice: ", "1")
     if choice.isdigit() and 1 <= int(choice) <= len(SHIP_NAMES):
@@ -243,7 +249,8 @@ def observe_stars():
     you["stars_observed"] += stars_seen
     star_names = random.sample(STARS, min(stars_seen, len(STARS)))
     print(f"\n✨ You observed {stars_seen} stars:")
-    for star in star_names: print(f"  • {star}")
+    for star in star_names:
+        print(f"  • {star}")
     gain = random.randint(3, 8)
     you["morale"] = min(100, you["morale"] + gain)
     you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 2)
@@ -255,7 +262,8 @@ def observe_stars():
         reward = random.randint(50, 150)
         you["credits"] += reward
         print(f"💰 The astronomy society pays you {reward} credits!")
-    if you["stars_observed"] >= 50: unlock_ach("star_gazer")
+    if you["stars_observed"] >= 50:
+        unlock_ach("star_gazer")
     if quest["type"] == "stars":
         quest_progress += stars_seen
         check_quest()
@@ -268,9 +276,11 @@ def view_inventory():
     header("📦 INVENTORY")
     if you["inventory"]:
         print("\nYour items:")
-        for i, item in enumerate(you["inventory"], 1): print(f"{i}. {item}")
+        for i, item in enumerate(you["inventory"], 1):
+            print(f"{i}. {item}")
         print(f"\nTotal: {len(you['inventory'])} items")
-    else: print("\nYour inventory is empty!")
+    else:
+        print("\nYour inventory is empty!")
 
 def eat_pizza():
     global quest_progress
@@ -281,11 +291,13 @@ def eat_pizza():
         you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 3)
         print("\n🍕 You eat a delicious Space Pizza!")
         print(f"😊 Morale +5! (Now: {you['morale']}%)")
-        if you["space_pizza_eaten"] >= 10: unlock_ach("pizza_lover")
+        if you["space_pizza_eaten"] >= 10:
+            unlock_ach("pizza_lover")
         if quest["type"] == "pizza":
             quest_progress += 1
             check_quest()
-    else: print("\n❌ You don't have any Space Pizza!")
+    else:
+        print("\n❌ You don't have any Space Pizza!")
 
 def use_item():
     header("🔧 USE ITEM")
@@ -293,22 +305,27 @@ def use_item():
         print("\nYou have nothing to use!")
         return
     print("\nYour items:")
-    for i, item in enumerate(you["inventory"], 1): print(f"{i}. {item}")
+    for i, item in enumerate(you["inventory"], 1):
+        print(f"{i}. {item}")
     choice = get_input("\nChoose item (number or q): ", "q")
-    if choice.lower() == 'q': return
+    if choice.lower() == 'q':
+        return
     if choice.isdigit() and 1 <= int(choice) <= len(you["inventory"]):
         item = you["inventory"][int(choice)-1]
-        if "Pizza" in item: eat_pizza()
+        if "Pizza" in item:
+            eat_pizza()
         elif "Crystal" in item or "Gem" in item:
             you["inventory"].remove(item)
             value = random.randint(50, 150)
             you["credits"] += value
             print(f"\n💎 Sold {item} for {value} credits!")
-        elif "Telescope" in item: observe_stars()
+        elif "Telescope" in item:
+            observe_stars()
         elif "Black Hole Map" in item:
             print("\n🗺️ You study the Black Hole Map...")
             print("💡 You now have a better chance of escaping black holes!")
-        else: print(f"\n❌ Can't use {item} right now.")
+        else:
+            print(f"\n❌ Can't use {item} right now.")
 
 # ============================================
 # Game functions
@@ -316,14 +333,17 @@ def use_item():
 
 def pick_planets():
     print("\n🪐 WHERE TO?")
-    for n, (name, _) in PLANETS.items(): print(f"{n}. {name}")
+    for n, (name, _) in PLANETS.items():
+        print(f"{n}. {name}")
     def choose(q):
         while True:
             try:
                 c = int(get_input(q, "1"))
-                if c in PLANETS: return PLANETS[c]
+                if c in PLANETS:
+                    return PLANETS[c]
                 print("Invalid!")
-            except ValueError: print("Enter a number!")
+            except ValueError:
+                print("Enter a number!")
     start = choose("Start: ")
     end = choose("Destination: ")
     return get_planet_name(start), start, get_planet_name(end), end
@@ -334,8 +354,10 @@ def mission():
     header(f"🚀 {you['ship_name']} - LAUNCH")
     print("1. Known planets  2. Unknown  3. Back")
     choice = get_input("Choice: ", "3")
-    if choice == "3": return
-    elif choice == "1": start_name, start, end_name, end = pick_planets()
+    if choice == "3":
+        return
+    elif choice == "1":
+        start_name, start, end_name, end = pick_planets()
     elif choice == "2":
         try:
             print("\n📡 Coordinates (million km)")
@@ -369,11 +391,16 @@ def mission():
             if bonus > you["biggest_treasure"]:
                 you["biggest_treasure"] = bonus
                 print(f"💰 BIGGEST TREASURE! +{bonus}cr!")
-            else: print(f"💰 Found treasure! +{bonus}cr!")
-        elif event == "pet": find_pet()
-        elif event == "joke": tell_joke()
-        elif event == "alien": alien_encounter()
-        elif event == "blackhole": black_hole()
+            else:
+                print(f"💰 Found treasure! +{bonus}cr!")
+        elif event == "pet":
+            find_pet()
+        elif event == "joke":
+            tell_joke()
+        elif event == "alien":
+            alien_encounter()
+        elif event == "blackhole":
+            black_hole()
 
     fuel_needed = distance * 0.5
     if TECH["Fuel Efficiency"]["owned"]:
@@ -394,8 +421,10 @@ def mission():
                 you["total_fuel_collected"] += gained
                 you["asteroids_mined"] += 1
                 print(f"✅ Mined {gained} fuel!")
-                if you["total_fuel_collected"] >= 5000: unlock_ach("fuel_horder")
-                if you["asteroids_mined"] >= 50: unlock_ach("miner")
+                if you["total_fuel_collected"] >= 5000:
+                    unlock_ach("fuel_horder")
+                if you["asteroids_mined"] >= 50:
+                    unlock_ach("miner")
             else:
                 lost = random.randint(50, 200)
                 you["fuel"] = max(0, you["fuel"] - lost)
@@ -408,8 +437,10 @@ def mission():
                     you["credits"] -= cost
                     you["fuel"] += amount
                     print(f"✅ Bought {amount} fuel!")
-                else: print("Not enough credits!")
-            except ValueError: print("Invalid!")
+                else:
+                    print("Not enough credits!")
+            except ValueError:
+                print("Invalid!")
         return
 
     you["fuel"] -= fuel_needed
@@ -427,19 +458,29 @@ def mission():
     show_happiness()
     print(f"📊 Missions: {you['missions']} | Streak: {you['streak']}")
 
-    if you["missions"] == 1: unlock_ach("first_mission")
-    if you["credits"] >= 10000: unlock_ach("millionaire")
-    if you["missions"] >= 50: unlock_ach("legend")
-    if you["streak"] >= 5: unlock_ach("streak")
-    if you["record"] >= 2000: unlock_ach("explorer")
-    if you["total_distance"] >= 10000: unlock_ach("traveler")
-    if len(you["inventory"]) >= 10: unlock_ach("collector")
+    if you["missions"] == 1:
+        unlock_ach("first_mission")
+    if you["credits"] >= 10000:
+        unlock_ach("millionaire")
+    if you["missions"] >= 50:
+        unlock_ach("legend")
+    if you["streak"] >= 5:
+        unlock_ach("streak")
+    if you["record"] >= 2000:
+        unlock_ach("explorer")
+    if you["total_distance"] >= 10000:
+        unlock_ach("traveler")
+    if len(you["inventory"]) >= 10:
+        unlock_ach("collector")
 
-    if start_name != "Unknown" and start_name not in you["visited_planets"]: you["visited_planets"].append(start_name)
-    if end_name != "Unknown" and end_name not in you["visited_planets"]: you["visited_planets"].append(end_name)
+    if start_name != "Unknown" and start_name not in you["visited_planets"]:
+        you["visited_planets"].append(start_name)
+    if end_name != "Unknown" and end_name not in you["visited_planets"]:
+        you["visited_planets"].append(end_name)
     
     all_planets = [name for name, _ in PLANETS.values()]
-    if len(set(you["visited_planets"]) & set(all_planets)) >= len(all_planets): unlock_ach("planet_lover")
+    if len(set(you["visited_planets"]) & set(all_planets)) >= len(all_planets):
+        unlock_ach("planet_lover")
 
     check_quest()
     crew_xp(20)
@@ -453,9 +494,11 @@ def bounty():
         print("No bounties!")
         return
     print("\n🎯 TARGETS:")
-    for i, t in enumerate(available[:4], 1): print(f"{i}. {t['name']} - 💰 {t['reward']} (Lv.{t['level']})")
+    for i, t in enumerate(available[:4], 1):
+        print(f"{i}. {t['name']} - 💰 {t['reward']} (Lv.{t['level']})")
     choice = get_input("Choose: ", "1")
-    if not choice.isdigit() or int(choice) < 1 or int(choice) > len(available[:4]): return
+    if not choice.isdigit() or int(choice) < 1 or int(choice) > len(available[:4]):
+        return
     target = available[int(choice)-1]
     print(f"\n⚔️ FIGHTING {target['name']}...")
     time.sleep(0.5)
@@ -469,12 +512,14 @@ def bounty():
         action = get_input("1. Attack  2. Dodge  3. Use item: ", "1")
         if action == "1":
             dmg = random.randint(2, 6) + (you["luck"] // 5)
-            if TECH["Warp Drive"]["owned"]: dmg += 1
+            if TECH["Warp Drive"]["owned"]:
+                dmg += 1
             enemy_hp -= dmg
             print(f"⚡ Hit for {dmg}!")
             if enemy_hp > 0:
                 counter = random.randint(1, 4)
-                if TECH["Shield Tech"]["owned"]: counter = max(1, counter - 1)
+                if TECH["Shield Tech"]["owned"]:
+                    counter = max(1, counter - 1)
                 my_hp -= counter
                 print(f"💥 Took {counter} damage!")
         elif action == "2":
@@ -489,10 +534,12 @@ def bounty():
                 you["inventory"].remove("Space Pizza")
                 heal = random.randint(3, 8)
                 max_hp = target["hp"] + (you["luck"] // 3)
-                if TECH["Shield Tech"]["owned"]: max_hp += 2
+                if TECH["Shield Tech"]["owned"]:
+                    max_hp += 2
                 my_hp = min(max_hp, my_hp + heal)
                 print(f"💊 Healed {heal} health!")
-            else: print("❌ No items!")
+            else:
+                print("❌ No items!")
     if my_hp > 0:
         bonus = int(target["reward"] * (1 + you["luck"] * 0.01))
         you["credits"] += bonus
@@ -502,7 +549,8 @@ def bounty():
             you["rank"] += 1
             print(f"🏆 Rank up! Now {you['rank']}")
         unlock_ach("bounty_hunter")
-        if you["pirates_killed"] >= 10: unlock_ach("pirate_slayer")
+        if you["pirates_killed"] >= 10:
+            unlock_ach("pirate_slayer")
         crew_xp(30)
     else:
         print("\n💀 Defeated! Lost 100 credits")
@@ -516,71 +564,89 @@ def research():
         print(f"{i}. {name} - {status}")
     print("\n5. Convert 100cr → 20pts  6. Back")
     choice = get_input("Choice: ", "6")
-    if choice == "6": return
+    if choice == "6":
+        return
     elif choice.isdigit() and 1 <= int(choice) <= 4:
         name, data = list(TECH.items())[int(choice)-1]
         if not data["owned"] and you["research"] >= data["cost"]:
             you["research"] -= data["cost"]
             data["owned"] = True
             print(f"\n✨ Unlocked {name}!")
-            if all(t["owned"] for t in TECH.values()): unlock_ach("researcher")
-        else: print("❌ Not enough points or already owned!")
+            if all(t["owned"] for t in TECH.values()):
+                unlock_ach("researcher")
+        else:
+            print("❌ Not enough points or already owned!")
     elif choice == "5":
         if you["credits"] >= 100:
             you["credits"] -= 100
             you["research"] += 20
             print("✅ Converted!")
-        else: print("❌ Not enough credits!")
+        else:
+            print("❌ Not enough credits!")
 
 def trade():
     header("👽 ALIEN TRADE")
     print(f"💰 Credits: {you['credits']}\n")
-    for i, (item, price) in enumerate(SHOP.items(), 1): print(f"{i}. {item} - {price}cr")
+    for i, (item, price) in enumerate(SHOP.items(), 1):
+        print(f"{i}. {item} - {price}cr")
     choice = get_input("Buy (number or q): ", "q")
-    if choice.lower() == 'q': return
+    if choice.lower() == 'q':
+        return
     elif choice.isdigit() and 1 <= int(choice) <= len(SHOP):
         item, price = list(SHOP.items())[int(choice)-1]
         if you["credits"] >= price:
             you["credits"] -= price
             you["inventory"].append(item)
             print(f"\n✨ Bought {item}!")
-            if len(you["inventory"]) >= 10: unlock_ach("collector")
-        else: print("❌ Not enough credits!")
+            if len(you["inventory"]) >= 10:
+                unlock_ach("collector")
+        else:
+            print("❌ Not enough credits!")
 
 def nebula():
     header("🌌 NEBULA EXPLORATION")
-    for i, name in enumerate(NEBULAE.keys(), 1): print(f"{i}. {name}")
+    for i, name in enumerate(NEBULAE.keys(), 1):
+        print(f"{i}. {name}")
     choice = get_input("Choose: ", "1")
     if choice.isdigit() and 1 <= int(choice) <= len(NEBULAE):
         name = list(NEBULAE.keys())[int(choice)-1]
         print(f"\n🚀 Entering {name}...")
         time.sleep(1)
         you["nebulae_visited"] += 1
-        if you["nebulae_visited"] >= 5: unlock_ach("nebula_expert")
+        if you["nebulae_visited"] >= 5:
+            unlock_ach("nebula_expert")
         roll = random.random()
         if roll < 0.6 + (you["luck"] * 0.02):
             fuel = random.randint(300, 1500) + (you["luck"] * 10)
             you["fuel"] += fuel
             you["total_fuel_collected"] += fuel
             print(f"⛽ Found {fuel} fuel!")
-            if you["total_fuel_collected"] >= 5000: unlock_ach("fuel_horder")
+            if you["total_fuel_collected"] >= 5000:
+                unlock_ach("fuel_horder")
             unlock_ach("fuel_finder")
         elif roll < 0.8:
             treasure = random.choice(["Ancient Relic","Crystal Shard","Star Chart"])
             you["inventory"].append(treasure)
             print(f"🔮 Found {treasure}!")
             you["research"] += 20 + (you["luck"] * 2)
-            if len(you["inventory"]) >= 10: unlock_ach("collector")
-        else: print("💨 Empty nebula...")
-        if random.random() < 0.08: find_pet()
-    else: print("Invalid!")
+            if len(you["inventory"]) >= 10:
+                unlock_ach("collector")
+        else:
+            print("💨 Empty nebula...")
+        if random.random() < 0.08:
+            find_pet()
+    else:
+        print("Invalid!")
 
 def random_fun():
     header("🎲 RANDOM FUN")
     action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza","stargaze","blackhole"])
-    if action == "joke": tell_joke()
-    elif action == "pet": find_pet()
-    elif action == "luck": check_luck()
+    if action == "joke":
+        tell_joke()
+    elif action == "pet":
+        find_pet()
+    elif action == "luck":
+        check_luck()
     elif action == "treasure":
         treasure = random.randint(50, 200) + (you["luck"] * 5)
         you["credits"] += treasure
@@ -590,12 +656,18 @@ def random_fun():
         you["morale"] = min(100, you["morale"] + gain)
         you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 2)
         print(f"\n💃 Dance party! Morale +{gain}!")
-    elif action == "fact": print(f"\n📚 {random.choice(SPACE_FACTS)}")
-    elif action == "weather": print(f"\n🌦️ {random.choice(SPACE_WEATHER)}")
-    elif action == "alien": alien_encounter()
-    elif action == "pizza": eat_pizza()
-    elif action == "stargaze": observe_stars()
-    elif action == "blackhole": black_hole()
+    elif action == "fact":
+        print(f"\n📚 {random.choice(SPACE_FACTS)}")
+    elif action == "weather":
+        print(f"\n🌦️ {random.choice(SPACE_WEATHER)}")
+    elif action == "alien":
+        alien_encounter()
+    elif action == "pizza":
+        eat_pizza()
+    elif action == "stargaze":
+        observe_stars()
+    elif action == "blackhole":
+        black_hole()
 
 def help():
     header("📖 CAPTAIN'S GUIDE")
@@ -647,13 +719,16 @@ def stats():
 
     if you["achievements"]:
         print("\n🏅 Achievements:")
-        for a in you["achievements"]: print(f"  • {ACHIEVEMENTS[a]}")
+        for a in you["achievements"]:
+            print(f"  • {ACHIEVEMENTS[a]}")
     if you["pets"]:
         print("\n🐾 Pets:")
-        for pet in you["pets"]: print(f"  • {pet}")
+        for pet in you["pets"]:
+            print(f"  • {pet}")
     if you["inventory"]:
         print("\n📦 Inventory:")
-        for item in you["inventory"]: print(f"  • {item}")
+        for item in you["inventory"]:
+            print(f"  • {item}")
 
 def view_crew():
     header("👥 YOUR CREW")
@@ -663,7 +738,8 @@ def view_crew():
         if m['level'] * 100 > 0:
             prog = int((m['xp'] / (m['level'] * 100)) * 10)
             print(f"   [{ '█'*prog }{ '░'*(10-prog) }]")
-        else: print(f"   [░░░░░░░░░░]")
+        else:
+            print(f"   [░░░░░░░░░░]")
 
 # ============================================
 # Save/Load
@@ -675,9 +751,11 @@ def save():
     data["crew"] = crew
     data["tech"] = TECH
     try:
-        with open("save.json", "w") as f: json.dump(data, f)
+        with open("save.json", "w") as f:
+            json.dump(data, f)
         print("\n💾 Saved!")
-    except: print("❌ Save failed!")
+    except:
+        print("❌ Save failed!")
 
 def load():
     global you, crew, TECH
@@ -693,7 +771,8 @@ def load():
         you["visited_planets"] = data.get("visited_planets", [])
         if "crew" in data:
             for i, m in enumerate(data["crew"]):
-                if i < len(crew): crew[i] = m
+                if i < len(crew):
+                    crew[i] = m
         if "tech" in data:
             for name, vals in data["tech"].items():
                 if name in TECH:
@@ -765,7 +844,8 @@ def main():
             print("\n👋 See you later, Captain!")
             print("⭐ The stars will be waiting.")
             break
-        else: print("❌ Invalid choice!")
+        else:
+            print("❌ Invalid choice!")
 
 if __name__ == "__main__":
     main()
