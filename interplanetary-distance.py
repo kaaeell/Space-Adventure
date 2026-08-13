@@ -36,19 +36,109 @@ crew = [
 # Game world
 # ============================================
 
-PLANETS = {1:("Earth",(0,0)),2:("Mars",(225,0)),3:("Venus",(108,0)),4:("Jupiter",(778,0)),5:("Saturn",(1427,0)),6:("Uranus",(2871,0)),7:("Neptune",(4495,0)),8:("Mercury",(58,0)),9:("Pluto",(5906,0))}
-BOUNTIES = [{"name":"Red Pirate","reward":500,"level":1,"hp":3},{"name":"Shadow Corsair","reward":1000,"level":2,"hp":5},{"name":"Void Reaver","reward":2000,"level":3,"hp":7},{"name":"Galactic Menace","reward":3500,"level":4,"hp":10}]
-TECH = {"Fuel Efficiency":{"cost":100,"owned":False},"Warp Drive":{"cost":200,"owned":False},"Shield Tech":{"cost":150,"owned":False},"Scanner Range":{"cost":120,"owned":False}}
-ACHIEVEMENTS = {"first_mission":"First mission!","explorer":"Traveled 2000+ km!","fuel_finder":"Found fuel in nebula!","millionaire":"Earned 10,000 credits!","legend":"50 missions!","streak":"5 in a row!","bounty_hunter":"Defeated a bounty!","researcher":"All research!","pet_finder":"Found a pet!","lucky":"Lucky day!","traveler":"10000 km total!","pirate_slayer":"10 pirates!","nebula_expert":"5 nebulae!","comedian":"10 jokes!","collector":"10 items!","ship_namer":"Named your ship!","planet_lover":"All planets!","fuel_horder":"5000 fuel!","miner":"50 asteroids!","alien_friend":"10 aliens!","quest_master":"10 quests!","pizza_lover":"Ate 10 pizzas!","star_gazer":"Observed 50 stars!","black_hole_survivor":"Escaped 5 black holes!"}
-PETS = ["Space Dog","Robot Cat","Alien Hamster","Tiny Dragon","Quantum Fox","Space Penguin","Star Octopus","Nebula Unicorn"]
-JOKES = ["Why did the star go to school? To get brighter!","What do astronauts use for pants? An asteroid belt!","How do you organize a space party? You planet!","What's an astronaut's favorite key? The space bar!","Why did the alien cross the galaxy? To get to the other side!","What do you call a space cow? A milky way!"]
-NEBULAE = {"Orion":(1340,-220),"Eagle":(7000,0),"Helix":(695,280),"Crab":(6500,190),"Skull":(4200,-500)}
-SHOP = {"Dark Crystal":500,"Warp Core":2000,"Quantum Shield":1500,"Space Pizza":50,"Anomaly Scanner":800,"Research Data":400,"Telescope":300,"Black Hole Map":600}
-SHIP_NAMES = ["Star Explorer","Cosmic Wanderer","Nebula Rider","Void Seeker","Galaxy Hopper","Starlight","Dark Star"]
-SPACE_FACTS = ["A day on Venus is longer than a year.","Saturn's rings are made of ice and rock.","Jupiter is the largest planet.","Space is completely silent.","There are more stars than grains of sand.","The sun is actually white, not yellow.","Black holes are invisible!"]
-SPACE_WEATHER = ["Solar winds are calm ☀️","Cosmic radiation is normal","A solar flare just passed!","Perfect conditions for travel!","Auroras visible today!","Magnetic field is stable","Warning: Black hole nearby!"]
-GREETINGS = ["Good to see you, Captain!","Ready for another adventure?","The stars are calling!","Welcome back to space!","Another day, another galaxy!"]
-STARS = ["Sirius","Betelgeuse","Rigel","Vega","Proxima Centauri","Alpha Centauri","Polaris","Aldebaran","Antares","Capella"]
+PLANETS = {
+    1: ("Earth", (0,0)), 2: ("Mars", (225,0)), 3: ("Venus", (108,0)),
+    4: ("Jupiter", (778,0)), 5: ("Saturn", (1427,0)), 6: ("Uranus", (2871,0)),
+    7: ("Neptune", (4495,0)), 8: ("Mercury", (58,0)), 9: ("Pluto", (5906,0))
+}
+
+BOUNTIES = [
+    {"name":"Red Pirate","reward":500,"level":1,"hp":3},
+    {"name":"Shadow Corsair","reward":1000,"level":2,"hp":5},
+    {"name":"Void Reaver","reward":2000,"level":3,"hp":7},
+    {"name":"Galactic Menace","reward":3500,"level":4,"hp":10}
+]
+
+TECH = {
+    "Fuel Efficiency":{"cost":100,"owned":False},
+    "Warp Drive":{"cost":200,"owned":False},
+    "Shield Tech":{"cost":150,"owned":False},
+    "Scanner Range":{"cost":120,"owned":False}
+}
+
+ACHIEVEMENTS = {
+    "first_mission":"First mission!",
+    "explorer":"Traveled 2000+ km!",
+    "fuel_finder":"Found fuel in nebula!",
+    "millionaire":"Earned 10,000 credits!",
+    "legend":"50 missions!",
+    "streak":"5 in a row!",
+    "bounty_hunter":"Defeated a bounty!",
+    "researcher":"All research!",
+    "pet_finder":"Found a pet!",
+    "lucky":"Lucky day!",
+    "traveler":"10000 km total!",
+    "pirate_slayer":"10 pirates!",
+    "nebula_expert":"5 nebulae!",
+    "comedian":"10 jokes!",
+    "collector":"10 items!",
+    "ship_namer":"Named your ship!",
+    "planet_lover":"All planets!",
+    "fuel_horder":"5000 fuel!",
+    "miner":"50 asteroids!",
+    "alien_friend":"10 aliens!",
+    "quest_master":"10 quests!",
+    "pizza_lover":"Ate 10 pizzas!",
+    "star_gazer":"Observed 50 stars!",
+    "black_hole_survivor":"Escaped 5 black holes!"
+}
+
+PETS = ["Space Dog","Robot Cat","Alien Hamster","Tiny Dragon",
+        "Quantum Fox","Space Penguin","Star Octopus","Nebula Unicorn"]
+
+JOKES = [
+    "Why did the star go to school? To get brighter!",
+    "What do astronauts use for pants? An asteroid belt!",
+    "How do you organize a space party? You planet!",
+    "What's an astronaut's favorite key? The space bar!",
+    "Why did the alien cross the galaxy? To get to the other side!",
+    "What do you call a space cow? A milky way!"
+]
+
+NEBULAE = {
+    "Orion":(1340,-220), "Eagle":(7000,0), "Helix":(695,280),
+    "Crab":(6500,190), "Skull":(4200,-500)
+}
+
+SHOP = {
+    "Dark Crystal":500, "Warp Core":2000, "Quantum Shield":1500,
+    "Space Pizza":50, "Anomaly Scanner":800, "Research Data":400,
+    "Telescope":300, "Black Hole Map":600
+}
+
+SHIP_NAMES = ["Star Explorer","Cosmic Wanderer","Nebula Rider",
+              "Void Seeker","Galaxy Hopper","Starlight","Dark Star"]
+
+SPACE_FACTS = [
+    "A day on Venus is longer than a year.",
+    "Saturn's rings are made of ice and rock.",
+    "Jupiter is the largest planet.",
+    "Space is completely silent.",
+    "There are more stars than grains of sand.",
+    "The sun is actually white, not yellow.",
+    "Black holes are invisible!"
+]
+
+SPACE_WEATHER = [
+    "Solar winds are calm ☀️",
+    "Cosmic radiation is normal",
+    "A solar flare just passed!",
+    "Perfect conditions for travel!",
+    "Auroras visible today!",
+    "Magnetic field is stable",
+    "Warning: Black hole nearby!"
+]
+
+GREETINGS = [
+    "Good to see you, Captain!",
+    "Ready for another adventure?",
+    "The stars are calling!",
+    "Welcome back to space!",
+    "Another day, another galaxy!"
+]
+
+STARS = ["Sirius","Betelgeuse","Rigel","Vega","Proxima Centauri",
+         "Alpha Centauri","Polaris","Aldebaran","Antares","Capella"]
 
 # ============================================
 # Quest system
@@ -59,7 +149,16 @@ quest_progress = 0
 
 def new_quest():
     global quest, quest_progress
-    qs = [{"name":"Fly 500 km","type":"distance","goal":500,"reward":200},{"name":"Earn 1000 credits","type":"credits","goal":1000,"reward":300},{"name":"Mine 100 fuel","type":"mine","goal":100,"reward":250},{"name":"Visit 2 planets","type":"planets","goal":2,"reward":150},{"name":"Tell 3 jokes","type":"jokes","goal":3,"reward":100},{"name":"Eat 2 space pizzas","type":"pizza","goal":2,"reward":150},{"name":"Observe 5 stars","type":"stars","goal":5,"reward":200},{"name":"Escape a black hole","type":"blackhole","goal":1,"reward":300}]
+    qs = [
+        {"name":"Fly 500 km","type":"distance","goal":500,"reward":200},
+        {"name":"Earn 1000 credits","type":"credits","goal":1000,"reward":300},
+        {"name":"Mine 100 fuel","type":"mine","goal":100,"reward":250},
+        {"name":"Visit 2 planets","type":"planets","goal":2,"reward":150},
+        {"name":"Tell 3 jokes","type":"jokes","goal":3,"reward":100},
+        {"name":"Eat 2 space pizzas","type":"pizza","goal":2,"reward":150},
+        {"name":"Observe 5 stars","type":"stars","goal":5,"reward":200},
+        {"name":"Escape a black hole","type":"blackhole","goal":1,"reward":300}
+    ]
     quest = random.choice(qs)
     quest_progress = 0
 
