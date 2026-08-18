@@ -7,7 +7,7 @@ import math, random, time, json, os
 from datetime import datetime
 
 # ============================================
-# Your ship and crew
+# Player data
 # ============================================
 
 you = {
@@ -31,10 +31,6 @@ crew = [
     {"name": "Kim", "role": "Scientist", "level": 1, "xp": 0},
     {"name": "Mack", "role": "Gunner", "level": 1, "xp": 0}
 ]
-
-# ============================================
-# Game world
-# ============================================
 
 PLANETS = {
     1: ("Earth", (0,0)), 2: ("Mars", (225,0)), 3: ("Venus", (108,0)),
@@ -140,10 +136,6 @@ GREETINGS = [
 STARS = ["Sirius","Betelgeuse","Rigel","Vega","Proxima Centauri",
          "Alpha Centauri","Polaris","Aldebaran","Antares","Capella"]
 
-# ============================================
-# Quest system
-# ============================================
-
 quest = {"name":"Fly 500 km","type":"distance","goal":500,"reward":200}
 quest_progress = 0
 
@@ -174,10 +166,6 @@ def check_quest():
         if you["quests_completed"] >= 10:
             unlock_ach("quest_master")
         new_quest()
-
-# ============================================
-# Black hole escape
-# ============================================
 
 def black_hole():
     global quest_progress
@@ -215,10 +203,6 @@ def black_hole():
         you["morale"] = max(0, you["morale"] - 10)
         print(f"⛽ Lost {damage} fuel!")
         print("😞 Morale -10!")
-
-# ============================================
-# Helper functions
-# ============================================
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -331,10 +315,6 @@ def name_ship():
             print(f"\n✅ Ship renamed to {you['ship_name']}!")
             unlock_ach("ship_namer")
 
-# ============================================
-# Star observation
-# ============================================
-
 def observe_stars():
     global quest_progress
     header("🔭 STAR GAZING")
@@ -366,10 +346,6 @@ def observe_stars():
     if quest["type"] == "stars":
         quest_progress += stars_seen
         check_quest()
-
-# ============================================
-# Inventory
-# ============================================
 
 def view_inventory():
     header("📦 INVENTORY")
@@ -425,10 +401,6 @@ def use_item():
             print("💡 You now have a better chance of escaping black holes!")
         else:
             print(f"\n❌ Can't use {item} right now.")
-
-# ============================================
-# Game functions
-# ============================================
 
 def pick_planets():
     print("\n🪐 WHERE TO?")
@@ -792,10 +764,6 @@ def help():
 🚀 HAVE FUN!
     """)
 
-# ============================================
-# Display
-# ============================================
-
 def stats():
     header("📊 YOUR STATS")
     print(f"🚢 Ship: {you['ship_name']}")
@@ -840,10 +808,6 @@ def view_crew():
         else:
             print(f"   [░░░░░░░░░░]")
 
-# ============================================
-# Save/Load
-# ============================================
-
 def save():
     data = {k: v for k, v in you.items() if k not in ["achievements","inventory","pets","visited_planets"]}
     data.update({"achievements":you["achievements"],"inventory":you["inventory"],"pets":you["pets"],"visited_planets":you.get("visited_planets",[])})
@@ -881,10 +845,6 @@ def load():
     except:
         print("❌ No save found!")
         return False
-
-# ============================================
-# Main
-# ============================================
 
 def main():
     new_quest()
