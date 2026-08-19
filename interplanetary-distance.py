@@ -6,10 +6,6 @@ A space game I made for fun - explore, trade, hunt bounties!
 import math, random, time, json, os
 from datetime import datetime
 
-# ============================================
-# Player data
-# ============================================
-
 you = {
     "fuel": 5000, "credits": 1000, "missions": 0, "streak": 0,
     "morale": 80, "research": 0, "rank": 1, "record": 0,
