@@ -17,7 +17,8 @@ you = {
     "crew_happiness": 80, "asteroids_mined": 0,
     "aliens_met": 0, "quests_completed": 0,
     "space_pizza_eaten": 0, "stars_observed": 0,
-    "black_holes_escaped": 0
+    "black_holes_escaped": 0,
+    "comets_observed": 0
 }
 
 crew = [
@@ -72,7 +73,8 @@ ACHIEVEMENTS = {
     "quest_master":"10 quests!",
     "pizza_lover":"Ate 10 pizzas!",
     "star_gazer":"Observed 50 stars!",
-    "black_hole_survivor":"Escaped 5 black holes!"
+    "black_hole_survivor":"Escaped 5 black holes!",
+    "comet_chaser":"Observed 10 comets!"
 }
 
 PETS = ["Space Dog","Robot Cat","Alien Hamster","Tiny Dragon",
@@ -95,7 +97,7 @@ NEBULAE = {
 SHOP = {
     "Dark Crystal":500, "Warp Core":2000, "Quantum Shield":1500,
     "Space Pizza":50, "Anomaly Scanner":800, "Research Data":400,
-    "Telescope":300, "Black Hole Map":600
+    "Telescope":300, "Black Hole Map":600, "Comet Tracker":250
 }
 
 SHIP_NAMES = ["Star Explorer","Cosmic Wanderer","Nebula Rider",
@@ -132,6 +134,9 @@ GREETINGS = [
 STARS = ["Sirius","Betelgeuse","Rigel","Vega","Proxima Centauri",
          "Alpha Centauri","Polaris","Aldebaran","Antares","Capella"]
 
+COMETS = ["Halley's Comet","Comet Hale-Bopp","Comet Encke","Comet Neowise",
+          "Comet Lovejoy","Comet ISON","Comet Hyakutake"]
+
 quest = {"name":"Fly 500 km","type":"distance","goal":500,"reward":200}
 quest_progress = 0
 
@@ -162,6 +167,24 @@ def check_quest():
         if you["quests_completed"] >= 10:
             unlock_ach("quest_master")
         new_quest()
+
+def observe_comet():
+    global quest_progress
+    header("☄️ COMET TRACKING")
+    if "Comet Tracker" not in you["inventory"]:
+        print("\n❌ You need a Comet Tracker!")
+        print("💡 Buy one from the alien trader!")
+        return
+    print("\n☄️ Scanning for comets...")
+    time.sleep(1)
+    comet = random.choice(COMETS)
+    print(f"\n☄️ You spotted {comet}!")
+    you["comets_observed"] += 1
+    gain = random.randint(2, 6)
+    you["morale"] = min(100, you["morale"] + gain)
+    print(f"😊 Morale +{gain}!")
+    if you["comets_observed"] >= 10:
+        unlock_ach("comet_chaser")
 
 def black_hole():
     global quest_progress
@@ -395,6 +418,8 @@ def use_item():
         elif "Black Hole Map" in item:
             print("\n🗺️ You study the Black Hole Map...")
             print("💡 You now have a better chance of escaping black holes!")
+        elif "Comet Tracker" in item:
+            observe_comet()
         else:
             print(f"\n❌ Can't use {item} right now.")
 
@@ -707,7 +732,7 @@ def nebula():
 
 def random_fun():
     header("🎲 RANDOM FUN")
-    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza","stargaze","blackhole"])
+    action = random.choice(["joke","pet","luck","treasure","dance","fact","weather","alien","pizza","stargaze","blackhole","comet"])
     if action == "joke":
         tell_joke()
     elif action == "pet":
@@ -735,6 +760,8 @@ def random_fun():
         observe_stars()
     elif action == "blackhole":
         black_hole()
+    elif action == "comet":
+        observe_comet()
 
 def help():
     header("📖 CAPTAIN'S GUIDE")
@@ -755,6 +782,7 @@ def help():
    • Level up your crew
    • Eat pizza for morale! 🍕
    • Buy a telescope to see stars! 🔭
+   • Get a Comet Tracker for comets! ☄️
    • Get a Black Hole Map for safety! 🌀
 
 🚀 HAVE FUN!
@@ -779,6 +807,7 @@ def stats():
     print(f"🍕 Pizzas Eaten: {you.get('space_pizza_eaten', 0)}")
     print(f"✨ Stars Observed: {you.get('stars_observed', 0)}")
     print(f"🌀 Black Holes Escaped: {you.get('black_holes_escaped', 0)}")
+    print(f"☄️ Comets Observed: {you.get('comets_observed', 0)}")
 
     if you["achievements"]:
         print("\n🏅 Achievements:")
@@ -872,12 +901,12 @@ def main():
         print("10. 🎲 Random    11. 📖 Help    12. 🚢 Name")
         print("13. 📋 Quest     14. 📦 Inventory")
         print("15. 🔭 Stargaze  16. 🌀 Black Hole")
-        print("17. ❌ Quit")
+        print("17. ☄️ Comets    18. ❌ Quit")
         print("=" * 40)
         
         print(f"\n📊 Quick: Fuel: {you['fuel']:.0f} | Credits: {you['credits']} | Missions: {you['missions']}")
 
-        choice = get_input("\nChoice: ", "17")
+        choice = get_input("\nChoice: ", "18")
 
         if choice == "1": mission()
         elif choice == "2": stats()
@@ -895,7 +924,8 @@ def main():
         elif choice == "14": view_inventory()
         elif choice == "15": observe_stars()
         elif choice == "16": black_hole()
-        elif choice == "17":
+        elif choice == "17": observe_comet()
+        elif choice == "18":
             print("\n👋 See you later, Captain!")
             print("⭐ The stars will be waiting.")
             break
