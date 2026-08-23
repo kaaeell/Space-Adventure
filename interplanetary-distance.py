@@ -6,6 +6,10 @@ A space game I made for fun - explore, trade, hunt bounties!
 import math, random, time, json, os
 from datetime import datetime
 
+# ============================================
+# Player data
+# ============================================
+
 you = {
     "fuel": 5000, "credits": 1000, "missions": 0, "streak": 0,
     "morale": 80, "research": 0, "rank": 1, "record": 0,
@@ -17,8 +21,7 @@ you = {
     "crew_happiness": 80, "asteroids_mined": 0,
     "aliens_met": 0, "quests_completed": 0,
     "space_pizza_eaten": 0, "stars_observed": 0,
-    "black_holes_escaped": 0,
-    "comets_observed": 0
+    "black_holes_escaped": 0, "comets_observed": 0
 }
 
 crew = [
@@ -28,6 +31,10 @@ crew = [
     {"name": "Kim", "role": "Scientist", "level": 1, "xp": 0},
     {"name": "Mack", "role": "Gunner", "level": 1, "xp": 0}
 ]
+
+# ============================================
+# Game data
+# ============================================
 
 PLANETS = {
     1: ("Earth", (0,0)), 2: ("Mars", (225,0)), 3: ("Venus", (108,0)),
@@ -84,9 +91,7 @@ JOKES = [
     "Why did the star go to school? To get brighter!",
     "What do astronauts use for pants? An asteroid belt!",
     "How do you organize a space party? You planet!",
-    "What's an astronaut's favorite key? The space bar!",
-    "Why did the alien cross the galaxy? To get to the other side!",
-    "What do you call a space cow? A milky way!"
+    "What's an astronaut's favorite key? The space bar!"
 ]
 
 NEBULAE = {
@@ -107,38 +112,96 @@ SPACE_FACTS = [
     "A day on Venus is longer than a year.",
     "Saturn's rings are made of ice and rock.",
     "Jupiter is the largest planet.",
-    "Space is completely silent.",
-    "There are more stars than grains of sand.",
-    "The sun is actually white, not yellow.",
-    "Black holes are invisible!"
+    "Space is completely silent."
 ]
 
 SPACE_WEATHER = [
     "Solar winds are calm ☀️",
     "Cosmic radiation is normal",
     "A solar flare just passed!",
-    "Perfect conditions for travel!",
-    "Auroras visible today!",
-    "Magnetic field is stable",
-    "Warning: Black hole nearby!"
+    "Perfect conditions for travel!"
 ]
 
-GREETINGS = [
-    "Good to see you, Captain!",
-    "Ready for another adventure?",
-    "The stars are calling!",
-    "Welcome back to space!",
-    "Another day, another galaxy!"
-]
+GREETINGS = ["Good to see you, Captain!","Ready for another adventure?",
+             "The stars are calling!","Welcome back to space!"]
 
 STARS = ["Sirius","Betelgeuse","Rigel","Vega","Proxima Centauri",
          "Alpha Centauri","Polaris","Aldebaran","Antares","Capella"]
 
-COMETS = ["Halley's Comet","Comet Hale-Bopp","Comet Encke","Comet Neowise",
-          "Comet Lovejoy","Comet ISON","Comet Hyakutake"]
+COMETS = ["Halley's Comet","Comet Hale-Bopp","Comet Encke","Comet Neowise"]
 
 quest = {"name":"Fly 500 km","type":"distance","goal":500,"reward":200}
 quest_progress = 0
+
+# ============================================
+# Core functions
+# ============================================
+
+def clear():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def header(text):
+    print("\n" + "=" * 50 + f"\n  {text}\n" + "=" * 50)
+
+def dist(p1, p2):
+    return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
+
+def get_input(prompt, default=None):
+    try:
+        return input(prompt)
+    except (KeyboardInterrupt, EOFError):
+        print("\n👋 Later!")
+        exit()
+
+def unlock_ach(key):
+    if key in ACHIEVEMENTS and key not in you["achievements"]:
+        you["achievements"].append(key)
+        print(f"\n🎉 {ACHIEVEMENTS[key]} 🎉\n")
+        time.sleep(0.8)
+
+def get_planet_name(coords):
+    for name, c in PLANETS.values():
+        if c == coords: return name
+    return "Unknown"
+
+def show_morale():
+    filled = int(20 * you["morale"] / 100)
+    bar = "█" * filled + "░" * (20 - filled)
+    mood = "😄" if you["morale"] > 70 else "😐" if you["morale"] > 40 else "😞"
+    print(f"😊 Morale: [{bar}] {you['morale']}% {mood}")
+
+def show_happiness():
+    filled = int(20 * you.get("crew_happiness", 80) / 100)
+    bar = "█" * filled + "░" * (20 - filled)
+    print(f"👥 Happiness: [{bar}] {you.get('crew_happiness', 80)}%")
+
+def crew_xp(amount):
+    for m in crew:
+        m["xp"] += amount
+        if m["xp"] >= m["level"] * 100:
+            m["xp"] = 0
+            m["level"] += 1
+            print(f"\n🌟 {m['name']} is now level {m['level']}!")
+            you["credits"] += random.randint(100, 300)
+
+def check_luck():
+    today = datetime.now().date()
+    if you["last_played"] != str(today):
+        you["luck"] = random.randint(1, 10)
+        you["last_played"] = str(today)
+        print(f"\n🍀 Luck: {'⭐' * you['luck']}")
+        if you["luck"] >= 8:
+            print("🌟 Lucky day!")
+            unlock_ach("lucky")
+        elif you["luck"] >= 5:
+            print("✨ Good day")
+        else:
+            print("🌙 Quiet day")
+        time.sleep(0.5)
+
+# ============================================
+# Quest system
+# ============================================
 
 def new_quest():
     global quest, quest_progress
@@ -168,12 +231,73 @@ def check_quest():
             unlock_ach("quest_master")
         new_quest()
 
+# ============================================
+# Activities
+# ============================================
+
+def find_pet():
+    pet = random.choice(PETS)
+    if pet not in you["pets"]:
+        you["pets"].append(pet)
+        print(f"\n🐾 A {pet} joined your crew!")
+        unlock_ach("pet_finder")
+        you["morale"] = min(100, you["morale"] + 10)
+
+def tell_joke():
+    print(f"\n😂 {random.choice(JOKES)}")
+    you["morale"] = min(100, you["morale"] + 5)
+    you["jokes_told"] += 1
+    if you["jokes_told"] >= 10:
+        unlock_ach("comedian")
+
+def alien_encounter():
+    print("\n👽 A friendly alien appears!")
+    time.sleep(0.5)
+    alien = random.choice(["Zorg","Blip","Nova","Kratos"])
+    print(f"The alien is {alien}.")
+    you["aliens_met"] += 1
+    if you["aliens_met"] >= 10:
+        unlock_ach("alien_friend")
+    gift = random.choice(["Crystal","Hat","Flower","Candy","Space Gem"])
+    print(f"\n🎁 {alien} gives you: {gift}!")
+    you["inventory"].append(gift)
+    you["credits"] += random.randint(20, 80)
+
+def observe_stars():
+    global quest_progress
+    header("🔭 STAR GAZING")
+    if "Telescope" not in you["inventory"]:
+        print("\n❌ You need a Telescope! Buy one from the alien trader!")
+        return
+    print("\n🔭 Pointing your telescope at the sky...")
+    time.sleep(1)
+    stars_seen = random.randint(1, 5)
+    you["stars_observed"] += stars_seen
+    star_names = random.sample(STARS, min(stars_seen, len(STARS)))
+    print(f"\n✨ You observed {stars_seen} stars:")
+    for star in star_names:
+        print(f"  • {star}")
+    gain = random.randint(3, 8)
+    you["morale"] = min(100, you["morale"] + gain)
+    print(f"\n😊 Stargazing boosted morale +{gain}!")
+    if random.random() < 0.1:
+        print("\n🌟 You discovered a new star!")
+        new_star = random.choice(["Nova","Solara","Lumina","Vela"])
+        print(f"📝 Welcome to the universe, {new_star}!")
+        reward = random.randint(50, 150)
+        you["credits"] += reward
+        print(f"💰 The astronomy society pays you {reward} credits!")
+    if you["stars_observed"] >= 50:
+        unlock_ach("star_gazer")
+    if quest["type"] == "stars":
+        quest_progress += stars_seen
+        check_quest()
+
 def observe_comet():
     global quest_progress
     header("☄️ COMET TRACKING")
     if "Comet Tracker" not in you["inventory"]:
-        print("\n❌ You need a Comet Tracker!")
-        print("💡 Buy one from the alien trader!")
+        print("\n❌ You need a Comet Tracker! Buy one from the alien trader!")
         return
     print("\n☄️ Scanning for comets...")
     time.sleep(1)
@@ -223,149 +347,6 @@ def black_hole():
         print(f"⛽ Lost {damage} fuel!")
         print("😞 Morale -10!")
 
-def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-def header(text):
-    print("\n" + "=" * 50 + f"\n  {text}\n" + "=" * 50)
-
-def dist(p1, p2):
-    return math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
-
-def unlock_ach(key):
-    if key in ACHIEVEMENTS and key not in you["achievements"]:
-        you["achievements"].append(key)
-        print(f"\n🎉 {ACHIEVEMENTS[key]} 🎉\n")
-        time.sleep(0.8)
-
-def crew_xp(amount):
-    for m in crew:
-        m["xp"] += amount
-        if m["xp"] >= m["level"] * 100:
-            m["xp"] = 0
-            m["level"] += 1
-            print(f"\n🌟 {m['name']} is now level {m['level']}!")
-            you["credits"] += random.randint(100, 300)
-
-def check_luck():
-    today = datetime.now().date()
-    if you["last_played"] != str(today):
-        you["luck"] = random.randint(1, 10)
-        you["last_played"] = str(today)
-        print(f"\n🍀 Luck: {'⭐' * you['luck']}")
-        if you["luck"] >= 8:
-            print("🌟 Lucky day!")
-            unlock_ach("lucky")
-        elif you["luck"] >= 5:
-            print("✨ Good day")
-        else:
-            print("🌙 Quiet day")
-        time.sleep(0.5)
-
-def find_pet():
-    pet = random.choice(PETS)
-    if pet not in you["pets"]:
-        you["pets"].append(pet)
-        print(f"\n🐾 A {pet} joined your crew!")
-        unlock_ach("pet_finder")
-        you["morale"] = min(100, you["morale"] + 10)
-        you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 5)
-
-def tell_joke():
-    print(f"\n😂 {random.choice(JOKES)}")
-    you["morale"] = min(100, you["morale"] + 5)
-    you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 3)
-    you["jokes_told"] += 1
-    if you["jokes_told"] >= 10:
-        unlock_ach("comedian")
-
-def get_input(prompt, default=None):
-    try:
-        return input(prompt)
-    except (KeyboardInterrupt, EOFError):
-        print("\n👋 Later!")
-        exit()
-
-def show_morale():
-    filled = int(20 * you["morale"] / 100)
-    bar = "█" * filled + "░" * (20 - filled)
-    mood = "😄" if you["morale"] > 70 else "😐" if you["morale"] > 40 else "😞"
-    print(f"😊 Morale: [{bar}] {you['morale']}% {mood}")
-
-def get_planet_name(coords):
-    for name, c in PLANETS.values():
-        if c == coords:
-            return name
-    return "Unknown"
-
-def show_happiness():
-    filled = int(20 * you.get("crew_happiness", 80) / 100)
-    bar = "█" * filled + "░" * (20 - filled)
-    print(f"👥 Happiness: [{bar}] {you.get('crew_happiness', 80)}%")
-
-def alien_encounter():
-    print("\n👽 A friendly alien appears!")
-    time.sleep(0.5)
-    alien = random.choice(["Zorg","Blip","Nova","Kratos","Glimmer"])
-    print(f"The alien is {alien}.")
-    you["aliens_met"] += 1
-    if you["aliens_met"] >= 10:
-        unlock_ach("alien_friend")
-    gift = random.choice(["Crystal","Hat","Flower","Candy","Space Gem"])
-    print(f"\n🎁 {alien} gives you: {gift}!")
-    you["inventory"].append(gift)
-    you["credits"] += random.randint(20, 80)
-
-def name_ship():
-    header("🚢 NAME YOUR SHIP")
-    print(f"Current: {you['ship_name']}")
-    for i, name in enumerate(SHIP_NAMES, 1):
-        print(f"{i}. {name}")
-    print(f"{len(SHIP_NAMES)+1}. Custom")
-    choice = get_input("Choice: ", "1")
-    if choice.isdigit() and 1 <= int(choice) <= len(SHIP_NAMES):
-        you["ship_name"] = SHIP_NAMES[int(choice)-1]
-        print(f"\n✅ Ship renamed to {you['ship_name']}!")
-        unlock_ach("ship_namer")
-    elif choice == str(len(SHIP_NAMES)+1):
-        new_name = get_input("Enter name: ")
-        if new_name.strip():
-            you["ship_name"] = new_name.strip()
-            print(f"\n✅ Ship renamed to {you['ship_name']}!")
-            unlock_ach("ship_namer")
-
-def observe_stars():
-    global quest_progress
-    header("🔭 STAR GAZING")
-    if "Telescope" not in you["inventory"]:
-        print("\n❌ You need a Telescope!")
-        print("💡 Buy one from the alien trader!")
-        return
-    print("\n🔭 Pointing your telescope at the sky...")
-    time.sleep(1)
-    stars_seen = random.randint(1, 5)
-    you["stars_observed"] += stars_seen
-    star_names = random.sample(STARS, min(stars_seen, len(STARS)))
-    print(f"\n✨ You observed {stars_seen} stars:")
-    for star in star_names:
-        print(f"  • {star}")
-    gain = random.randint(3, 8)
-    you["morale"] = min(100, you["morale"] + gain)
-    you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 2)
-    print(f"\n😊 Stargazing boosted morale +{gain}!")
-    if random.random() < 0.1:
-        print("\n🌟 You discovered a new star!")
-        new_star = random.choice(["Nova","Solara","Lumina","Vela"])
-        print(f"📝 Welcome to the universe, {new_star}!")
-        reward = random.randint(50, 150)
-        you["credits"] += reward
-        print(f"💰 The astronomy society pays you {reward} credits!")
-    if you["stars_observed"] >= 50:
-        unlock_ach("star_gazer")
-    if quest["type"] == "stars":
-        quest_progress += stars_seen
-        check_quest()
-
 def view_inventory():
     header("📦 INVENTORY")
     if you["inventory"]:
@@ -382,7 +363,6 @@ def eat_pizza():
         you["inventory"].remove("Space Pizza")
         you["space_pizza_eaten"] += 1
         you["morale"] = min(100, you["morale"] + 5)
-        you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 3)
         print("\n🍕 You eat a delicious Space Pizza!")
         print(f"😊 Morale +5! (Now: {you['morale']}%)")
         if you["space_pizza_eaten"] >= 10:
@@ -415,13 +395,14 @@ def use_item():
             print(f"\n💎 Sold {item} for {value} credits!")
         elif "Telescope" in item:
             observe_stars()
-        elif "Black Hole Map" in item:
-            print("\n🗺️ You study the Black Hole Map...")
-            print("💡 You now have a better chance of escaping black holes!")
         elif "Comet Tracker" in item:
             observe_comet()
         else:
             print(f"\n❌ Can't use {item} right now.")
+
+# ============================================
+# Main game functions
+# ============================================
 
 def pick_planets():
     print("\n🪐 WHERE TO?")
@@ -541,13 +522,11 @@ def mission():
     you["missions"] += 1
     you["streak"] += 1
     you["morale"] = min(100, you["morale"] + random.randint(5, 15))
-    you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 3)
 
     header("✅ MISSION COMPLETE")
     print(f"💰 +{earned} credits")
     print(f"⛽ Fuel left: {you['fuel']:.0f}")
     show_morale()
-    show_happiness()
     print(f"📊 Missions: {you['missions']} | Streak: {you['streak']}")
 
     if you["missions"] == 1:
@@ -746,7 +725,6 @@ def random_fun():
     elif action == "dance":
         gain = random.randint(3, 10)
         you["morale"] = min(100, you["morale"] + gain)
-        you["crew_happiness"] = min(100, you.get("crew_happiness", 80) + 2)
         print(f"\n💃 Dance party! Morale +{gain}!")
     elif action == "fact":
         print(f"\n📚 {random.choice(SPACE_FACTS)}")
@@ -762,6 +740,24 @@ def random_fun():
         black_hole()
     elif action == "comet":
         observe_comet()
+
+def name_ship():
+    header("🚢 NAME YOUR SHIP")
+    print(f"Current: {you['ship_name']}")
+    for i, name in enumerate(SHIP_NAMES, 1):
+        print(f"{i}. {name}")
+    print(f"{len(SHIP_NAMES)+1}. Custom")
+    choice = get_input("Choice: ", "1")
+    if choice.isdigit() and 1 <= int(choice) <= len(SHIP_NAMES):
+        you["ship_name"] = SHIP_NAMES[int(choice)-1]
+        print(f"\n✅ Ship renamed to {you['ship_name']}!")
+        unlock_ach("ship_namer")
+    elif choice == str(len(SHIP_NAMES)+1):
+        new_name = get_input("Enter name: ")
+        if new_name.strip():
+            you["ship_name"] = new_name.strip()
+            print(f"\n✅ Ship renamed to {you['ship_name']}!")
+            unlock_ach("ship_namer")
 
 def help():
     header("📖 CAPTAIN'S GUIDE")
@@ -780,13 +776,14 @@ def help():
    • Check daily luck
    • Keep fuel above 30%
    • Level up your crew
-   • Eat pizza for morale! 🍕
-   • Buy a telescope to see stars! 🔭
-   • Get a Comet Tracker for comets! ☄️
-   • Get a Black Hole Map for safety! 🌀
+   • Buy special items from aliens!
 
 🚀 HAVE FUN!
     """)
+
+# ============================================
+# Display
+# ============================================
 
 def stats():
     header("📊 YOUR STATS")
@@ -805,9 +802,9 @@ def stats():
     print(f"👽 Aliens: {you.get('aliens_met', 0)}")
     print(f"📋 Quests: {you.get('quests_completed', 0)}")
     print(f"🍕 Pizzas Eaten: {you.get('space_pizza_eaten', 0)}")
-    print(f"✨ Stars Observed: {you.get('stars_observed', 0)}")
-    print(f"🌀 Black Holes Escaped: {you.get('black_holes_escaped', 0)}")
-    print(f"☄️ Comets Observed: {you.get('comets_observed', 0)}")
+    print(f"✨ Stars: {you.get('stars_observed', 0)}")
+    print(f"🌀 Black Holes: {you.get('black_holes_escaped', 0)}")
+    print(f"☄️ Comets: {you.get('comets_observed', 0)}")
 
     if you["achievements"]:
         print("\n🏅 Achievements:")
@@ -832,6 +829,10 @@ def view_crew():
             print(f"   [{ '█'*prog }{ '░'*(10-prog) }]")
         else:
             print(f"   [░░░░░░░░░░]")
+
+# ============================================
+# Save/Load
+# ============================================
 
 def save():
     data = {k: v for k, v in you.items() if k not in ["achievements","inventory","pets","visited_planets"]}
@@ -870,6 +871,10 @@ def load():
     except:
         print("❌ No save found!")
         return False
+
+# ============================================
+# Main
+# ============================================
 
 def main():
     new_quest()
