@@ -161,7 +161,8 @@ def unlock_ach(key):
 
 def get_planet_name(coords):
     for name, c in PLANETS.values():
-        if c == coords: return name
+        if c == coords:
+            return name
     return "Unknown"
 
 def show_morale():
