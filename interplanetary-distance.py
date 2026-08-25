@@ -6,10 +6,7 @@ A space game I made for fun - explore, trade, hunt bounties!
 import math, random, time, json, os
 from datetime import datetime
 
-# ============================================
 # Player data
-# ============================================
-
 you = {
     "fuel": 5000, "credits": 1000, "missions": 0, "streak": 0,
     "morale": 80, "research": 0, "rank": 1, "record": 0,
@@ -31,10 +28,6 @@ crew = [
     {"name": "Kim", "role": "Scientist", "level": 1, "xp": 0},
     {"name": "Mack", "role": "Gunner", "level": 1, "xp": 0}
 ]
-
-# ============================================
-# Game data
-# ============================================
 
 PLANETS = {
     1: ("Earth", (0,0)), 2: ("Mars", (225,0)), 3: ("Venus", (108,0)),
@@ -133,10 +126,7 @@ COMETS = ["Halley's Comet","Comet Hale-Bopp","Comet Encke","Comet Neowise"]
 quest = {"name":"Fly 500 km","type":"distance","goal":500,"reward":200}
 quest_progress = 0
 
-# ============================================
-# Core functions
-# ============================================
-
+# Helper functions
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -200,10 +190,7 @@ def check_luck():
             print("🌙 Quiet day")
         time.sleep(0.5)
 
-# ============================================
 # Quest system
-# ============================================
-
 def new_quest():
     global quest, quest_progress
     qs = [
@@ -232,10 +219,7 @@ def check_quest():
             unlock_ach("quest_master")
         new_quest()
 
-# ============================================
 # Activities
-# ============================================
-
 def find_pet():
     pet = random.choice(PETS)
     if pet not in you["pets"]:
@@ -401,10 +385,7 @@ def use_item():
         else:
             print(f"\n❌ Can't use {item} right now.")
 
-# ============================================
 # Main game functions
-# ============================================
-
 def pick_planets():
     print("\n🪐 WHERE TO?")
     for n, (name, _) in PLANETS.items():
@@ -782,10 +763,7 @@ def help():
 🚀 HAVE FUN!
     """)
 
-# ============================================
 # Display
-# ============================================
-
 def stats():
     header("📊 YOUR STATS")
     print(f"🚢 Ship: {you['ship_name']}")
@@ -831,10 +809,7 @@ def view_crew():
         else:
             print(f"   [░░░░░░░░░░]")
 
-# ============================================
 # Save/Load
-# ============================================
-
 def save():
     data = {k: v for k, v in you.items() if k not in ["achievements","inventory","pets","visited_planets"]}
     data.update({"achievements":you["achievements"],"inventory":you["inventory"],"pets":you["pets"],"visited_planets":you.get("visited_planets",[])})
@@ -873,10 +848,7 @@ def load():
         print("❌ No save found!")
         return False
 
-# ============================================
 # Main
-# ============================================
-
 def main():
     new_quest()
     you["sessions"] = you.get("sessions", 0) + 1
